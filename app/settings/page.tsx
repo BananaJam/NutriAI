@@ -1,3 +1,6 @@
+"use client";
+
+import { useTheme } from "next-themes";
 import {
   Card,
   CardContent,
@@ -9,6 +12,8 @@ import { Button } from "@/components/ui/button";
 import { Settings, Bell, Shield, Palette } from "lucide-react";
 
 export default function SettingsPage() {
+  const { theme, setTheme } = useTheme();
+
   return (
     <div className="space-y-6">
       <div>
@@ -30,8 +35,8 @@ export default function SettingsPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button variant="outline" className="w-full">
-              Configure Notifications
+            <Button variant="outline" className="w-full" disabled>
+              Coming Soon
             </Button>
           </CardContent>
         </Card>
@@ -45,9 +50,29 @@ export default function SettingsPage() {
             <CardDescription>Customize the app appearance</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button variant="outline" className="w-full">
-              Customize Theme
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant={theme === "light" ? "default" : "outline"}
+                className="flex-1"
+                onClick={() => setTheme("light")}
+              >
+                Light
+              </Button>
+              <Button
+                variant={theme === "dark" ? "default" : "outline"}
+                className="flex-1"
+                onClick={() => setTheme("dark")}
+              >
+                Dark
+              </Button>
+              <Button
+                variant={theme === "system" ? "default" : "outline"}
+                className="flex-1"
+                onClick={() => setTheme("system")}
+              >
+                System
+              </Button>
+            </div>
           </CardContent>
         </Card>
 
@@ -62,8 +87,8 @@ export default function SettingsPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button variant="outline" className="w-full">
-              Privacy Settings
+            <Button variant="outline" className="w-full" disabled>
+              Coming Soon
             </Button>
           </CardContent>
         </Card>
@@ -77,8 +102,8 @@ export default function SettingsPage() {
             <CardDescription>General application settings</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button variant="outline" className="w-full">
-              General Settings
+            <Button variant="outline" className="w-full" disabled>
+              Coming Soon
             </Button>
           </CardContent>
         </Card>

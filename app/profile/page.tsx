@@ -1,7 +1,9 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import type { UserProfile } from "@/lib/api";
 import {
   Card,
   CardContent,
@@ -12,28 +14,16 @@ import {
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { User, Edit } from "lucide-react";
-
-interface UserProfile {
-  id: string;
-  userId: string;
-  gender: string | null;
-  height: number | null;
-  weight: number | null;
-  activityLevel: string;
-  targetCalories: number | null;
-  targetProtein: number | null;
-  targetCarbs: number | null;
-  targetFat: number | null;
-  user: {
-    id: string;
-    name: string | null;
-    email: string;
-    image?: string | null;
-  };
-}
+import { toast } from "sonner";
+import {
+  ProfileFormDialog,
+  type ProfileFormValues,
+} from "@/components/features/profile-form-dialog";
 
 export default function ProfilePage() {
   const userId = "demo-user";
+  const queryClient = useQueryClient();
+  const [isFormOpen, setIsFormOpen] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ["profile", userId],
@@ -46,6 +36,36 @@ export default function ProfilePage() {
 
   const profile = data?.profile;
 
+  const updateMutation = useMutation({
+    mutationFn: async (values: ProfileFormValues) => {
+      const result = await api.api.profile({ userId }).put({
+        gender: values.gender,
+        dateOfBirth: values.dateOfBirth || undefined,
+        height: values.height,
+        weight: values.weight,
+        activityLevel: values.activityLevel,
+        targetCalories: values.targetCalories,
+        targetProtein: values.targetProtein,
+        targetCarbs: values.targetCarbs,
+        targetFat: values.targetFat,
+      });
+      if (result.error) throw new Error("Failed to update profile");
+      return result.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["profile", userId] });
+      toast.success("Profile updated successfully");
+      setIsFormOpen(false);
+    },
+    onError: () => {
+      toast.error("Failed to update profile");
+    },
+  });
+
+  const handleFormSubmit = async (values: ProfileFormValues) => {
+    await updateMutation.mutateAsync(values);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -55,7 +75,7 @@ export default function ProfilePage() {
             Manage your personal information and nutrition targets
           </p>
         </div>
-        <Button>
+        <Button onClick={() => setIsFormOpen(true)}>
           <Edit className="mr-2 h-4 w-4" />
           Edit Profile
         </Button>
@@ -88,7 +108,7 @@ export default function ProfilePage() {
             <p className="mt-2 text-center text-sm text-muted-foreground">
               Set up your profile to get personalized nutrition recommendations
             </p>
-            <Button className="mt-4">
+            <Button className="mt-4" onClick={() => setIsFormOpen(true)}>
               <Edit className="mr-2 h-4 w-4" />
               Set Up Profile
             </Button>
@@ -181,6 +201,14 @@ export default function ProfilePage() {
           </Card>
         </div>
       )}
+
+      <ProfileFormDialog
+        open={isFormOpen}
+        onOpenChange={setIsFormOpen}
+        onSubmit={handleFormSubmit}
+        profile={profile}
+        isSubmitting={updateMutation.isPending}
+      />
     </div>
   );
 }

@@ -1,4 +1,9 @@
+"use client";
+
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
+import { format, subDays } from "date-fns";
+import { api } from "@/lib/api";
 import {
   Card,
   CardContent,
@@ -7,6 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   MessageSquare,
   UtensilsCrossed,
@@ -16,7 +22,62 @@ import {
   Apple,
 } from "lucide-react";
 
+const userId = "demo-user";
+const todayStr = format(new Date(), "yyyy-MM-dd");
+const thirtyDaysAgo = format(subDays(new Date(), 30), "yyyy-MM-dd");
+
 export default function DashboardPage() {
+  const { data: logData, isLoading: logLoading } = useQuery({
+    queryKey: ["foodLog", userId, todayStr],
+    queryFn: async () => {
+      const result = await api.api["food-logs"]({ date: todayStr }).get({
+        query: { userId },
+      });
+      if (result.error) return null;
+      return result.data as { totals: { calories: number; protein: number; carbs: number; fat: number } } | null;
+    },
+  });
+
+  const { data: goalsData, isLoading: goalsLoading } = useQuery({
+    queryKey: ["goals"],
+    queryFn: async () => {
+      const result = await api.api.goals.get({
+        query: { userId, status: "ACTIVE" },
+      });
+      if (result.error) return null;
+      return result.data;
+    },
+  });
+
+  const { data: profileData, isLoading: profileLoading } = useQuery({
+    queryKey: ["profile", userId],
+    queryFn: async () => {
+      const result = await api.api.profile({ userId }).get();
+      if (result.error) return null;
+      return result.data as { profile: { targetCalories: number | null; targetProtein: number | null } } | null;
+    },
+  });
+
+  const { data: statsData, isLoading: statsLoading } = useQuery({
+    queryKey: ["stats", userId],
+    queryFn: async () => {
+      const result = await api.api.profile({ userId }).stats.get({
+        query: { startDate: thirtyDaysAgo },
+      });
+      if (result.error) return null;
+      return result.data as { daysLogged: number } | null;
+    },
+  });
+
+  const calories = Math.round(logData?.totals?.calories ?? 0);
+  const protein = Math.round(logData?.totals?.protein ?? 0);
+  const targetCalories = profileData?.profile?.targetCalories ?? 2000;
+  const targetProtein = profileData?.profile?.targetProtein ?? 150;
+  const activeGoalsCount = goalsData?.goals?.length ?? 0;
+  const daysLogged = statsData?.daysLogged ?? 0;
+
+  const isLoading = logLoading || goalsLoading || profileLoading || statsLoading;
+
   return (
     <div className="space-y-6">
       <div>
@@ -35,8 +96,16 @@ export default function DashboardPage() {
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0 / 2000</div>
-            <p className="text-xs text-muted-foreground">kcal consumed</p>
+            {isLoading ? (
+              <Skeleton className="h-8 w-32" />
+            ) : (
+              <>
+                <div className="text-2xl font-bold">
+                  {calories} / {targetCalories}
+                </div>
+                <p className="text-xs text-muted-foreground">kcal consumed</p>
+              </>
+            )}
           </CardContent>
         </Card>
 
@@ -46,8 +115,16 @@ export default function DashboardPage() {
             <Apple className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0 / 150g</div>
-            <p className="text-xs text-muted-foreground">daily target</p>
+            {isLoading ? (
+              <Skeleton className="h-8 w-32" />
+            ) : (
+              <>
+                <div className="text-2xl font-bold">
+                  {protein}g / {targetProtein}g
+                </div>
+                <p className="text-xs text-muted-foreground">daily target</p>
+              </>
+            )}
           </CardContent>
         </Card>
 
@@ -57,8 +134,14 @@ export default function DashboardPage() {
             <Target className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0</div>
-            <p className="text-xs text-muted-foreground">goals in progress</p>
+            {isLoading ? (
+              <Skeleton className="h-8 w-16" />
+            ) : (
+              <>
+                <div className="text-2xl font-bold">{activeGoalsCount}</div>
+                <p className="text-xs text-muted-foreground">goals in progress</p>
+              </>
+            )}
           </CardContent>
         </Card>
 
@@ -68,8 +151,14 @@ export default function DashboardPage() {
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0 days</div>
-            <p className="text-xs text-muted-foreground">logging streak</p>
+            {isLoading ? (
+              <Skeleton className="h-8 w-24" />
+            ) : (
+              <>
+                <div className="text-2xl font-bold">{daysLogged} days</div>
+                <p className="text-xs text-muted-foreground">logged in last 30 days</p>
+              </>
+            )}
           </CardContent>
         </Card>
       </div>

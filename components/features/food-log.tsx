@@ -2,23 +2,19 @@
 
 import { useState } from "react";
 import { format } from "date-fns";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api, type MealType, type NutritionTotals } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, UtensilsCrossed } from "lucide-react";
+import { ChevronLeft, ChevronRight, UtensilsCrossed, Plus, Trash2 } from "lucide-react";
+import { toast } from "sonner";
+import { AddFoodLogDialog } from "@/components/features/add-food-log-dialog";
 
 interface FoodLogProps {
   userId: string;
-  targets?: {
-    calories: number;
-    protein: number;
-    carbs: number;
-    fat: number;
-  };
 }
 
 const mealTypeColors: Record<MealType, string> = {
@@ -58,9 +54,11 @@ interface FoodLogResponse {
   totals: NutritionTotals;
 }
 
-export function FoodLog({ userId, targets }: FoodLogProps) {
+export function FoodLog({ userId }: FoodLogProps) {
   const [date, setDate] = useState(new Date());
+  const [isAddOpen, setIsAddOpen] = useState(false);
   const dateStr = format(date, "yyyy-MM-dd");
+  const queryClient = useQueryClient();
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["foodLog", userId, dateStr],
@@ -70,6 +68,58 @@ export function FoodLog({ userId, targets }: FoodLogProps) {
       });
       if (result.error) return null;
       return result.data as FoodLogResponse;
+    },
+  });
+
+  const { data: profileData } = useQuery({
+    queryKey: ["profile", userId],
+    queryFn: async () => {
+      const result = await api.api.profile({ userId }).get();
+      if (result.error) return null;
+      return result.data as { profile: { targetCalories: number | null; targetProtein: number | null; targetCarbs: number | null; targetFat: number | null } } | null;
+    },
+  });
+
+  const addItemMutation = useMutation({
+    mutationFn: async ({
+      foodId,
+      mealType,
+      servings,
+      notes,
+    }: {
+      foodId: string;
+      mealType: MealType;
+      servings: number;
+      notes?: string;
+    }) => {
+      const result = await api.api["food-logs"]({ date: dateStr }).items.post(
+        { foodId, mealType, servings, notes },
+        { query: { userId } }
+      );
+      if (result.error) throw new Error("Failed to add food");
+      return result.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["foodLog", userId, dateStr] });
+      toast.success("Food added to log");
+    },
+    onError: () => {
+      toast.error("Failed to add food");
+    },
+  });
+
+  const deleteItemMutation = useMutation({
+    mutationFn: async (itemId: string) => {
+      const result = await api.api["food-logs"].items({ itemId }).delete();
+      if (result.error) throw new Error("Failed to delete item");
+      return result.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["foodLog", userId, dateStr] });
+      toast.success("Food removed from log");
+    },
+    onError: () => {
+      toast.error("Failed to remove food");
     },
   });
 
@@ -88,31 +138,35 @@ export function FoodLog({ userId, targets }: FoodLogProps) {
     fat: 0,
   };
 
-  const defaultTargets = {
-    calories: 2000,
-    protein: 150,
-    carbs: 250,
-    fat: 65,
+  const activeTargets = {
+    calories: profileData?.profile?.targetCalories ?? 2000,
+    protein: profileData?.profile?.targetProtein ?? 150,
+    carbs: profileData?.profile?.targetCarbs ?? 250,
+    fat: profileData?.profile?.targetFat ?? 65,
   };
-
-  const activeTargets = targets || defaultTargets;
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <Button variant="outline" size="icon" onClick={goToPreviousDay}>
-          <ChevronLeft className="h-4 w-4" />
-        </Button>
-        <h2 className="text-lg font-semibold">
-          {format(date, "EEEE, MMMM d, yyyy")}
-        </h2>
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={goToNextDay}
-          disabled={dateStr === format(new Date(), "yyyy-MM-dd")}
-        >
-          <ChevronRight className="h-4 w-4" />
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="icon" onClick={goToPreviousDay}>
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <h2 className="text-lg font-semibold">
+            {format(date, "EEEE, MMMM d, yyyy")}
+          </h2>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={goToNextDay}
+            disabled={dateStr === format(new Date(), "yyyy-MM-dd")}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+        <Button onClick={() => setIsAddOpen(true)}>
+          <Plus className="mr-2 h-4 w-4" />
+          Add Food
         </Button>
       </div>
 
@@ -214,15 +268,19 @@ export function FoodLog({ userId, targets }: FoodLogProps) {
                 No food logged for this day
               </p>
               <p className="mt-1 text-sm text-muted-foreground">
-                Use the AI Assistant to log your meals
+                Use the &quot;Add Food&quot; button to log your meals
               </p>
+              <Button className="mt-4" onClick={() => setIsAddOpen(true)}>
+                <Plus className="mr-2 h-4 w-4" />
+                Add Food
+              </Button>
             </div>
           ) : (
             <div className="space-y-3">
               {data.log.items.map((item: FoodLogItem) => (
                 <div
                   key={item.id}
-                  className="flex items-center justify-between rounded-lg border p-3"
+                  className="group flex items-center justify-between rounded-lg border p-3"
                 >
                   <div className="flex items-center gap-3">
                     <Badge
@@ -240,15 +298,27 @@ export function FoodLog({ userId, targets }: FoodLogProps) {
                       </p>
                     </div>
                   </div>
-                  <div className="text-right text-sm">
-                    <p className="font-medium">
-                      {Math.round(item.food.calories * item.servings)} kcal
-                    </p>
-                    <p className="text-muted-foreground">
-                      P: {Math.round(item.food.protein * item.servings)}g | C:{" "}
-                      {Math.round(item.food.carbs * item.servings)}g | F:{" "}
-                      {Math.round(item.food.fat * item.servings)}g
-                    </p>
+                  <div className="flex items-center gap-2">
+                    <div className="text-right text-sm">
+                      <p className="font-medium">
+                        {Math.round(item.food.calories * item.servings)} kcal
+                      </p>
+                      <p className="text-muted-foreground">
+                        P: {Math.round(item.food.protein * item.servings)}g | C:{" "}
+                        {Math.round(item.food.carbs * item.servings)}g | F:{" "}
+                        {Math.round(item.food.fat * item.servings)}g
+                      </p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 opacity-0 group-hover:opacity-100 text-destructive hover:text-destructive"
+                      onClick={() => deleteItemMutation.mutate(item.id)}
+                      disabled={deleteItemMutation.isPending}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      <span className="sr-only">Delete</span>
+                    </Button>
                   </div>
                 </div>
               ))}
@@ -256,6 +326,20 @@ export function FoodLog({ userId, targets }: FoodLogProps) {
           )}
         </CardContent>
       </Card>
+
+      <AddFoodLogDialog
+        open={isAddOpen}
+        onOpenChange={setIsAddOpen}
+        onSubmit={async (foodId, values) => {
+          await addItemMutation.mutateAsync({
+            foodId,
+            mealType: values.mealType as MealType,
+            servings: values.servings,
+            notes: values.notes,
+          });
+        }}
+        isSubmitting={addItemMutation.isPending}
+      />
     </div>
   );
 }
