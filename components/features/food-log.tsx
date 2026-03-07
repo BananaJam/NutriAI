@@ -1,0 +1,261 @@
+"use client";
+
+import { useState } from "react";
+import { format } from "date-fns";
+import { useQuery } from "@tanstack/react-query";
+import { api, type MealType, type NutritionTotals } from "@/lib/api";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight, UtensilsCrossed } from "lucide-react";
+
+interface FoodLogProps {
+  userId: string;
+  targets?: {
+    calories: number;
+    protein: number;
+    carbs: number;
+    fat: number;
+  };
+}
+
+const mealTypeColors: Record<MealType, string> = {
+  BREAKFAST: "bg-yellow-100 text-yellow-800",
+  LUNCH: "bg-green-100 text-green-800",
+  DINNER: "bg-blue-100 text-blue-800",
+  SNACK: "bg-purple-100 text-purple-800",
+};
+
+const mealTypeLabels: Record<MealType, string> = {
+  BREAKFAST: "Breakfast",
+  LUNCH: "Lunch",
+  DINNER: "Dinner",
+  SNACK: "Snack",
+};
+
+interface FoodLogItem {
+  id: string;
+  mealType: string;
+  servings: number;
+  food: {
+    name: string;
+    brand: string | null;
+    servingSize: number;
+    servingUnit: string;
+    calories: number;
+    protein: number;
+    carbs: number;
+    fat: number;
+  };
+}
+
+interface FoodLogResponse {
+  log: {
+    items: FoodLogItem[];
+  };
+  totals: NutritionTotals;
+}
+
+export function FoodLog({ userId, targets }: FoodLogProps) {
+  const [date, setDate] = useState(new Date());
+  const dateStr = format(date, "yyyy-MM-dd");
+
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["foodLog", userId, dateStr],
+    queryFn: async (): Promise<FoodLogResponse | null> => {
+      const result = await api.api["food-logs"]({ date: dateStr }).get({
+        query: { userId },
+      });
+      if (result.error) return null;
+      return result.data as FoodLogResponse;
+    },
+  });
+
+  const goToPreviousDay = () => {
+    setDate((prev) => new Date(prev.getTime() - 24 * 60 * 60 * 1000));
+  };
+
+  const goToNextDay = () => {
+    setDate((prev) => new Date(prev.getTime() + 24 * 60 * 60 * 1000));
+  };
+
+  const totals: NutritionTotals = data?.totals || {
+    calories: 0,
+    protein: 0,
+    carbs: 0,
+    fat: 0,
+  };
+
+  const defaultTargets = {
+    calories: 2000,
+    protein: 150,
+    carbs: 250,
+    fat: 65,
+  };
+
+  const activeTargets = targets || defaultTargets;
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <Button variant="outline" size="icon" onClick={goToPreviousDay}>
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
+        <h2 className="text-lg font-semibold">
+          {format(date, "EEEE, MMMM d, yyyy")}
+        </h2>
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={goToNextDay}
+          disabled={dateStr === format(new Date(), "yyyy-MM-dd")}
+        >
+          <ChevronRight className="h-4 w-4" />
+        </Button>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-4">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Calories
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {Math.round(totals.calories)}
+            </div>
+            <Progress
+              value={(totals.calories / activeTargets.calories) * 100}
+              className="mt-2"
+            />
+            <p className="mt-1 text-xs text-muted-foreground">
+              of {activeTargets.calories} kcal
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Protein
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {Math.round(totals.protein)}g
+            </div>
+            <Progress
+              value={(totals.protein / activeTargets.protein) * 100}
+              className="mt-2"
+            />
+            <p className="mt-1 text-xs text-muted-foreground">
+              of {activeTargets.protein}g
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Carbs
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {Math.round(totals.carbs)}g
+            </div>
+            <Progress
+              value={(totals.carbs / activeTargets.carbs) * 100}
+              className="mt-2"
+            />
+            <p className="mt-1 text-xs text-muted-foreground">
+              of {activeTargets.carbs}g
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Fat
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{Math.round(totals.fat)}g</div>
+            <Progress
+              value={(totals.fat / activeTargets.fat) * 100}
+              className="mt-2"
+            />
+            <p className="mt-1 text-xs text-muted-foreground">
+              of {activeTargets.fat}g
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Food Items</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="space-y-3">
+              {[1, 2, 3].map((i) => (
+                <Skeleton key={i} className="h-16 w-full" />
+              ))}
+            </div>
+          ) : error || !data?.log?.items?.length ? (
+            <div className="flex flex-col items-center py-8 text-center">
+              <UtensilsCrossed className="mb-4 h-12 w-12 text-muted-foreground" />
+              <p className="text-muted-foreground">
+                No food logged for this day
+              </p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Use the AI Assistant to log your meals
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {data.log.items.map((item: FoodLogItem) => (
+                <div
+                  key={item.id}
+                  className="flex items-center justify-between rounded-lg border p-3"
+                >
+                  <div className="flex items-center gap-3">
+                    <Badge
+                      variant="secondary"
+                      className={mealTypeColors[item.mealType as MealType]}
+                    >
+                      {mealTypeLabels[item.mealType as MealType]}
+                    </Badge>
+                    <div>
+                      <p className="font-medium">{item.food.name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {item.servings} x {item.food.servingSize}
+                        {item.food.servingUnit}
+                        {item.food.brand && ` - ${item.food.brand}`}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right text-sm">
+                    <p className="font-medium">
+                      {Math.round(item.food.calories * item.servings)} kcal
+                    </p>
+                    <p className="text-muted-foreground">
+                      P: {Math.round(item.food.protein * item.servings)}g | C:{" "}
+                      {Math.round(item.food.carbs * item.servings)}g | F:{" "}
+                      {Math.round(item.food.fat * item.servings)}g
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
