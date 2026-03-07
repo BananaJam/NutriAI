@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface ChatProps {
 	userId?: string;
@@ -77,9 +79,17 @@ export function Chat({ userId }: ChatProps) {
 								}`}
 							>
 								<CardContent className="px-3">
-									<p className="whitespace-pre-wrap text-sm">
-										{message.content}
-									</p>
+									{message.role === "assistant" ? (
+										<div className="prose prose-sm dark:prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
+											<ReactMarkdown remarkPlugins={[remarkGfm]}>
+												{message.content}
+											</ReactMarkdown>
+										</div>
+									) : (
+										<p className="whitespace-pre-wrap text-sm">
+											{message.content}
+										</p>
+									)}
 									{message.toolInvocations &&
 										message.toolInvocations.length > 0 && (
 											<div className="mt-2 space-y-1 border-t pt-2">
