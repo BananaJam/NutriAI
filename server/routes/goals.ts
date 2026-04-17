@@ -1,15 +1,19 @@
 import { Elysia, t } from "elysia";
 import { prisma } from "../lib/prisma";
+import { requireRequestSession } from "../lib/session";
 
 export const goalsRoutes = new Elysia({ prefix: "/goals" })
   .get(
     "/",
-    async ({ query }) => {
-      const { userId, status } = query;
+    async ({ request, query, set }) => {
+      const session = await requireRequestSession(request, set);
+      if (!session) return { message: "Unauthorized" };
+
+      const { status } = query;
 
       const goals = await prisma.goal.findMany({
         where: {
-          userId,
+          userId: session.user.id,
           status: status || undefined,
         },
         orderBy: { createdAt: "desc" },
@@ -19,7 +23,6 @@ export const goalsRoutes = new Elysia({ prefix: "/goals" })
     },
     {
       query: t.Object({
-        userId: t.String(),
         status: t.Optional(
           t.Union([
             t.Literal("ACTIVE"),
@@ -32,12 +35,15 @@ export const goalsRoutes = new Elysia({ prefix: "/goals" })
   )
   .get(
     "/:id",
-    async ({ params, set }) => {
+    async ({ params, request, set }) => {
+      const session = await requireRequestSession(request, set);
+      if (!session) return { message: "Unauthorized" };
+
       const goal = await prisma.goal.findUnique({
         where: { id: params.id },
       });
 
-      if (!goal) {
+      if (!goal || goal.userId !== session.user.id) {
         set.status = 404;
         return { message: "Goal not found" };
       }
@@ -52,10 +58,13 @@ export const goalsRoutes = new Elysia({ prefix: "/goals" })
   )
   .post(
     "/",
-    async ({ body }) => {
+    async ({ request, body, set }) => {
+      const session = await requireRequestSession(request, set);
+      if (!session) return { message: "Unauthorized" };
+
       const goal = await prisma.goal.create({
         data: {
-          userId: body.userId,
+          userId: session.user.id,
           type: body.type,
           targetValue: body.targetValue,
           unit: body.unit,
@@ -68,7 +77,6 @@ export const goalsRoutes = new Elysia({ prefix: "/goals" })
     },
     {
       body: t.Object({
-        userId: t.String(),
         type: t.Union([
           t.Literal("WEIGHT_LOSS"),
           t.Literal("WEIGHT_GAIN"),
@@ -86,12 +94,15 @@ export const goalsRoutes = new Elysia({ prefix: "/goals" })
   )
   .put(
     "/:id",
-    async ({ params, body, set }) => {
+    async ({ params, request, body, set }) => {
+      const session = await requireRequestSession(request, set);
+      if (!session) return { message: "Unauthorized" };
+
       const existing = await prisma.goal.findUnique({
         where: { id: params.id },
       });
 
-      if (!existing) {
+      if (!existing || existing.userId !== session.user.id) {
         set.status = 404;
         return { message: "Goal not found" };
       }
@@ -128,12 +139,15 @@ export const goalsRoutes = new Elysia({ prefix: "/goals" })
   )
   .delete(
     "/:id",
-    async ({ params, set }) => {
+    async ({ params, request, set }) => {
+      const session = await requireRequestSession(request, set);
+      if (!session) return { message: "Unauthorized" };
+
       const existing = await prisma.goal.findUnique({
         where: { id: params.id },
       });
 
-      if (!existing) {
+      if (!existing || existing.userId !== session.user.id) {
         set.status = 404;
         return { message: "Goal not found" };
       }

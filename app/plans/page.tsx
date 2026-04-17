@@ -17,6 +17,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Calendar, Plus, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import { useSessionUser } from "@/lib/use-session-user";
 import {
   MealPlanFormDialog,
   type MealPlanFormValues,
@@ -25,7 +26,7 @@ import { DeleteMealPlanDialog } from "@/components/features/delete-meal-plan-dia
 import { MealPlanDetailDialog } from "@/components/features/meal-plan-detail-dialog";
 
 export default function MealPlansPage() {
-  const userId = "demo-user";
+  const { userId } = useSessionUser();
   const queryClient = useQueryClient();
 
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -36,16 +37,16 @@ export default function MealPlansPage() {
   const { data, isLoading } = useQuery({
     queryKey: ["mealPlans"],
     queryFn: async () => {
-      const result = await api.api["meal-plans"].get({ query: { userId } });
+      const result = await api.api["meal-plans"].get();
       if (result.error) throw new Error("Failed to fetch meal plans");
       return result.data;
     },
+    enabled: !!userId,
   });
 
   const createMutation = useMutation({
     mutationFn: async (values: MealPlanFormValues) => {
       const result = await api.api["meal-plans"].post({
-        userId,
         name: values.name,
         startDate: values.startDate,
         endDate: values.endDate,
@@ -171,7 +172,7 @@ export default function MealPlansPage() {
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8 opacity-0 transition-opacity group-hover:opacity-100 text-destructive hover:text-destructive"
-                      onClick={(e) => handleDeleteClick(plan as MealPlan, e)}
+                      onClick={(e) => handleDeleteClick(plan as unknown as MealPlan, e)}
                     >
                       <Trash2 className="h-4 w-4" />
                       <span className="sr-only">Delete</span>
@@ -186,7 +187,7 @@ export default function MealPlansPage() {
                 <Button
                   variant="outline"
                   className="mt-4 w-full"
-                  onClick={() => handleViewClick(plan as MealPlan)}
+                  onClick={() => handleViewClick(plan as unknown as MealPlan)}
                 >
                   View Plan
                 </Button>

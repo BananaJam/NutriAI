@@ -1,15 +1,19 @@
 import { Elysia, t } from "elysia";
 import { prisma } from "../lib/prisma";
+import { requireRequestSession } from "../lib/session";
 
 export const foodLogsRoutes = new Elysia({ prefix: "/food-logs" })
   .get(
     "/",
-    async ({ query }) => {
-      const { userId, startDate, endDate } = query;
+    async ({ request, query, set }) => {
+      const session = await requireRequestSession(request, set);
+      if (!session) return { message: "Unauthorized" };
+
+      const { startDate, endDate } = query;
 
       const logs = await prisma.foodLog.findMany({
         where: {
-          userId,
+          userId: session.user.id,
           date: {
             gte: startDate ? new Date(startDate) : undefined,
             lte: endDate ? new Date(endDate) : undefined,
@@ -29,7 +33,6 @@ export const foodLogsRoutes = new Elysia({ prefix: "/food-logs" })
     },
     {
       query: t.Object({
-        userId: t.String(),
         startDate: t.Optional(t.String()),
         endDate: t.Optional(t.String()),
       }),
@@ -37,14 +40,16 @@ export const foodLogsRoutes = new Elysia({ prefix: "/food-logs" })
   )
   .get(
     "/:date",
-    async ({ params, query, set }) => {
-      const { userId } = query;
+    async ({ params, request, set }) => {
+      const session = await requireRequestSession(request, set);
+      if (!session) return { message: "Unauthorized" };
+
       const date = new Date(params.date);
 
       const log = await prisma.foodLog.findUnique({
         where: {
           userId_date: {
-            userId,
+            userId: session.user.id,
             date,
           },
         },
@@ -82,26 +87,25 @@ export const foodLogsRoutes = new Elysia({ prefix: "/food-logs" })
       params: t.Object({
         date: t.String(),
       }),
-      query: t.Object({
-        userId: t.String(),
-      }),
     }
   )
   .post(
     "/:date/items",
-    async ({ params, query, body }) => {
-      const { userId } = query;
+    async ({ params, request, body, set }) => {
+      const session = await requireRequestSession(request, set);
+      if (!session) return { message: "Unauthorized" };
+
       const date = new Date(params.date);
 
       const log = await prisma.foodLog.upsert({
         where: {
           userId_date: {
-            userId,
+            userId: session.user.id,
             date,
           },
         },
         create: {
-          userId,
+          userId: session.user.id,
           date,
         },
         update: {},
@@ -126,9 +130,6 @@ export const foodLogsRoutes = new Elysia({ prefix: "/food-logs" })
       params: t.Object({
         date: t.String(),
       }),
-      query: t.Object({
-        userId: t.String(),
-      }),
       body: t.Object({
         foodId: t.String(),
         mealType: t.Union([
@@ -144,12 +145,22 @@ export const foodLogsRoutes = new Elysia({ prefix: "/food-logs" })
   )
   .delete(
     "/items/:itemId",
-    async ({ params, set }) => {
+    async ({ params, request, set }) => {
+      const session = await requireRequestSession(request, set);
+      if (!session) return { message: "Unauthorized" };
+
       const existing = await prisma.foodLogItem.findUnique({
         where: { id: params.itemId },
+        include: {
+          foodLog: {
+            select: {
+              userId: true,
+            },
+          },
+        },
       });
 
-      if (!existing) {
+      if (!existing || existing.foodLog.userId !== session.user.id) {
         set.status = 404;
         return { message: "Food log item not found" };
       }

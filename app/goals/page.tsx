@@ -17,6 +17,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Target, Plus, Pencil, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import { useSessionUser } from "@/lib/use-session-user";
 import {
   GoalFormDialog,
   type GoalFormValues,
@@ -30,7 +31,7 @@ const statusColors: Record<GoalStatus, string> = {
 };
 
 export default function GoalsPage() {
-  const userId = "demo-user";
+  const { userId } = useSessionUser();
   const queryClient = useQueryClient();
 
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -40,16 +41,16 @@ export default function GoalsPage() {
   const { data, isLoading } = useQuery({
     queryKey: ["goals"],
     queryFn: async () => {
-      const result = await api.api.goals.get({ query: { userId } });
+      const result = await api.api.goals.get();
       if (result.error) throw new Error("Failed to fetch goals");
       return result.data;
     },
+    enabled: !!userId,
   });
 
   const createMutation = useMutation({
     mutationFn: async (values: GoalFormValues) => {
       const result = await api.api.goals.post({
-        userId,
         type: values.type,
         targetValue: values.targetValue,
         unit: values.unit,
@@ -214,7 +215,7 @@ export default function GoalsPage() {
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8"
-                        onClick={() => handleEditClick(goal as Goal)}
+                        onClick={() => handleEditClick(goal as unknown as Goal)}
                       >
                         <Pencil className="h-4 w-4" />
                         <span className="sr-only">Edit</span>
@@ -223,7 +224,7 @@ export default function GoalsPage() {
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8 text-destructive hover:text-destructive"
-                        onClick={() => handleDeleteClick(goal as Goal)}
+                        onClick={() => handleDeleteClick(goal as unknown as Goal)}
                       >
                         <Trash2 className="h-4 w-4" />
                         <span className="sr-only">Delete</span>

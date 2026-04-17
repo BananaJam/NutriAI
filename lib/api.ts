@@ -133,3 +133,23 @@ export interface UserStats {
   averages: NutritionTotals;
   daysLogged: number;
 }
+
+export interface ChatConversation {
+  id: string;
+  title: string;
+  updatedAt: string;
+  preview: string;
+}
+
+export interface ChatConversationDetail {
+  id: string;
+  title: string | null;
+  updatedAt: string;
+  createdAt: string;
+  messages: Array<{
+    id: string;
+    role: "user" | "assistant";
+    content: string;
+    createdAt: string;
+  }>;
+}

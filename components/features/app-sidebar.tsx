@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useTransition } from "react";
 import { usePathname } from "next/navigation";
 import {
   Home,
@@ -11,6 +12,7 @@ import {
   Apple,
   User,
   Settings,
+  LogOut,
 } from "lucide-react";
 import {
   Sidebar,
@@ -24,6 +26,9 @@ import {
   SidebarMenuItem,
   SidebarFooter,
 } from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
+import { authClient } from "@/lib/auth-client";
+import { useSessionUser } from "@/lib/use-session-user";
 
 const navigationItems = [
   { title: "Dashboard", href: "/", icon: Home },
@@ -41,6 +46,15 @@ const settingsItems = [
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const { user } = useSessionUser();
+  const [isPending, startTransition] = useTransition();
+
+  const handleSignOut = () => {
+    startTransition(async () => {
+      await authClient.signOut();
+      window.location.href = "/sign-in";
+    });
+  };
 
   return (
     <Sidebar>
@@ -84,6 +98,20 @@ export function AppSidebar() {
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
+            <div className="mt-4 rounded-lg border p-3">
+              <p className="text-sm font-medium">{user?.name || "Signed in"}</p>
+              <p className="text-xs text-muted-foreground">{user?.email}</p>
+              <Button
+                variant="outline"
+                size="sm"
+                className="mt-3 w-full"
+                onClick={handleSignOut}
+                disabled={isPending}
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                {isPending ? "Signing out..." : "Sign out"}
+              </Button>
+            </div>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarFooter>

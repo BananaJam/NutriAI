@@ -53,7 +53,7 @@ export function MealPlanDetailDialog({
       if (!plan?.id) return null;
       const result = await api.api["meal-plans"]({ id: plan.id }).get();
       if (result.error) return null;
-      return result.data as { plan: MealPlan & { items: MealPlanItem[] } } | null;
+      return result.data as unknown as { plan: MealPlan & { items: MealPlanItem[] } } | null;
     },
     enabled: open && !!plan?.id,
   });

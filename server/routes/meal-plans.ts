@@ -1,15 +1,19 @@
 import { Elysia, t } from "elysia";
 import { prisma } from "../lib/prisma";
+import { requireRequestSession } from "../lib/session";
 
 export const mealPlansRoutes = new Elysia({ prefix: "/meal-plans" })
   .get(
     "/",
-    async ({ query }) => {
-      const { userId, active } = query;
+    async ({ request, query, set }) => {
+      const session = await requireRequestSession(request, set);
+      if (!session) return { message: "Unauthorized" };
+
+      const { active } = query;
 
       const plans = await prisma.mealPlan.findMany({
         where: {
-          userId,
+          userId: session.user.id,
           isActive: active !== undefined ? active : undefined,
         },
         include: {
@@ -26,14 +30,16 @@ export const mealPlansRoutes = new Elysia({ prefix: "/meal-plans" })
     },
     {
       query: t.Object({
-        userId: t.String(),
         active: t.Optional(t.Boolean()),
       }),
     }
   )
   .get(
     "/:id",
-    async ({ params, set }) => {
+    async ({ params, request, set }) => {
+      const session = await requireRequestSession(request, set);
+      if (!session) return { message: "Unauthorized" };
+
       const plan = await prisma.mealPlan.findUnique({
         where: { id: params.id },
         include: {
@@ -46,7 +52,7 @@ export const mealPlansRoutes = new Elysia({ prefix: "/meal-plans" })
         },
       });
 
-      if (!plan) {
+      if (!plan || plan.userId !== session.user.id) {
         set.status = 404;
         return { message: "Meal plan not found" };
       }
@@ -61,10 +67,13 @@ export const mealPlansRoutes = new Elysia({ prefix: "/meal-plans" })
   )
   .post(
     "/",
-    async ({ body }) => {
+    async ({ request, body, set }) => {
+      const session = await requireRequestSession(request, set);
+      if (!session) return { message: "Unauthorized" };
+
       const plan = await prisma.mealPlan.create({
         data: {
-          userId: body.userId,
+          userId: session.user.id,
           name: body.name,
           startDate: new Date(body.startDate),
           endDate: new Date(body.endDate),
@@ -75,7 +84,6 @@ export const mealPlansRoutes = new Elysia({ prefix: "/meal-plans" })
     },
     {
       body: t.Object({
-        userId: t.String(),
         name: t.String({ minLength: 1 }),
         startDate: t.String(),
         endDate: t.String(),
@@ -84,12 +92,15 @@ export const mealPlansRoutes = new Elysia({ prefix: "/meal-plans" })
   )
   .post(
     "/:id/items",
-    async ({ params, body, set }) => {
+    async ({ params, request, body, set }) => {
+      const session = await requireRequestSession(request, set);
+      if (!session) return { message: "Unauthorized" };
+
       const plan = await prisma.mealPlan.findUnique({
         where: { id: params.id },
       });
 
-      if (!plan) {
+      if (!plan || plan.userId !== session.user.id) {
         set.status = 404;
         return { message: "Meal plan not found" };
       }
@@ -130,12 +141,15 @@ export const mealPlansRoutes = new Elysia({ prefix: "/meal-plans" })
   )
   .put(
     "/:id",
-    async ({ params, body, set }) => {
+    async ({ params, request, body, set }) => {
+      const session = await requireRequestSession(request, set);
+      if (!session) return { message: "Unauthorized" };
+
       const existing = await prisma.mealPlan.findUnique({
         where: { id: params.id },
       });
 
-      if (!existing) {
+      if (!existing || existing.userId !== session.user.id) {
         set.status = 404;
         return { message: "Meal plan not found" };
       }
@@ -166,12 +180,15 @@ export const mealPlansRoutes = new Elysia({ prefix: "/meal-plans" })
   )
   .delete(
     "/:id",
-    async ({ params, set }) => {
+    async ({ params, request, set }) => {
+      const session = await requireRequestSession(request, set);
+      if (!session) return { message: "Unauthorized" };
+
       const existing = await prisma.mealPlan.findUnique({
         where: { id: params.id },
       });
 
-      if (!existing) {
+      if (!existing || existing.userId !== session.user.id) {
         set.status = 404;
         return { message: "Meal plan not found" };
       }
@@ -190,12 +207,22 @@ export const mealPlansRoutes = new Elysia({ prefix: "/meal-plans" })
   )
   .delete(
     "/items/:itemId",
-    async ({ params, set }) => {
+    async ({ params, request, set }) => {
+      const session = await requireRequestSession(request, set);
+      if (!session) return { message: "Unauthorized" };
+
       const existing = await prisma.mealPlanItem.findUnique({
         where: { id: params.itemId },
+        include: {
+          mealPlan: {
+            select: {
+              userId: true,
+            },
+          },
+        },
       });
 
-      if (!existing) {
+      if (!existing || existing.mealPlan.userId !== session.user.id) {
         set.status = 404;
         return { message: "Meal plan item not found" };
       }

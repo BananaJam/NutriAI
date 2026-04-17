@@ -1,12 +1,16 @@
 import { Elysia, t } from "elysia";
 import { prisma } from "../lib/prisma";
+import { requireRequestSession } from "../lib/session";
 
 export const profileRoutes = new Elysia({ prefix: "/profile" })
   .get(
-    "/:userId",
-    async ({ params, set }) => {
+    "/",
+    async ({ request, set }) => {
+      const session = await requireRequestSession(request, set);
+      if (!session) return { message: "Unauthorized" };
+
       const profile = await prisma.userProfile.findUnique({
-        where: { userId: params.userId },
+        where: { userId: session.user.id },
         include: {
           user: {
             select: {
@@ -27,18 +31,18 @@ export const profileRoutes = new Elysia({ prefix: "/profile" })
       return { profile };
     },
     {
-      params: t.Object({
-        userId: t.String(),
-      }),
     }
   )
   .put(
-    "/:userId",
-    async ({ params, body }) => {
+    "/",
+    async ({ request, body, set }) => {
+      const session = await requireRequestSession(request, set);
+      if (!session) return { message: "Unauthorized" };
+
       const profile = await prisma.userProfile.upsert({
-        where: { userId: params.userId },
+        where: { userId: session.user.id },
         create: {
-          userId: params.userId,
+          userId: session.user.id,
           ...body,
           dateOfBirth: body.dateOfBirth
             ? new Date(body.dateOfBirth)
@@ -65,9 +69,6 @@ export const profileRoutes = new Elysia({ prefix: "/profile" })
       return { profile };
     },
     {
-      params: t.Object({
-        userId: t.String(),
-      }),
       body: t.Object({
         dateOfBirth: t.Optional(t.String()),
         gender: t.Optional(
@@ -92,13 +93,16 @@ export const profileRoutes = new Elysia({ prefix: "/profile" })
     }
   )
   .get(
-    "/:userId/stats",
-    async ({ params, query }) => {
+    "/stats",
+    async ({ request, query, set }) => {
+      const session = await requireRequestSession(request, set);
+      if (!session) return { message: "Unauthorized" };
+
       const { startDate, endDate } = query;
 
       const logs = await prisma.foodLog.findMany({
         where: {
-          userId: params.userId,
+          userId: session.user.id,
           date: {
             gte: startDate ? new Date(startDate) : undefined,
             lte: endDate ? new Date(endDate) : undefined,
@@ -151,9 +155,6 @@ export const profileRoutes = new Elysia({ prefix: "/profile" })
       return { dailyTotals, averages, daysLogged };
     },
     {
-      params: t.Object({
-        userId: t.String(),
-      }),
       query: t.Object({
         startDate: t.Optional(t.String()),
         endDate: t.Optional(t.String()),

@@ -21,52 +21,56 @@ import {
   TrendingUp,
   Apple,
 } from "lucide-react";
+import { useSessionUser } from "@/lib/use-session-user";
 
-const userId = "demo-user";
 const todayStr = format(new Date(), "yyyy-MM-dd");
 const thirtyDaysAgo = format(subDays(new Date(), 30), "yyyy-MM-dd");
 
 export default function DashboardPage() {
+  const { userId } = useSessionUser();
+
   const { data: logData, isLoading: logLoading } = useQuery({
     queryKey: ["foodLog", userId, todayStr],
     queryFn: async () => {
-      const result = await api.api["food-logs"]({ date: todayStr }).get({
-        query: { userId },
-      });
+      const result = await api.api["food-logs"]({ date: todayStr }).get();
       if (result.error) return null;
       return result.data as { totals: { calories: number; protein: number; carbs: number; fat: number } } | null;
     },
+    enabled: !!userId,
   });
 
   const { data: goalsData, isLoading: goalsLoading } = useQuery({
     queryKey: ["goals"],
     queryFn: async () => {
       const result = await api.api.goals.get({
-        query: { userId, status: "ACTIVE" },
+        query: { status: "ACTIVE" },
       });
       if (result.error) return null;
       return result.data;
     },
+    enabled: !!userId,
   });
 
   const { data: profileData, isLoading: profileLoading } = useQuery({
     queryKey: ["profile", userId],
     queryFn: async () => {
-      const result = await api.api.profile({ userId }).get();
+      const result = await api.api.profile.get();
       if (result.error) return null;
       return result.data as { profile: { targetCalories: number | null; targetProtein: number | null } } | null;
     },
+    enabled: !!userId,
   });
 
   const { data: statsData, isLoading: statsLoading } = useQuery({
     queryKey: ["stats", userId],
     queryFn: async () => {
-      const result = await api.api.profile({ userId }).stats.get({
+      const result = await api.api.profile.stats.get({
         query: { startDate: thirtyDaysAgo },
       });
       if (result.error) return null;
       return result.data as { daysLogged: number } | null;
     },
+    enabled: !!userId,
   });
 
   const calories = Math.round(logData?.totals?.calories ?? 0);

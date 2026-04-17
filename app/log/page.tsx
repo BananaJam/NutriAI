@@ -1,9 +1,6 @@
 import { FoodLog } from "@/components/features/food-log";
 
 export default function FoodLogPage() {
-  // In a real app, get userId from auth session
-  const userId = "demo-user";
-
   return (
     <div className="space-y-6">
       <div>
@@ -12,7 +9,7 @@ export default function FoodLogPage() {
           Track your daily food intake and nutrition
         </p>
       </div>
-      <FoodLog userId={userId} />
+      <FoodLog />
     </div>
   );
 }

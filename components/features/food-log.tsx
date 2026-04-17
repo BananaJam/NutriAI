@@ -12,10 +12,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, UtensilsCrossed, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { AddFoodLogDialog } from "@/components/features/add-food-log-dialog";
-
-interface FoodLogProps {
-  userId: string;
-}
+import { useSessionUser } from "@/lib/use-session-user";
 
 const mealTypeColors: Record<MealType, string> = {
   BREAKFAST: "bg-yellow-100 text-yellow-800",
@@ -54,7 +51,8 @@ interface FoodLogResponse {
   totals: NutritionTotals;
 }
 
-export function FoodLog({ userId }: FoodLogProps) {
+export function FoodLog() {
+  const { userId } = useSessionUser();
   const [date, setDate] = useState(new Date());
   const [isAddOpen, setIsAddOpen] = useState(false);
   const dateStr = format(date, "yyyy-MM-dd");
@@ -63,21 +61,21 @@ export function FoodLog({ userId }: FoodLogProps) {
   const { data, isLoading, error } = useQuery({
     queryKey: ["foodLog", userId, dateStr],
     queryFn: async (): Promise<FoodLogResponse | null> => {
-      const result = await api.api["food-logs"]({ date: dateStr }).get({
-        query: { userId },
-      });
+      const result = await api.api["food-logs"]({ date: dateStr }).get();
       if (result.error) return null;
       return result.data as FoodLogResponse;
     },
+    enabled: !!userId,
   });
 
   const { data: profileData } = useQuery({
     queryKey: ["profile", userId],
     queryFn: async () => {
-      const result = await api.api.profile({ userId }).get();
+      const result = await api.api.profile.get();
       if (result.error) return null;
       return result.data as { profile: { targetCalories: number | null; targetProtein: number | null; targetCarbs: number | null; targetFat: number | null } } | null;
     },
+    enabled: !!userId,
   });
 
   const addItemMutation = useMutation({
@@ -92,10 +90,12 @@ export function FoodLog({ userId }: FoodLogProps) {
       servings: number;
       notes?: string;
     }) => {
-      const result = await api.api["food-logs"]({ date: dateStr }).items.post(
-        { foodId, mealType, servings, notes },
-        { query: { userId } }
-      );
+      const result = await api.api["food-logs"]({ date: dateStr }).items.post({
+        foodId,
+        mealType,
+        servings,
+        notes,
+      });
       if (result.error) throw new Error("Failed to add food");
       return result.data;
     },

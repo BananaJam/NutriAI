@@ -9,6 +9,11 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: false,
+    sendResetPassword: async ({ user, url }) => {
+      console.log(
+        `[auth] Password reset requested for ${user.email}. Open this link to continue: ${url}`
+      );
+    },
   },
   session: {
     expiresIn: 60 * 60 * 24 * 7, // 7 days

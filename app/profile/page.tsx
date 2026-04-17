@@ -15,30 +15,32 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { User, Edit } from "lucide-react";
 import { toast } from "sonner";
+import { useSessionUser } from "@/lib/use-session-user";
 import {
   ProfileFormDialog,
   type ProfileFormValues,
 } from "@/components/features/profile-form-dialog";
 
 export default function ProfilePage() {
-  const userId = "demo-user";
+  const { userId } = useSessionUser();
   const queryClient = useQueryClient();
   const [isFormOpen, setIsFormOpen] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ["profile", userId],
     queryFn: async (): Promise<{ profile: UserProfile } | null> => {
-      const result = await api.api.profile({ userId }).get();
+      const result = await api.api.profile.get();
       if (result.error) return null;
       return result.data as { profile: UserProfile };
     },
+    enabled: !!userId,
   });
 
   const profile = data?.profile;
 
   const updateMutation = useMutation({
     mutationFn: async (values: ProfileFormValues) => {
-      const result = await api.api.profile({ userId }).put({
+      const result = await api.api.profile.put({
         gender: values.gender,
         dateOfBirth: values.dateOfBirth || undefined,
         height: values.height,
