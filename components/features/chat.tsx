@@ -2,20 +2,42 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useChat } from "ai/react";
-import { Bot, Loader2, MessageSquarePlus, Send, User } from "lucide-react";
+import {
+  Bot,
+  Loader2,
+  MessageSquarePlus,
+  MoreHorizontal,
+  Send,
+  Sparkles,
+  Trash2,
+  User,
+} from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   api,
-  type ChatConversation,
   type ChatConversationDetail,
+  type ChatConversationResponse,
+  type ChatConversationsResponse,
 } from "@/lib/api";
+
+const starterPrompts = [
+  "Log my breakfast for today",
+  "Review today’s macros against my targets",
+  "Build a simple 7-day meal plan with high protein meals",
+];
 
 export function Chat() {
   const queryClient = useQueryClient();
@@ -29,7 +51,7 @@ export function Chat() {
       queryFn: async () => {
         const result = await api.api.chat.conversations.get();
         if (result.error) throw new Error("Failed to load conversations");
-        return result.data as unknown as { conversations: ChatConversation[] };
+        return result.data as unknown as ChatConversationsResponse;
       },
     },
   );
@@ -38,7 +60,7 @@ export function Chat() {
     mutationFn: async () => {
       const result = await api.api.chat.conversations.post({});
       if (result.error) throw new Error("Failed to create conversation");
-      return result.data as {
+      return result.data as unknown as {
         conversation: {
           id: string;
         };
@@ -47,6 +69,37 @@ export function Chat() {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["chatConversations"] });
       setSelectedConversationId(data.conversation.id);
+    },
+  });
+
+  const renameConversation = useMutation({
+    mutationFn: async ({ id, title }: { id: string; title: string }) => {
+      const result = await api.api.chat.conversations({ id }).patch({ title });
+      if (result.error) throw new Error("Failed to rename conversation");
+      return result.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["chatConversations"] });
+      queryClient.invalidateQueries({ queryKey: ["chatConversation"] });
+    },
+  });
+
+  const deleteConversation = useMutation({
+    mutationFn: async (id: string) => {
+      const result = await api.api.chat.conversations({ id }).delete();
+      if (result.error) throw new Error("Failed to delete conversation");
+      return result.data;
+    },
+    onSuccess: (_, id) => {
+      queryClient.invalidateQueries({ queryKey: ["chatConversations"] });
+      queryClient.removeQueries({ queryKey: ["chatConversation", id] });
+
+      if (selectedConversationId === id) {
+        const remaining = (conversationsData?.conversations ?? []).filter(
+          (conversation) => conversation.id !== id,
+        );
+        setSelectedConversationId(remaining[0]?.id ?? null);
+      }
     },
   });
 
@@ -77,7 +130,7 @@ export function Chat() {
   ]);
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">
+    <div className="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
       <Card>
         <CardContent className="space-y-4 p-4">
           <Button
@@ -91,23 +144,65 @@ export function Chat() {
 
           <div className="space-y-2">
             {(conversationsData?.conversations ?? []).map((conversation) => (
-              <button
+              <div
                 key={conversation.id}
-                type="button"
-                className={`w-full rounded-lg border p-3 text-left transition-colors ${
+                className={`rounded-lg border transition-colors ${
                   selectedConversationId === conversation.id
                     ? "border-primary bg-primary/5"
                     : "hover:bg-muted"
                 }`}
-                onClick={() => setSelectedConversationId(conversation.id)}
               >
-                <p className="truncate text-sm font-medium">
-                  {conversation.title}
-                </p>
-                <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
-                  {conversation.preview || "No messages yet"}
-                </p>
-              </button>
+                <div className="flex items-start gap-2 p-3">
+                  <button
+                    type="button"
+                    className="flex-1 text-left"
+                    onClick={() => setSelectedConversationId(conversation.id)}
+                  >
+                    <p className="truncate text-sm font-medium">
+                      {conversation.title}
+                    </p>
+                    <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+                      {conversation.preview || "No messages yet"}
+                    </p>
+                  </button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <MoreHorizontal className="h-4 w-4" />
+                        <span className="sr-only">Conversation actions</span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem
+                        onClick={() => {
+                          const title = window.prompt(
+                            "Rename conversation",
+                            conversation.title,
+                          );
+                          if (title?.trim()) {
+                            renameConversation.mutate({
+                              id: conversation.id,
+                              title: title.trim(),
+                            });
+                          }
+                        }}
+                      >
+                        <Sparkles className="h-4 w-4" />
+                        Rename
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        variant="destructive"
+                        onClick={() =>
+                          deleteConversation.mutate(conversation.id)
+                        }
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </div>
             ))}
           </div>
         </CardContent>
@@ -150,7 +245,7 @@ function ConversationPane({
         .conversations({ id: conversationId })
         .get();
       if (result.error) throw new Error("Failed to load conversation");
-      return result.data as unknown as { conversation: ChatConversationDetail };
+      return result.data as unknown as ChatConversationResponse;
     },
   });
 
@@ -196,8 +291,10 @@ function ConversationSession({
   const {
     messages,
     input,
+    setInput,
     handleInputChange,
     handleSubmit,
+    append,
     isLoading: isChatLoading,
   } = useChat({
     api: "/api/chat",
@@ -213,18 +310,41 @@ function ConversationSession({
     <div className="flex h-[calc(100vh-12rem)] flex-col rounded-lg border p-4">
       <ScrollArea className="flex-1 pr-4">
         <div className="space-y-4 pb-4">
-          {messages.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-              <Bot className="mb-4 h-12 w-12 text-muted-foreground" />
-              <h3 className="text-lg font-semibold">
-                Welcome to your AI Nutrition Assistant
-              </h3>
-              <p className="mt-2 max-w-md text-sm text-muted-foreground">
-                Ask about meals, calorie targets, food search, or macro
-                planning.
-              </p>
+          {messages.length === 0 ? (
+            <div className="rounded-2xl border bg-muted/30 p-6">
+              <div className="flex items-center gap-3">
+                <Avatar className="h-10 w-10">
+                  <AvatarFallback className="bg-green-100">
+                    <Bot className="h-5 w-5 text-green-600" />
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <h3 className="text-lg font-semibold">
+                    Welcome to your AI nutrition assistant
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    Use the assistant for meal logging, target review, and
+                    weekly planning.
+                  </p>
+                </div>
+              </div>
+              <div className="mt-5 flex flex-wrap gap-2">
+                {starterPrompts.map((prompt) => (
+                  <Button
+                    key={prompt}
+                    variant="outline"
+                    className="rounded-xl"
+                    onClick={() => {
+                      void append({ role: "user", content: prompt });
+                    }}
+                    disabled={isChatLoading}
+                  >
+                    {prompt}
+                  </Button>
+                ))}
+              </div>
             </div>
-          )}
+          ) : null}
 
           {messages.map((message) => (
             <div
@@ -260,40 +380,38 @@ function ConversationSession({
                     </p>
                   )}
                   {message.toolInvocations &&
-                    message.toolInvocations.length > 0 && (
-                      <div className="mt-2 space-y-1 border-t pt-2">
-                        {message.toolInvocations.map(
-                          (toolInvocation, index) => (
-                            <div
-                              key={`${toolInvocation.toolName}-${index}`}
-                              className="text-xs text-muted-foreground"
-                            >
-                              <span className="font-medium">
-                                Tool: {toolInvocation.toolName}
-                              </span>
-                              {toolInvocation.state === "result" && (
-                                <span className="ml-2 text-green-600">
-                                  (completed)
-                                </span>
-                              )}
-                            </div>
-                          ),
-                        )}
-                      </div>
-                    )}
+                  message.toolInvocations.length > 0 ? (
+                    <div className="mt-2 space-y-1 border-t pt-2">
+                      {message.toolInvocations.map((toolInvocation, index) => (
+                        <div
+                          key={`${toolInvocation.toolName}-${index}`}
+                          className="text-xs text-muted-foreground"
+                        >
+                          <span className="font-medium">
+                            Tool: {toolInvocation.toolName}
+                          </span>
+                          {toolInvocation.state === "result" ? (
+                            <span className="ml-2 text-green-600">
+                              (completed)
+                            </span>
+                          ) : null}
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
                 </CardContent>
               </Card>
-              {message.role === "user" && (
+              {message.role === "user" ? (
                 <Avatar className="h-8 w-8">
                   <AvatarFallback className="bg-primary">
                     <User className="h-4 w-4 text-primary-foreground" />
                   </AvatarFallback>
                 </Avatar>
-              )}
+              ) : null}
             </div>
           ))}
 
-          {isChatLoading && (
+          {isChatLoading ? (
             <div className="flex gap-3">
               <Avatar className="h-8 w-8">
                 <AvatarFallback className="bg-green-100">
@@ -309,7 +427,7 @@ function ConversationSession({
                 </CardContent>
               </Card>
             </div>
-          )}
+          ) : null}
         </div>
       </ScrollArea>
 
@@ -317,10 +435,18 @@ function ConversationSession({
         <Input
           value={input}
           onChange={handleInputChange}
-          placeholder="Ask about nutrition, log food, or get recommendations..."
+          placeholder="Ask about nutrition, log food, or build a meal plan..."
           disabled={isChatLoading}
           className="flex-1"
         />
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => setInput(starterPrompts[0])}
+          disabled={isChatLoading}
+        >
+          Prompt
+        </Button>
         <Button type="submit" disabled={isChatLoading || !input.trim()}>
           <Send className="h-4 w-4" />
         </Button>

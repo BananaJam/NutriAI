@@ -64,6 +64,13 @@ const defaultUnitForType: Record<GoalType, string> = {
   CUSTOM: "",
 };
 
+const autoTrackedTypes = new Set<GoalType>([
+  "WEIGHT_LOSS",
+  "WEIGHT_GAIN",
+  "CALORIE_TARGET",
+  "PROTEIN_TARGET",
+]);
+
 export function GoalFormDialog({
   open,
   onOpenChange,
@@ -87,6 +94,7 @@ export function GoalFormDialog({
   });
 
   const watchedType = form.watch("type");
+  const isAutoTracked = autoTrackedTypes.has(watchedType as GoalType);
 
   useEffect(() => {
     if (!isEditing) {
@@ -216,6 +224,7 @@ export function GoalFormDialog({
                           type="number"
                           step="0.1"
                           value={field.value ?? ""}
+                          disabled={isAutoTracked}
                           onChange={(e) => {
                             const val = e.target.value;
                             field.onChange(
@@ -224,6 +233,12 @@ export function GoalFormDialog({
                           }}
                         />
                       </FormControl>
+                      {isAutoTracked ? (
+                        <p className="text-xs text-muted-foreground">
+                          This goal type is updated automatically from profile
+                          or log data.
+                        </p>
+                      ) : null}
                       <FormMessage />
                     </FormItem>
                   )}

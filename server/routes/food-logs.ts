@@ -1,4 +1,5 @@
 import { Elysia, t } from "elysia";
+import { sumNutritionTotals } from "@/lib/nutrition-analytics";
 import { prisma } from "../lib/prisma";
 import { requireRequestSession } from "../lib/session";
 
@@ -68,18 +69,7 @@ export const foodLogsRoutes = new Elysia({ prefix: "/food-logs" })
         return { message: "Food log not found for this date" };
       }
 
-      const totals = log.items.reduce(
-        (acc, item) => {
-          const multiplier = item.servings;
-          return {
-            calories: acc.calories + item.food.calories * multiplier,
-            protein: acc.protein + item.food.protein * multiplier,
-            carbs: acc.carbs + item.food.carbs * multiplier,
-            fat: acc.fat + item.food.fat * multiplier,
-          };
-        },
-        { calories: 0, protein: 0, carbs: 0, fat: 0 },
-      );
+      const totals = sumNutritionTotals(log.items);
 
       return { log, totals };
     },
@@ -139,6 +129,61 @@ export const foodLogsRoutes = new Elysia({ prefix: "/food-logs" })
           t.Literal("SNACK"),
         ]),
         servings: t.Optional(t.Number({ minimum: 0.1, default: 1 })),
+        notes: t.Optional(t.String()),
+      }),
+    },
+  )
+  .patch(
+    "/items/:itemId",
+    async ({ params, request, body, set }) => {
+      const session = await requireRequestSession(request, set);
+      if (!session) return { message: "Unauthorized" };
+
+      const existing = await prisma.foodLogItem.findUnique({
+        where: { id: params.itemId },
+        include: {
+          foodLog: {
+            select: {
+              userId: true,
+            },
+          },
+          food: true,
+        },
+      });
+
+      if (!existing || existing.foodLog.userId !== session.user.id) {
+        set.status = 404;
+        return { message: "Food log item not found" };
+      }
+
+      const item = await prisma.foodLogItem.update({
+        where: { id: params.itemId },
+        data: {
+          mealType: body.mealType,
+          servings: body.servings,
+          notes: body.notes,
+        },
+        include: {
+          food: true,
+        },
+      });
+
+      return { item };
+    },
+    {
+      params: t.Object({
+        itemId: t.String(),
+      }),
+      body: t.Object({
+        mealType: t.Optional(
+          t.Union([
+            t.Literal("BREAKFAST"),
+            t.Literal("LUNCH"),
+            t.Literal("DINNER"),
+            t.Literal("SNACK"),
+          ]),
+        ),
+        servings: t.Optional(t.Number({ minimum: 0.1 })),
         notes: t.Optional(t.String()),
       }),
     },

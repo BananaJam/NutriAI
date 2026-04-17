@@ -49,6 +49,9 @@
 
 :root {
   --radius: 0.875rem;
+  --font-geist-sans: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-geist-mono:
+    "SFMono-Regular", "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
   --background: oklch(0.985 0.007 95.1);
   --foreground: oklch(0.256 0.018 92.8);
   --card: oklch(0.995 0.004 95.1);

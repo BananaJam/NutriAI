@@ -2,6 +2,7 @@ import { anthropic } from "@ai-sdk/anthropic";
 import { openai } from "@ai-sdk/openai";
 import { jsonSchema, streamText, tool } from "ai";
 import { Elysia, t } from "elysia";
+import { buildRangeStats, sumNutritionTotals } from "@/lib/nutrition-analytics";
 import { prisma } from "../lib/prisma";
 import { requireRequestSession } from "../lib/session";
 
@@ -33,14 +34,6 @@ type CalculateMacrosParams = {
   gender: "MALE" | "FEMALE";
   activityLevel: "SEDENTARY" | "LIGHT" | "MODERATE" | "ACTIVE" | "VERY_ACTIVE";
   goal: "LOSE" | "MAINTAIN" | "GAIN";
-};
-
-type ChatMessageInput = {
-  role: "user" | "assistant" | "system" | "tool";
-  content: unknown;
-  id?: string;
-  name?: string;
-  toolCallId?: string;
 };
 
 function normalizeMessageContent(content: unknown) {
@@ -127,10 +120,6 @@ function extractTextContent(content: unknown) {
   }
 
   return String(content);
-}
-
-function toStoredRole(role: string) {
-  return role === "assistant" ? "ASSISTANT" : "USER";
 }
 
 function createNutritionTools(userId: string) {
@@ -256,18 +245,7 @@ function createNutritionTools(userId: string) {
           return { message: "No food log found for this date" };
         }
 
-        const totals = log.items.reduce(
-          (acc, item) => {
-            const multiplier = item.servings;
-            return {
-              calories: acc.calories + item.food.calories * multiplier,
-              protein: acc.protein + item.food.protein * multiplier,
-              carbs: acc.carbs + item.food.carbs * multiplier,
-              fat: acc.fat + item.food.fat * multiplier,
-            };
-          },
-          { calories: 0, protein: 0, carbs: 0, fat: 0 },
-        );
+        const totals = sumNutritionTotals(log.items);
 
         return { log, totals };
       },
@@ -335,46 +313,17 @@ function createNutritionTools(userId: string) {
           orderBy: { date: "asc" },
         });
 
-        const dailyTotals = logs.map((log) => {
-          const totals = log.items.reduce(
-            (acc, item) => {
-              const multiplier = item.servings;
-              return {
-                calories: acc.calories + item.food.calories * multiplier,
-                protein: acc.protein + item.food.protein * multiplier,
-                carbs: acc.carbs + item.food.carbs * multiplier,
-                fat: acc.fat + item.food.fat * multiplier,
-              };
-            },
-            { calories: 0, protein: 0, carbs: 0, fat: 0 },
-          );
-
-          return {
-            date: log.date.toISOString().split("T")[0],
-            ...totals,
-          };
+        const profile = await prisma.userProfile.findUnique({
+          where: { userId },
+          select: {
+            targetCalories: true,
+            targetProtein: true,
+            targetCarbs: true,
+            targetFat: true,
+          },
         });
 
-        const daysLogged = dailyTotals.length;
-        const averages =
-          daysLogged > 0
-            ? {
-                calories:
-                  dailyTotals.reduce((sum, day) => sum + day.calories, 0) /
-                  daysLogged,
-                protein:
-                  dailyTotals.reduce((sum, day) => sum + day.protein, 0) /
-                  daysLogged,
-                carbs:
-                  dailyTotals.reduce((sum, day) => sum + day.carbs, 0) /
-                  daysLogged,
-                fat:
-                  dailyTotals.reduce((sum, day) => sum + day.fat, 0) /
-                  daysLogged,
-              }
-            : { calories: 0, protein: 0, carbs: 0, fat: 0 };
-
-        return { dailyTotals, averages, daysLogged };
+        return buildRangeStats(logs, profile);
       },
     }),
     getActiveGoals: tool({
@@ -504,6 +453,43 @@ export async function handleChatRequest(
     modelProvider === "anthropic"
       ? anthropic("claude-sonnet-4-20250514")
       : openai("gpt-4o");
+  const [profile, goals] = await Promise.all([
+    prisma.userProfile.findUnique({
+      where: { userId },
+      select: {
+        weight: true,
+        activityLevel: true,
+        targetCalories: true,
+        targetProtein: true,
+        targetCarbs: true,
+        targetFat: true,
+      },
+    }),
+    prisma.goal.findMany({
+      where: {
+        userId,
+        status: "ACTIVE",
+      },
+      select: {
+        type: true,
+        targetValue: true,
+        unit: true,
+      },
+      take: 5,
+    }),
+  ]);
+
+  const profileContext = profile
+    ? `Profile context:
+- Weight: ${profile.weight ?? "unknown"} kg
+- Activity level: ${profile.activityLevel ?? "unknown"}
+- Daily targets: calories ${profile.targetCalories ?? "unknown"}, protein ${profile.targetProtein ?? "unknown"}g, carbs ${profile.targetCarbs ?? "unknown"}g, fat ${profile.targetFat ?? "unknown"}g`
+    : "Profile context: not configured yet.";
+  const goalContext = goals.length
+    ? `Active goals:\n${goals
+        .map((goal) => `- ${goal.type}: ${goal.targetValue} ${goal.unit}`)
+        .join("\n")}`
+    : "Active goals: none.";
 
   return streamText({
     model,
@@ -518,7 +504,10 @@ Your role is to help users:
 When users want to log food, search for foods first to find the correct food ID, then log it.
 Keep answers practical and concise.
 The current user ID is: ${userId}
-Today's date is: ${new Date().toISOString().split("T")[0]}`,
+Today's date is: ${new Date().toISOString().split("T")[0]}
+
+${profileContext}
+${goalContext}`,
     messages: normalizedMessages as Parameters<
       typeof streamText
     >[0]["messages"],
@@ -616,6 +605,72 @@ export const chatRoutes = new Elysia({ prefix: "/chat" })
           })),
         },
       };
+    },
+    {
+      params: t.Object({
+        id: t.String(),
+      }),
+    },
+  )
+  .patch(
+    "/conversations/:id",
+    async ({ params, request, body, set }) => {
+      const session = await requireRequestSession(request, set);
+      if (!session) return { message: "Unauthorized" };
+
+      const conversation = await prisma.conversation.findFirst({
+        where: {
+          id: params.id,
+          userId: session.user.id,
+        },
+      });
+
+      if (!conversation) {
+        set.status = 404;
+        return { message: "Conversation not found" };
+      }
+
+      const updatedConversation = await prisma.conversation.update({
+        where: { id: params.id },
+        data: {
+          title: body.title.trim() || conversation.title || "New conversation",
+        },
+      });
+
+      return { conversation: updatedConversation };
+    },
+    {
+      params: t.Object({
+        id: t.String(),
+      }),
+      body: t.Object({
+        title: t.String(),
+      }),
+    },
+  )
+  .delete(
+    "/conversations/:id",
+    async ({ params, request, set }) => {
+      const session = await requireRequestSession(request, set);
+      if (!session) return { message: "Unauthorized" };
+
+      const conversation = await prisma.conversation.findFirst({
+        where: {
+          id: params.id,
+          userId: session.user.id,
+        },
+      });
+
+      if (!conversation) {
+        set.status = 404;
+        return { message: "Conversation not found" };
+      }
+
+      await prisma.conversation.delete({
+        where: { id: params.id },
+      });
+
+      return { message: "Conversation deleted successfully" };
     },
     {
       params: t.Object({

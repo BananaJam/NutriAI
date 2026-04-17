@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Sparkles, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { AddMealPlanItemDialog } from "@/components/features/add-meal-plan-item-dialog";
@@ -14,6 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { MealPlan, MealPlanItem, MealType } from "@/lib/api";
@@ -53,6 +54,7 @@ export function MealPlanDetailDialog({
   onPlanDeleted: _onPlanDeleted,
 }: MealPlanDetailDialogProps) {
   const [isAddItemOpen, setIsAddItemOpen] = useState(false);
+  const [applyDate, setApplyDate] = useState(format(new Date(), "yyyy-MM-dd"));
   const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery({
@@ -119,6 +121,34 @@ export function MealPlanDetailDialog({
     },
   });
 
+  const applyPlanMutation = useMutation({
+    mutationFn: async ({
+      dayOfWeek,
+      mealType,
+    }: {
+      dayOfWeek: number;
+      mealType?: MealType;
+    }) => {
+      if (!plan?.id) throw new Error("No plan selected");
+
+      const result = await api.api["meal-plans"]({ id: plan.id }).apply.post({
+        date: applyDate,
+        dayOfWeek,
+        mealType,
+      });
+      if (result.error) throw new Error("Failed to apply meal plan");
+      return result.data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["foodLog"] });
+      queryClient.invalidateQueries({ queryKey: ["foodLogs", "recent"] });
+      toast.success(`${data.appliedCount} item(s) added to the food log`);
+    },
+    onError: () => {
+      toast.error("Failed to apply meal plan");
+    },
+  });
+
   const planData = data?.plan;
   const items = planData?.items ?? [];
 
@@ -154,10 +184,18 @@ export function MealPlanDetailDialog({
                   </p>
                 )}
               </div>
-              <Button size="sm" onClick={() => setIsAddItemOpen(true)}>
-                <Plus className="mr-1 h-4 w-4" />
-                Add Item
-              </Button>
+              <div className="flex items-center gap-2">
+                <Input
+                  type="date"
+                  value={applyDate}
+                  onChange={(event) => setApplyDate(event.target.value)}
+                  className="w-[170px]"
+                />
+                <Button size="sm" onClick={() => setIsAddItemOpen(true)}>
+                  <Plus className="mr-1 h-4 w-4" />
+                  Add Item
+                </Button>
+              </div>
             </div>
           </DialogHeader>
 
@@ -203,6 +241,19 @@ export function MealPlanDetailDialog({
                     <h3 className="font-semibold text-sm">
                       {fullDayNames[dayIndex]}
                     </h3>
+                    <div className="flex justify-end">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          applyPlanMutation.mutate({ dayOfWeek: dayIndex })
+                        }
+                        disabled={applyPlanMutation.isPending}
+                      >
+                        <Sparkles className="mr-2 h-4 w-4" />
+                        Apply full day to {applyDate}
+                      </Button>
+                    </div>
                     {dayItems.length === 0 ? (
                       <p className="text-sm text-muted-foreground py-4 text-center">
                         No meals planned for {fullDayNames[dayIndex]}
@@ -220,6 +271,20 @@ export function MealPlanDetailDialog({
                               {mealType.charAt(0) +
                                 mealType.slice(1).toLowerCase()}
                             </Badge>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 px-2 text-xs"
+                              onClick={() =>
+                                applyPlanMutation.mutate({
+                                  dayOfWeek: dayIndex,
+                                  mealType,
+                                })
+                              }
+                              disabled={applyPlanMutation.isPending}
+                            >
+                              Apply meal
+                            </Button>
                             {mealItems.map((item) => (
                               <div
                                 key={item.id}

@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
+import { subDays } from "date-fns";
 import { ChevronLeft, Search } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -56,6 +57,7 @@ export function AddFoodLogDialog({
   const [search, setSearch] = useState("");
   const [submittedSearch, setSubmittedSearch] = useState("");
   const [selectedFood, setSelectedFood] = useState<Food | null>(null);
+  const recentStartDate = subDays(new Date(), 14).toISOString().split("T")[0];
 
   const { data: foodsData, isLoading: foodsLoading } = useQuery({
     queryKey: ["foods", submittedSearch],
@@ -65,6 +67,32 @@ export function AddFoodLogDialog({
       });
       if (result.error) return null;
       return result.data;
+    },
+    enabled: open,
+  });
+
+  const { data: recentFoodsData } = useQuery({
+    queryKey: ["foodLogRecentFoods"],
+    queryFn: async () => {
+      const result = await api.api["food-logs"].get({
+        query: {
+          startDate: recentStartDate,
+        },
+      });
+      if (result.error) return [];
+
+      const logs = result.data.logs ?? [];
+      const recentFoods = new Map<string, Food>();
+
+      for (const log of logs) {
+        for (const item of log.items ?? []) {
+          if (!recentFoods.has(item.food.id)) {
+            recentFoods.set(item.food.id, item.food as Food);
+          }
+        }
+      }
+
+      return Array.from(recentFoods.values()).slice(0, 6);
     },
     enabled: open,
   });
@@ -138,6 +166,36 @@ export function AddFoodLogDialog({
             </form>
 
             <div className="max-h-64 overflow-y-auto space-y-1">
+              {!submittedSearch && recentFoodsData?.length ? (
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-xs font-semibold tracking-[0.14em] text-muted-foreground uppercase">
+                      Recent foods
+                    </p>
+                  </div>
+                  {recentFoodsData.map((food) => (
+                    <button
+                      key={food.id}
+                      type="button"
+                      className="w-full rounded-lg border p-3 text-left transition-colors hover:bg-accent"
+                      onClick={() => handleFoodSelect(food)}
+                    >
+                      <p className="font-medium text-sm">{food.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {food.brand && `${food.brand} · `}
+                        {food.servingSize}
+                        {food.servingUnit} · {food.calories} kcal · P:{" "}
+                        {food.protein}g
+                      </p>
+                    </button>
+                  ))}
+                  <div className="pt-2">
+                    <p className="text-xs font-semibold tracking-[0.14em] text-muted-foreground uppercase">
+                      Search all foods
+                    </p>
+                  </div>
+                </div>
+              ) : null}
               {foodsLoading ? (
                 <div className="space-y-2">
                   {[1, 2, 3].map((i) => (

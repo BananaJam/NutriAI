@@ -5,19 +5,31 @@ import { format } from "date-fns";
 import {
   ChevronLeft,
   ChevronRight,
+  Pencil,
   Plus,
   Trash2,
   UtensilsCrossed,
 } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { AddFoodLogDialog } from "@/components/features/add-food-log-dialog";
+import {
+  EditFoodLogItemDialog,
+  type EditFoodLogItemValues,
+} from "@/components/features/edit-food-log-item-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
-import { api, type MealType, type NutritionTotals } from "@/lib/api";
+import {
+  api,
+  type FoodLogItem,
+  type FoodLogResponse,
+  type MealType,
+  type NutritionTotals,
+} from "@/lib/api";
 import { useSessionUser } from "@/lib/use-session-user";
 
 const mealTypeColors: Record<MealType, string> = {
@@ -34,33 +46,15 @@ const mealTypeLabels: Record<MealType, string> = {
   SNACK: "Snack",
 };
 
-interface FoodLogItem {
-  id: string;
-  mealType: string;
-  servings: number;
-  food: {
-    name: string;
-    brand: string | null;
-    servingSize: number;
-    servingUnit: string;
-    calories: number;
-    protein: number;
-    carbs: number;
-    fat: number;
-  };
-}
-
-interface FoodLogResponse {
-  log: {
-    items: FoodLogItem[];
-  };
-  totals: NutritionTotals;
-}
+const mealOrder: MealType[] = ["BREAKFAST", "LUNCH", "DINNER", "SNACK"];
 
 export function FoodLog() {
   const { userId } = useSessionUser();
   const [date, setDate] = useState(new Date());
+  const [dateInput, setDateInput] = useState(format(new Date(), "yyyy-MM-dd"));
   const [isAddOpen, setIsAddOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<FoodLogItem | null>(null);
   const dateStr = format(date, "yyyy-MM-dd");
   const queryClient = useQueryClient();
 
@@ -69,7 +63,7 @@ export function FoodLog() {
     queryFn: async (): Promise<FoodLogResponse | null> => {
       const result = await api.api["food-logs"]({ date: dateStr }).get();
       if (result.error) return null;
-      return result.data as FoodLogResponse;
+      return result.data as unknown as FoodLogResponse;
     },
     enabled: !!userId,
   });
@@ -79,7 +73,7 @@ export function FoodLog() {
     queryFn: async () => {
       const result = await api.api.profile.get();
       if (result.error) return null;
-      return result.data as {
+      return result.data as unknown as {
         profile: {
           targetCalories: number | null;
           targetProtein: number | null;
@@ -114,10 +108,36 @@ export function FoodLog() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["foodLog", userId, dateStr] });
+      queryClient.invalidateQueries({ queryKey: ["foodLogs", "recent"] });
       toast.success("Food added to log");
     },
     onError: () => {
       toast.error("Failed to add food");
+    },
+  });
+
+  const updateItemMutation = useMutation({
+    mutationFn: async (values: EditFoodLogItemValues) => {
+      if (!selectedItem) throw new Error("No item selected");
+
+      const result = await api.api["food-logs"]
+        .items({ itemId: selectedItem.id })
+        .patch({
+          mealType: values.mealType,
+          servings: values.servings,
+          notes: values.notes || undefined,
+        });
+      if (result.error) throw new Error("Failed to update food");
+      return result.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["foodLog", userId, dateStr] });
+      toast.success("Log item updated");
+      setIsEditOpen(false);
+      setSelectedItem(null);
+    },
+    onError: () => {
+      toast.error("Failed to update log item");
     },
   });
 
@@ -129,6 +149,7 @@ export function FoodLog() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["foodLog", userId, dateStr] });
+      queryClient.invalidateQueries({ queryKey: ["foodLogs", "recent"] });
       toast.success("Food removed from log");
     },
     onError: () => {
@@ -137,11 +158,20 @@ export function FoodLog() {
   });
 
   const goToPreviousDay = () => {
-    setDate((prev) => new Date(prev.getTime() - 24 * 60 * 60 * 1000));
+    const nextDate = new Date(date.getTime() - 24 * 60 * 60 * 1000);
+    setDate(nextDate);
+    setDateInput(format(nextDate, "yyyy-MM-dd"));
   };
 
   const goToNextDay = () => {
-    setDate((prev) => new Date(prev.getTime() + 24 * 60 * 60 * 1000));
+    const nextDate = new Date(date.getTime() + 24 * 60 * 60 * 1000);
+    setDate(nextDate);
+    setDateInput(format(nextDate, "yyyy-MM-dd"));
+  };
+
+  const handleDateCommit = () => {
+    if (!dateInput) return;
+    setDate(new Date(dateInput));
   };
 
   const totals: NutritionTotals = data?.totals || {
@@ -158,16 +188,29 @@ export function FoodLog() {
     fat: profileData?.profile?.targetFat ?? 65,
   };
 
+  const groupedItems = useMemo(() => {
+    const items = data?.log?.items ?? [];
+
+    return mealOrder.map((mealType) => ({
+      mealType,
+      items: items.filter((item) => item.mealType === mealType),
+    }));
+  }, [data?.log?.items]);
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-wrap items-center gap-2">
           <Button variant="outline" size="icon" onClick={goToPreviousDay}>
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <h2 className="text-lg font-semibold">
-            {format(date, "EEEE, MMMM d, yyyy")}
-          </h2>
+          <Input
+            type="date"
+            value={dateInput}
+            onChange={(event) => setDateInput(event.target.value)}
+            onBlur={handleDateCommit}
+            className="w-[180px]"
+          />
           <Button
             variant="outline"
             size="icon"
@@ -176,6 +219,9 @@ export function FoodLog() {
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
+          <p className="text-sm text-muted-foreground">
+            {format(date, "EEEE, MMMM d, yyyy")}
+          </p>
         </div>
         <Button onClick={() => setIsAddOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
@@ -184,88 +230,35 @@ export function FoodLog() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Calories
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {Math.round(totals.calories)}
-            </div>
-            <Progress
-              value={(totals.calories / activeTargets.calories) * 100}
-              className="mt-2"
-            />
-            <p className="mt-1 text-xs text-muted-foreground">
-              of {activeTargets.calories} kcal
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Protein
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {Math.round(totals.protein)}g
-            </div>
-            <Progress
-              value={(totals.protein / activeTargets.protein) * 100}
-              className="mt-2"
-            />
-            <p className="mt-1 text-xs text-muted-foreground">
-              of {activeTargets.protein}g
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Carbs
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {Math.round(totals.carbs)}g
-            </div>
-            <Progress
-              value={(totals.carbs / activeTargets.carbs) * 100}
-              className="mt-2"
-            />
-            <p className="mt-1 text-xs text-muted-foreground">
-              of {activeTargets.carbs}g
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Fat
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{Math.round(totals.fat)}g</div>
-            <Progress
-              value={(totals.fat / activeTargets.fat) * 100}
-              className="mt-2"
-            />
-            <p className="mt-1 text-xs text-muted-foreground">
-              of {activeTargets.fat}g
-            </p>
-          </CardContent>
-        </Card>
+        <MacroCard
+          title="Calories"
+          value={Math.round(totals.calories)}
+          suffix=""
+          target={activeTargets.calories}
+        />
+        <MacroCard
+          title="Protein"
+          value={Math.round(totals.protein)}
+          suffix="g"
+          target={activeTargets.protein}
+        />
+        <MacroCard
+          title="Carbs"
+          value={Math.round(totals.carbs)}
+          suffix="g"
+          target={activeTargets.carbs}
+        />
+        <MacroCard
+          title="Fat"
+          value={Math.round(totals.fat)}
+          suffix="g"
+          target={activeTargets.fat}
+        />
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Food Items</CardTitle>
+          <CardTitle>Food items</CardTitle>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -281,7 +274,7 @@ export function FoodLog() {
                 No food logged for this day
               </p>
               <p className="mt-1 text-sm text-muted-foreground">
-                Use the &quot;Add Food&quot; button to log your meals
+                Use the add flow or quick recent foods to build the day faster.
               </p>
               <Button className="mt-4" onClick={() => setIsAddOpen(true)}>
                 <Plus className="mr-2 h-4 w-4" />
@@ -289,52 +282,80 @@ export function FoodLog() {
               </Button>
             </div>
           ) : (
-            <div className="space-y-3">
-              {data.log.items.map((item: FoodLogItem) => (
-                <div
-                  key={item.id}
-                  className="group flex items-center justify-between rounded-lg border p-3"
-                >
-                  <div className="flex items-center gap-3">
-                    <Badge
-                      variant="secondary"
-                      className={mealTypeColors[item.mealType as MealType]}
-                    >
-                      {mealTypeLabels[item.mealType as MealType]}
-                    </Badge>
-                    <div>
-                      <p className="font-medium">{item.food.name}</p>
+            <div className="space-y-6">
+              {groupedItems.map((group) =>
+                group.items.length ? (
+                  <div key={group.mealType} className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <Badge
+                        variant="secondary"
+                        className={mealTypeColors[group.mealType]}
+                      >
+                        {mealTypeLabels[group.mealType]}
+                      </Badge>
                       <p className="text-sm text-muted-foreground">
-                        {item.servings} x {item.food.servingSize}
-                        {item.food.servingUnit}
-                        {item.food.brand && ` - ${item.food.brand}`}
+                        {group.items.length} item
+                        {group.items.length === 1 ? "" : "s"}
                       </p>
                     </div>
+                    {group.items.map((item) => (
+                      <div
+                        key={item.id}
+                        className="group flex items-center justify-between rounded-lg border p-3"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div>
+                            <p className="font-medium">{item.food.name}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {item.servings} x {item.food.servingSize}
+                              {item.food.servingUnit}
+                              {item.food.brand && ` · ${item.food.brand}`}
+                              {item.notes ? ` · ${item.notes}` : ""}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <div className="text-right text-sm">
+                            <p className="font-medium">
+                              {Math.round(item.food.calories * item.servings)}{" "}
+                              kcal
+                            </p>
+                            <p className="text-muted-foreground">
+                              P: {Math.round(item.food.protein * item.servings)}
+                              g | C:{" "}
+                              {Math.round(item.food.carbs * item.servings)}g |
+                              F: {Math.round(item.food.fat * item.servings)}g
+                            </p>
+                          </div>
+                          <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => {
+                                setSelectedItem(item);
+                                setIsEditOpen(true);
+                              }}
+                            >
+                              <Pencil className="h-4 w-4" />
+                              <span className="sr-only">Edit</span>
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-destructive hover:text-destructive"
+                              onClick={() => deleteItemMutation.mutate(item.id)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                              <span className="sr-only">Delete</span>
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                  <div className="flex items-center gap-2">
-                    <div className="text-right text-sm">
-                      <p className="font-medium">
-                        {Math.round(item.food.calories * item.servings)} kcal
-                      </p>
-                      <p className="text-muted-foreground">
-                        P: {Math.round(item.food.protein * item.servings)}g | C:{" "}
-                        {Math.round(item.food.carbs * item.servings)}g | F:{" "}
-                        {Math.round(item.food.fat * item.servings)}g
-                      </p>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 opacity-0 group-hover:opacity-100 text-destructive hover:text-destructive"
-                      onClick={() => deleteItemMutation.mutate(item.id)}
-                      disabled={deleteItemMutation.isPending}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                      <span className="sr-only">Delete</span>
-                    </Button>
-                  </div>
-                </div>
-              ))}
+                ) : null,
+              )}
             </div>
           )}
         </CardContent>
@@ -344,15 +365,54 @@ export function FoodLog() {
         open={isAddOpen}
         onOpenChange={setIsAddOpen}
         onSubmit={async (foodId, values) => {
-          await addItemMutation.mutateAsync({
-            foodId,
-            mealType: values.mealType as MealType,
-            servings: values.servings,
-            notes: values.notes,
-          });
+          await addItemMutation.mutateAsync({ foodId, ...values });
         }}
         isSubmitting={addItemMutation.isPending}
       />
+
+      <EditFoodLogItemDialog
+        open={isEditOpen}
+        onOpenChange={setIsEditOpen}
+        item={selectedItem}
+        onSubmit={async (values) => {
+          await updateItemMutation.mutateAsync(values);
+        }}
+        isSubmitting={updateItemMutation.isPending}
+      />
     </div>
+  );
+}
+
+function MacroCard({
+  title,
+  value,
+  suffix,
+  target,
+}: {
+  title: string;
+  value: number;
+  suffix: string;
+  target: number;
+}) {
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm font-medium text-muted-foreground">
+          {title}
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="text-2xl font-bold">
+          {value}
+          {suffix}
+        </div>
+        <Progress value={(value / target) * 100} className="mt-2" />
+        <p className="mt-1 text-xs text-muted-foreground">
+          of {target}
+          {suffix}
+          {suffix ? "" : " kcal"}
+        </p>
+      </CardContent>
+    </Card>
   );
 }

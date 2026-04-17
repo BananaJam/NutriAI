@@ -1,6 +1,56 @@
 import { Elysia, t } from "elysia";
+import { buildRangeStats, deriveGoalProgress } from "@/lib/nutrition-analytics";
 import { prisma } from "../lib/prisma";
 import { requireRequestSession } from "../lib/session";
+
+async function getGoalContext(userId: string) {
+  const [profile, logs] = await Promise.all([
+    prisma.userProfile.findUnique({
+      where: { userId },
+      select: {
+        weight: true,
+        targetCalories: true,
+        targetProtein: true,
+        targetCarbs: true,
+        targetFat: true,
+      },
+    }),
+    prisma.foodLog.findMany({
+      where: { userId },
+      include: {
+        items: {
+          include: {
+            food: true,
+          },
+        },
+      },
+      orderBy: { date: "asc" },
+      take: 30,
+    }),
+  ]);
+
+  return {
+    profile,
+    stats: buildRangeStats(logs, profile),
+  };
+}
+
+async function enrichGoal(
+  goal: {
+    type: string;
+    currentValue: number;
+    targetValue: number;
+  },
+  userId: string,
+) {
+  const context = await getGoalContext(userId);
+
+  return {
+    ...goal,
+    currentValue: deriveGoalProgress(goal, context),
+    derivedProgress: true,
+  };
+}
 
 export const goalsRoutes = new Elysia({ prefix: "/goals" })
   .get(
@@ -19,7 +69,15 @@ export const goalsRoutes = new Elysia({ prefix: "/goals" })
         orderBy: { createdAt: "desc" },
       });
 
-      return { goals };
+      const context = await getGoalContext(session.user.id);
+
+      return {
+        goals: goals.map((goal) => ({
+          ...goal,
+          currentValue: deriveGoalProgress(goal, context),
+          derivedProgress: true,
+        })),
+      };
     },
     {
       query: t.Object({
@@ -48,7 +106,7 @@ export const goalsRoutes = new Elysia({ prefix: "/goals" })
         return { message: "Goal not found" };
       }
 
-      return { goal };
+      return { goal: await enrichGoal(goal, session.user.id) };
     },
     {
       params: t.Object({
@@ -111,13 +169,16 @@ export const goalsRoutes = new Elysia({ prefix: "/goals" })
         where: { id: params.id },
         data: {
           targetValue: body.targetValue,
-          currentValue: body.currentValue,
+          currentValue:
+            existing.type === "CUSTOM" || existing.type === "WATER_INTAKE"
+              ? body.currentValue
+              : undefined,
           status: body.status,
           endDate: body.endDate ? new Date(body.endDate) : undefined,
         },
       });
 
-      return { goal };
+      return { goal: await enrichGoal(goal, session.user.id) };
     },
     {
       params: t.Object({

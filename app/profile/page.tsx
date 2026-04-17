@@ -31,7 +31,7 @@ export default function ProfilePage() {
     queryFn: async (): Promise<{ profile: UserProfile } | null> => {
       const result = await api.api.profile.get();
       if (result.error) return null;
-      return result.data as { profile: UserProfile };
+      return result.data as unknown as { profile: UserProfile };
     },
     enabled: !!userId,
   });

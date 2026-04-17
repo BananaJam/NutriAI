@@ -72,6 +72,29 @@ export interface FoodLog {
   items: FoodLogItem[];
 }
 
+export interface FoodLogResponse {
+  log: {
+    items: FoodLogItem[];
+  };
+  totals: NutritionTotals;
+}
+
+export interface FoodsResponse {
+  foods: Food[];
+}
+
+export interface GoalsResponse {
+  goals: Goal[];
+}
+
+export interface MealPlansResponse {
+  plans: MealPlan[];
+}
+
+export interface ProfileResponse {
+  profile: UserProfile;
+}
+
 export interface NutritionTotals {
   calories: number;
   protein: number;
@@ -109,6 +132,7 @@ export interface Goal {
   startDate: string;
   endDate: string | null;
   status: GoalStatus;
+  derivedProgress?: boolean;
 }
 
 export interface MealPlanItem {
@@ -135,6 +159,29 @@ export interface UserStats {
   dailyTotals: Array<{ date: string } & NutritionTotals>;
   averages: NutritionTotals;
   daysLogged: number;
+  streak: {
+    current: number;
+    longest: number;
+  };
+  rangeSummary: {
+    totals: NutritionTotals;
+    averages: NutritionTotals;
+    daysLogged: number;
+    loggedDates: string[];
+  };
+  targetAdherence: {
+    calories: MacroTargetSummary;
+    protein: MacroTargetSummary;
+    carbs: MacroTargetSummary;
+    fat: MacroTargetSummary;
+  };
+}
+
+export interface MacroTargetSummary {
+  target: number | null;
+  average: number;
+  averageProgress: number | null;
+  daysHitTarget: number;
 }
 
 export interface UserSettings {
@@ -186,4 +233,12 @@ export interface ChatConversationDetail {
     content: string;
     createdAt: string;
   }>;
+}
+
+export interface ChatConversationsResponse {
+  conversations: ChatConversation[];
+}
+
+export interface ChatConversationResponse {
+  conversation: ChatConversationDetail;
 }

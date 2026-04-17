@@ -2,6 +2,10 @@ import { Elysia, t } from "elysia";
 import { prisma } from "../lib/prisma";
 import { requireRequestSession } from "../lib/session";
 
+function getDayOfWeekFromDate(date: Date) {
+  return date.getUTCDay();
+}
+
 export const mealPlansRoutes = new Elysia({ prefix: "/meal-plans" })
   .get(
     "/",
@@ -136,6 +140,96 @@ export const mealPlansRoutes = new Elysia({ prefix: "/meal-plans" })
         ]),
         servings: t.Optional(t.Number({ minimum: 0.1, default: 1 })),
         notes: t.Optional(t.String()),
+      }),
+    },
+  )
+  .post(
+    "/:id/apply",
+    async ({ params, request, body, set }) => {
+      const session = await requireRequestSession(request, set);
+      if (!session) return { message: "Unauthorized" };
+
+      const plan = await prisma.mealPlan.findUnique({
+        where: { id: params.id },
+        include: {
+          items: {
+            include: {
+              food: true,
+            },
+          },
+        },
+      });
+
+      if (!plan || plan.userId !== session.user.id) {
+        set.status = 404;
+        return { message: "Meal plan not found" };
+      }
+
+      const targetDate = new Date(body.date);
+      const selectedDay = body.dayOfWeek ?? getDayOfWeekFromDate(targetDate);
+      const matchingItems = plan.items.filter(
+        (item) =>
+          item.dayOfWeek === selectedDay &&
+          (!body.mealType || item.mealType === body.mealType),
+      );
+
+      if (!matchingItems.length) {
+        set.status = 400;
+        return { message: "No meal plan items match the selected filters" };
+      }
+
+      const log = await prisma.foodLog.upsert({
+        where: {
+          userId_date: {
+            userId: session.user.id,
+            date: targetDate,
+          },
+        },
+        create: {
+          userId: session.user.id,
+          date: targetDate,
+        },
+        update: {},
+      });
+
+      const items = await prisma.$transaction(
+        matchingItems.map((item) =>
+          prisma.foodLogItem.create({
+            data: {
+              foodLogId: log.id,
+              foodId: item.foodId,
+              mealType: item.mealType,
+              servings: item.servings,
+              notes: item.notes,
+            },
+            include: {
+              food: true,
+            },
+          }),
+        ),
+      );
+
+      return {
+        message: "Meal plan applied successfully",
+        appliedCount: items.length,
+        itemIds: items.map((item) => item.id),
+      };
+    },
+    {
+      params: t.Object({
+        id: t.String(),
+      }),
+      body: t.Object({
+        date: t.String(),
+        dayOfWeek: t.Optional(t.Number({ minimum: 0, maximum: 6 })),
+        mealType: t.Optional(
+          t.Union([
+            t.Literal("BREAKFAST"),
+            t.Literal("LUNCH"),
+            t.Literal("DINNER"),
+            t.Literal("SNACK"),
+          ]),
+        ),
       }),
     },
   )

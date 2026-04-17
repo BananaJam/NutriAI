@@ -1,4 +1,5 @@
 import { Elysia, t } from "elysia";
+import { buildRangeStats } from "@/lib/nutrition-analytics";
 import { prisma } from "../lib/prisma";
 import { requireRequestSession } from "../lib/session";
 
@@ -117,42 +118,17 @@ export const profileRoutes = new Elysia({ prefix: "/profile" })
         orderBy: { date: "asc" },
       });
 
-      const dailyTotals = logs.map((log) => {
-        const totals = log.items.reduce(
-          (acc, item) => {
-            const multiplier = item.servings;
-            return {
-              calories: acc.calories + item.food.calories * multiplier,
-              protein: acc.protein + item.food.protein * multiplier,
-              carbs: acc.carbs + item.food.carbs * multiplier,
-              fat: acc.fat + item.food.fat * multiplier,
-            };
-          },
-          { calories: 0, protein: 0, carbs: 0, fat: 0 },
-        );
-
-        return {
-          date: log.date.toISOString().split("T")[0],
-          ...totals,
-        };
+      const profile = await prisma.userProfile.findUnique({
+        where: { userId: session.user.id },
+        select: {
+          targetCalories: true,
+          targetProtein: true,
+          targetCarbs: true,
+          targetFat: true,
+        },
       });
 
-      const daysLogged = dailyTotals.length;
-      const averages =
-        daysLogged > 0
-          ? {
-              calories:
-                dailyTotals.reduce((sum, d) => sum + d.calories, 0) /
-                daysLogged,
-              protein:
-                dailyTotals.reduce((sum, d) => sum + d.protein, 0) / daysLogged,
-              carbs:
-                dailyTotals.reduce((sum, d) => sum + d.carbs, 0) / daysLogged,
-              fat: dailyTotals.reduce((sum, d) => sum + d.fat, 0) / daysLogged,
-            }
-          : { calories: 0, protein: 0, carbs: 0, fat: 0 };
-
-      return { dailyTotals, averages, daysLogged };
+      return buildRangeStats(logs, profile);
     },
     {
       query: t.Object({
