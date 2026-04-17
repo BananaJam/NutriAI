@@ -28,10 +28,10 @@ export const goalsRoutes = new Elysia({ prefix: "/goals" })
             t.Literal("ACTIVE"),
             t.Literal("COMPLETED"),
             t.Literal("CANCELLED"),
-          ])
+          ]),
         ),
       }),
-    }
+    },
   )
   .get(
     "/:id",
@@ -54,7 +54,7 @@ export const goalsRoutes = new Elysia({ prefix: "/goals" })
       params: t.Object({
         id: t.String(),
       }),
-    }
+    },
   )
   .post(
     "/",
@@ -90,7 +90,7 @@ export const goalsRoutes = new Elysia({ prefix: "/goals" })
         startDate: t.String(),
         endDate: t.Optional(t.String()),
       }),
-    }
+    },
   )
   .put(
     "/:id",
@@ -131,11 +131,11 @@ export const goalsRoutes = new Elysia({ prefix: "/goals" })
             t.Literal("ACTIVE"),
             t.Literal("COMPLETED"),
             t.Literal("CANCELLED"),
-          ])
+          ]),
         ),
         endDate: t.Optional(t.String()),
       }),
-    }
+    },
   )
   .delete(
     "/:id",
@@ -162,5 +162,5 @@ export const goalsRoutes = new Elysia({ prefix: "/goals" })
       params: t.Object({
         id: t.String(),
       }),
-    }
+    },
   );

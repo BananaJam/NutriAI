@@ -30,8 +30,7 @@ export const profileRoutes = new Elysia({ prefix: "/profile" })
 
       return { profile };
     },
-    {
-    }
+    {},
   )
   .put(
     "/",
@@ -72,7 +71,7 @@ export const profileRoutes = new Elysia({ prefix: "/profile" })
       body: t.Object({
         dateOfBirth: t.Optional(t.String()),
         gender: t.Optional(
-          t.Union([t.Literal("MALE"), t.Literal("FEMALE"), t.Literal("OTHER")])
+          t.Union([t.Literal("MALE"), t.Literal("FEMALE"), t.Literal("OTHER")]),
         ),
         height: t.Optional(t.Number({ minimum: 0 })),
         weight: t.Optional(t.Number({ minimum: 0 })),
@@ -83,14 +82,14 @@ export const profileRoutes = new Elysia({ prefix: "/profile" })
             t.Literal("MODERATE"),
             t.Literal("ACTIVE"),
             t.Literal("VERY_ACTIVE"),
-          ])
+          ]),
         ),
         targetCalories: t.Optional(t.Number({ minimum: 0 })),
         targetProtein: t.Optional(t.Number({ minimum: 0 })),
         targetCarbs: t.Optional(t.Number({ minimum: 0 })),
         targetFat: t.Optional(t.Number({ minimum: 0 })),
       }),
-    }
+    },
   )
   .get(
     "/stats",
@@ -129,7 +128,7 @@ export const profileRoutes = new Elysia({ prefix: "/profile" })
               fat: acc.fat + item.food.fat * multiplier,
             };
           },
-          { calories: 0, protein: 0, carbs: 0, fat: 0 }
+          { calories: 0, protein: 0, carbs: 0, fat: 0 },
         );
 
         return {
@@ -143,7 +142,8 @@ export const profileRoutes = new Elysia({ prefix: "/profile" })
         daysLogged > 0
           ? {
               calories:
-                dailyTotals.reduce((sum, d) => sum + d.calories, 0) / daysLogged,
+                dailyTotals.reduce((sum, d) => sum + d.calories, 0) /
+                daysLogged,
               protein:
                 dailyTotals.reduce((sum, d) => sum + d.protein, 0) / daysLogged,
               carbs:
@@ -159,5 +159,5 @@ export const profileRoutes = new Elysia({ prefix: "/profile" })
         startDate: t.Optional(t.String()),
         endDate: t.Optional(t.String()),
       }),
-    }
+    },
   );

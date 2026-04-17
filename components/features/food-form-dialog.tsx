@@ -1,9 +1,10 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -21,7 +22,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import type { Food } from "@/lib/api";
 
 const foodFormSchema = z.object({
@@ -301,7 +301,7 @@ export function FoodFormDialog({
                           onChange={(e) => {
                             const val = e.target.value;
                             field.onChange(
-                              val === "" ? undefined : parseFloat(val)
+                              val === "" ? undefined : parseFloat(val),
                             );
                           }}
                         />
@@ -326,7 +326,7 @@ export function FoodFormDialog({
                           onChange={(e) => {
                             const val = e.target.value;
                             field.onChange(
-                              val === "" ? undefined : parseFloat(val)
+                              val === "" ? undefined : parseFloat(val),
                             );
                           }}
                         />
@@ -351,7 +351,7 @@ export function FoodFormDialog({
                           onChange={(e) => {
                             const val = e.target.value;
                             field.onChange(
-                              val === "" ? undefined : parseFloat(val)
+                              val === "" ? undefined : parseFloat(val),
                             );
                           }}
                         />

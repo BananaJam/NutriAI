@@ -1,23 +1,23 @@
 "use client";
 
-import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { api } from "@/lib/api";
-import type { MealPlan, MealPlanItem, MealType } from "@/lib/api";
+import { Plus, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { AddMealPlanItemDialog } from "@/components/features/add-meal-plan-item-dialog";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Trash2, Plus } from "lucide-react";
-import { toast } from "sonner";
-import { AddMealPlanItemDialog } from "@/components/features/add-meal-plan-item-dialog";
+import type { MealPlan, MealPlanItem, MealType } from "@/lib/api";
+import { api } from "@/lib/api";
 
 interface MealPlanDetailDialogProps {
   open: boolean;
@@ -27,7 +27,15 @@ interface MealPlanDetailDialogProps {
 }
 
 const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const fullDayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const fullDayNames = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+];
 
 const mealTypeColors: Record<MealType, string> = {
   BREAKFAST: "bg-yellow-100 text-yellow-800",
@@ -42,7 +50,7 @@ export function MealPlanDetailDialog({
   open,
   onOpenChange,
   plan,
-  onPlanDeleted,
+  onPlanDeleted: _onPlanDeleted,
 }: MealPlanDetailDialogProps) {
   const [isAddItemOpen, setIsAddItemOpen] = useState(false);
   const queryClient = useQueryClient();
@@ -53,7 +61,9 @@ export function MealPlanDetailDialog({
       if (!plan?.id) return null;
       const result = await api.api["meal-plans"]({ id: plan.id }).get();
       if (result.error) return null;
-      return result.data as unknown as { plan: MealPlan & { items: MealPlanItem[] } } | null;
+      return result.data as unknown as {
+        plan: MealPlan & { items: MealPlanItem[] };
+      } | null;
     },
     enabled: open && !!plan?.id,
   });
@@ -117,7 +127,7 @@ export function MealPlanDetailDialog({
       acc[dayIndex] = items.filter((item) => item.dayOfWeek === dayIndex);
       return acc;
     },
-    {} as Record<number, MealPlanItem[]>
+    {} as Record<number, MealPlanItem[]>,
   );
 
   return (
@@ -144,10 +154,7 @@ export function MealPlanDetailDialog({
                   </p>
                 )}
               </div>
-              <Button
-                size="sm"
-                onClick={() => setIsAddItemOpen(true)}
-              >
+              <Button size="sm" onClick={() => setIsAddItemOpen(true)}>
                 <Plus className="mr-1 h-4 w-4" />
                 Add Item
               </Button>
@@ -164,7 +171,11 @@ export function MealPlanDetailDialog({
             <Tabs defaultValue="1">
               <TabsList className="flex w-full">
                 {dayNames.map((day, i) => (
-                  <TabsTrigger key={i} value={String(i)} className="flex-1 text-xs px-1">
+                  <TabsTrigger
+                    key={day}
+                    value={String(i)}
+                    className="flex-1 text-xs px-1"
+                  >
                     {day}
                   </TabsTrigger>
                 ))}
@@ -172,19 +183,26 @@ export function MealPlanDetailDialog({
 
               {dayNames.map((_, dayIndex) => {
                 const dayItems = itemsByDay[dayIndex] ?? [];
+                const dayKey = fullDayNames[dayIndex];
                 const groupedByMeal = mealOrder.reduce(
                   (acc, mealType) => {
                     acc[mealType] = dayItems.filter(
-                      (item) => item.mealType === mealType
+                      (item) => item.mealType === mealType,
                     );
                     return acc;
                   },
-                  {} as Record<MealType, MealPlanItem[]>
+                  {} as Record<MealType, MealPlanItem[]>,
                 );
 
                 return (
-                  <TabsContent key={dayIndex} value={String(dayIndex)} className="space-y-4 mt-4">
-                    <h3 className="font-semibold text-sm">{fullDayNames[dayIndex]}</h3>
+                  <TabsContent
+                    key={dayKey}
+                    value={String(dayIndex)}
+                    className="space-y-4 mt-4"
+                  >
+                    <h3 className="font-semibold text-sm">
+                      {fullDayNames[dayIndex]}
+                    </h3>
                     {dayItems.length === 0 ? (
                       <p className="text-sm text-muted-foreground py-4 text-center">
                         No meals planned for {fullDayNames[dayIndex]}
@@ -199,7 +217,8 @@ export function MealPlanDetailDialog({
                               variant="secondary"
                               className={mealTypeColors[mealType]}
                             >
-                              {mealType.charAt(0) + mealType.slice(1).toLowerCase()}
+                              {mealType.charAt(0) +
+                                mealType.slice(1).toLowerCase()}
                             </Badge>
                             {mealItems.map((item) => (
                               <div
@@ -207,18 +226,26 @@ export function MealPlanDetailDialog({
                                 className="group flex items-center justify-between rounded-lg border p-3"
                               >
                                 <div>
-                                  <p className="font-medium text-sm">{item.food.name}</p>
+                                  <p className="font-medium text-sm">
+                                    {item.food.name}
+                                  </p>
                                   <p className="text-xs text-muted-foreground">
-                                    {item.servings} x {item.food.servingSize}{item.food.servingUnit}
+                                    {item.servings} x {item.food.servingSize}
+                                    {item.food.servingUnit}
                                     {" · "}
-                                    {Math.round(item.food.calories * item.servings)} kcal
+                                    {Math.round(
+                                      item.food.calories * item.servings,
+                                    )}{" "}
+                                    kcal
                                   </p>
                                 </div>
                                 <Button
                                   variant="ghost"
                                   size="icon"
                                   className="h-7 w-7 opacity-0 group-hover:opacity-100 text-destructive hover:text-destructive"
-                                  onClick={() => deleteItemMutation.mutate(item.id)}
+                                  onClick={() =>
+                                    deleteItemMutation.mutate(item.id)
+                                  }
                                   disabled={deleteItemMutation.isPending}
                                 >
                                   <Trash2 className="h-3.5 w-3.5" />

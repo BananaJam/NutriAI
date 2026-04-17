@@ -1,32 +1,38 @@
 "use client";
 
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useChat } from "ai/react";
 import { Bot, Loader2, MessageSquarePlus, Send, User } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import { api, type ChatConversation, type ChatConversationDetail } from "@/lib/api";
+import {
+  api,
+  type ChatConversation,
+  type ChatConversationDetail,
+} from "@/lib/api";
 
 export function Chat() {
   const queryClient = useQueryClient();
-  const [selectedConversationId, setSelectedConversationId] = useState<string | null>(
-    null
-  );
+  const [selectedConversationId, setSelectedConversationId] = useState<
+    string | null
+  >(null);
 
-  const { data: conversationsData, isLoading: conversationsLoading } = useQuery({
-    queryKey: ["chatConversations"],
-    queryFn: async () => {
-      const result = await api.api.chat.conversations.get();
-      if (result.error) throw new Error("Failed to load conversations");
-      return result.data as unknown as { conversations: ChatConversation[] };
+  const { data: conversationsData, isLoading: conversationsLoading } = useQuery(
+    {
+      queryKey: ["chatConversations"],
+      queryFn: async () => {
+        const result = await api.api.chat.conversations.get();
+        if (result.error) throw new Error("Failed to load conversations");
+        return result.data as unknown as { conversations: ChatConversation[] };
+      },
     },
-  });
+  );
 
   const createConversation = useMutation({
     mutationFn: async () => {
@@ -45,7 +51,11 @@ export function Chat() {
   });
 
   useEffect(() => {
-    if (selectedConversationId || conversationsLoading || createConversation.isPending) {
+    if (
+      selectedConversationId ||
+      conversationsLoading ||
+      createConversation.isPending
+    ) {
       return;
     }
 
@@ -91,7 +101,9 @@ export function Chat() {
                 }`}
                 onClick={() => setSelectedConversationId(conversation.id)}
               >
-                <p className="truncate text-sm font-medium">{conversation.title}</p>
+                <p className="truncate text-sm font-medium">
+                  {conversation.title}
+                </p>
                 <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
                   {conversation.preview || "No messages yet"}
                 </p>
@@ -134,7 +146,9 @@ function ConversationPane({
   const { data, isLoading } = useQuery({
     queryKey: ["chatConversation", conversationId],
     queryFn: async () => {
-      const result = await api.api.chat.conversations({ id: conversationId }).get();
+      const result = await api.api.chat
+        .conversations({ id: conversationId })
+        .get();
       if (result.error) throw new Error("Failed to load conversation");
       return result.data as unknown as { conversation: ChatConversationDetail };
     },
@@ -176,19 +190,24 @@ function ConversationSession({
         role: message.role,
         content: message.content,
       })),
-    [conversation.messages]
+    [conversation.messages],
   );
 
-  const { messages, input, handleInputChange, handleSubmit, isLoading: isChatLoading } =
-    useChat({
-      api: "/api/chat",
-      id: conversationId,
-      body: { conversationId },
-      initialMessages,
-      onFinish: () => {
-        onConversationTouched();
-      },
-    });
+  const {
+    messages,
+    input,
+    handleInputChange,
+    handleSubmit,
+    isLoading: isChatLoading,
+  } = useChat({
+    api: "/api/chat",
+    id: conversationId,
+    body: { conversationId },
+    initialMessages,
+    onFinish: () => {
+      onConversationTouched();
+    },
+  });
 
   return (
     <div className="flex h-[calc(100vh-12rem)] flex-col rounded-lg border p-4">
@@ -201,7 +220,8 @@ function ConversationSession({
                 Welcome to your AI Nutrition Assistant
               </h3>
               <p className="mt-2 max-w-md text-sm text-muted-foreground">
-                Ask about meals, calorie targets, food search, or macro planning.
+                Ask about meals, calorie targets, food search, or macro
+                planning.
               </p>
             </div>
           )}
@@ -235,25 +255,32 @@ function ConversationSession({
                       </ReactMarkdown>
                     </div>
                   ) : (
-                    <p className="whitespace-pre-wrap text-sm">{message.content}</p>
+                    <p className="whitespace-pre-wrap text-sm">
+                      {message.content}
+                    </p>
                   )}
-                  {message.toolInvocations && message.toolInvocations.length > 0 && (
-                    <div className="mt-2 space-y-1 border-t pt-2">
-                      {message.toolInvocations.map((toolInvocation, index) => (
-                        <div
-                          key={`${toolInvocation.toolName}-${index}`}
-                          className="text-xs text-muted-foreground"
-                        >
-                          <span className="font-medium">
-                            Tool: {toolInvocation.toolName}
-                          </span>
-                          {toolInvocation.state === "result" && (
-                            <span className="ml-2 text-green-600">(completed)</span>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                  {message.toolInvocations &&
+                    message.toolInvocations.length > 0 && (
+                      <div className="mt-2 space-y-1 border-t pt-2">
+                        {message.toolInvocations.map(
+                          (toolInvocation, index) => (
+                            <div
+                              key={`${toolInvocation.toolName}-${index}`}
+                              className="text-xs text-muted-foreground"
+                            >
+                              <span className="font-medium">
+                                Tool: {toolInvocation.toolName}
+                              </span>
+                              {toolInvocation.state === "result" && (
+                                <span className="ml-2 text-green-600">
+                                  (completed)
+                                </span>
+                              )}
+                            </div>
+                          ),
+                        )}
+                      </div>
+                    )}
                 </CardContent>
               </Card>
               {message.role === "user" && (
@@ -276,7 +303,9 @@ function ConversationSession({
               <Card className="bg-muted">
                 <CardContent className="flex items-center gap-2 p-3">
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  <span className="text-sm text-muted-foreground">Thinking...</span>
+                  <span className="text-sm text-muted-foreground">
+                    Thinking...
+                  </span>
                 </CardContent>
               </Card>
             </div>

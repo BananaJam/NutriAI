@@ -1,22 +1,24 @@
 "use client";
 
-import Link from "next/link";
-import { useTransition } from "react";
-import { usePathname } from "next/navigation";
 import {
-  Home,
-  MessageSquare,
-  UtensilsCrossed,
-  Calendar,
-  Target,
   Apple,
-  User,
-  Settings,
+  Calendar,
+  Home,
   LogOut,
+  MessageSquare,
+  Settings,
+  Target,
+  User,
+  UtensilsCrossed,
 } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useTransition } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -24,9 +26,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarFooter,
 } from "@/components/ui/sidebar";
-import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
 import { useSessionUser } from "@/lib/use-session-user";
 
@@ -57,21 +57,36 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar>
-      <SidebarHeader className="border-b px-6 py-4">
+    <Sidebar className="border-r border-sidebar-border/80">
+      <SidebarHeader className="border-b border-sidebar-border/80 px-6 py-5">
         <Link href="/" className="flex items-center gap-2">
-          <Apple className="h-6 w-6 text-green-600" />
-          <span className="text-xl font-bold">NutriAI</span>
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-sidebar-primary/10 text-sidebar-primary">
+            <Apple className="h-5 w-5" />
+          </div>
+          <div>
+            <span className="block text-base font-semibold tracking-tight">
+              NutriAI
+            </span>
+            <span className="text-xs text-sidebar-foreground/70">
+              Nutrition workspace
+            </span>
+          </div>
         </Link>
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className="px-3 py-4">
         <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+          <SidebarGroupLabel className="px-3 text-[11px] font-semibold tracking-[0.16em] uppercase">
+            Navigation
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {navigationItems.map((item) => (
                 <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton asChild isActive={pathname === item.href}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={pathname === item.href}
+                    className="h-10 rounded-xl px-3 text-sm data-[active=true]:bg-sidebar-primary data-[active=true]:text-sidebar-primary-foreground data-[active=true]:shadow-sm"
+                  >
                     <Link href={item.href}>
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
@@ -83,13 +98,17 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter>
+      <SidebarFooter className="border-t border-sidebar-border/80 px-3 py-4">
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
               {settingsItems.map((item) => (
                 <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton asChild isActive={pathname === item.href}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={pathname === item.href}
+                    className="h-10 rounded-xl px-3 text-sm data-[active=true]:bg-sidebar-primary data-[active=true]:text-sidebar-primary-foreground data-[active=true]:shadow-sm"
+                  >
                     <Link href={item.href}>
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
@@ -98,13 +117,20 @@ export function AppSidebar() {
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
-            <div className="mt-4 rounded-lg border p-3">
-              <p className="text-sm font-medium">{user?.name || "Signed in"}</p>
-              <p className="text-xs text-muted-foreground">{user?.email}</p>
+            <div className="mt-5 rounded-2xl border border-sidebar-border/80 bg-sidebar-accent/45 p-4 shadow-sm">
+              <p className="text-[11px] font-semibold tracking-[0.16em] text-sidebar-foreground/65 uppercase">
+                Account
+              </p>
+              <p className="mt-2 text-sm font-semibold text-sidebar-foreground">
+                {user?.name || "Signed in"}
+              </p>
+              <p className="mt-1 text-xs text-sidebar-foreground/70">
+                {user?.email}
+              </p>
               <Button
                 variant="outline"
                 size="sm"
-                className="mt-3 w-full"
+                className="mt-4 w-full justify-start rounded-xl border-sidebar-border/80 bg-background/80"
                 onClick={handleSignOut}
                 disabled={isPending}
               >

@@ -1,8 +1,15 @@
 "use client";
 
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Apple, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api, type Food } from "@/lib/api";
+import { toast } from "sonner";
+import { DeleteFoodDialog } from "@/components/features/delete-food-dialog";
+import {
+  FoodFormDialog,
+  type FoodFormValues,
+} from "@/components/features/food-form-dialog";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -10,16 +17,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Apple, Plus, Search, Pencil, Trash2 } from "lucide-react";
-import { toast } from "sonner";
-import {
-  FoodFormDialog,
-  type FoodFormValues,
-} from "@/components/features/food-form-dialog";
-import { DeleteFoodDialog } from "@/components/features/delete-food-dialog";
+import { api, type Food } from "@/lib/api";
 
 export default function FoodsPage() {
   const queryClient = useQueryClient();

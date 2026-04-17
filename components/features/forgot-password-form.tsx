@@ -2,7 +2,6 @@
 
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
-import { authClient } from "@/lib/auth-client";
 import { AuthCard } from "@/components/features/auth-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -38,7 +37,7 @@ export function ForgotPasswordForm() {
       }
 
       toast.success(
-        "Reset requested. In development, check the server logs for the reset link."
+        "Reset requested. In development, check the server logs for the reset link.",
       );
     });
   };

@@ -36,7 +36,13 @@ export function AuthCard({
         <CardContent className="space-y-4">
           {children}
           <p className="text-sm text-muted-foreground">
-            {footerText} <Link href={footerHref} className="text-primary underline-offset-4 hover:underline">{footerLinkLabel}</Link>
+            {footerText}{" "}
+            <Link
+              href={footerHref}
+              className="text-primary underline-offset-4 hover:underline"
+            >
+              {footerLinkLabel}
+            </Link>
           </p>
         </CardContent>
       </Card>

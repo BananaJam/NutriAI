@@ -1,17 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api, type MealType, type NutritionTotals } from "@/lib/api";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, UtensilsCrossed, Plus, Trash2 } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Plus,
+  Trash2,
+  UtensilsCrossed,
+} from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { AddFoodLogDialog } from "@/components/features/add-food-log-dialog";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
+import { api, type MealType, type NutritionTotals } from "@/lib/api";
 import { useSessionUser } from "@/lib/use-session-user";
 
 const mealTypeColors: Record<MealType, string> = {
@@ -73,7 +79,14 @@ export function FoodLog() {
     queryFn: async () => {
       const result = await api.api.profile.get();
       if (result.error) return null;
-      return result.data as { profile: { targetCalories: number | null; targetProtein: number | null; targetCarbs: number | null; targetFat: number | null } } | null;
+      return result.data as {
+        profile: {
+          targetCalories: number | null;
+          targetProtein: number | null;
+          targetCarbs: number | null;
+          targetFat: number | null;
+        };
+      } | null;
     },
     enabled: !!userId,
   });

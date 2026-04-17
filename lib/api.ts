@@ -35,6 +35,9 @@ export type ActivityLevel =
   | "MODERATE"
   | "ACTIVE"
   | "VERY_ACTIVE";
+export type ThemePreference = "LIGHT" | "DARK" | "SYSTEM";
+export type DashboardRange = "DAYS_7" | "DAYS_30" | "DAYS_90";
+export type WeekStart = "MONDAY" | "SUNDAY";
 
 export interface Food {
   id: string;
@@ -132,6 +135,37 @@ export interface UserStats {
   dailyTotals: Array<{ date: string } & NutritionTotals>;
   averages: NutritionTotals;
   daysLogged: number;
+}
+
+export interface UserSettings {
+  themePreference: ThemePreference;
+  defaultDashboardRange: DashboardRange;
+  compactMode: boolean;
+  startWeekOn: WeekStart;
+  showCaloriesOnDashboard: boolean;
+  showProteinOnDashboard: boolean;
+  showStreakOnDashboard: boolean;
+  updatedAt: string;
+}
+
+export interface UserSettingsPayload {
+  settings: UserSettings;
+  account: {
+    name: string | null;
+    email: string;
+    image: string | null;
+  };
+  profile: {
+    exists: boolean;
+    completionScore: number;
+    activityLevel: ActivityLevel | null;
+    height: number | null;
+    weight: number | null;
+    targetCalories: number | null;
+    targetProtein: number | null;
+    targetCarbs: number | null;
+    targetFat: number | null;
+  };
 }
 
 export interface ChatConversation {

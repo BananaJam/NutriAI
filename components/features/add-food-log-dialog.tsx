@@ -1,12 +1,12 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useQuery } from "@tanstack/react-query";
+import { ChevronLeft, Search } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useQuery } from "@tanstack/react-query";
-import { api } from "@/lib/api";
-import type { Food, MealType } from "@/lib/api";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -24,9 +24,9 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Search, ChevronLeft } from "lucide-react";
+import type { Food, MealType } from "@/lib/api";
+import { api } from "@/lib/api";
 
 const addFoodSchema = z.object({
   mealType: z.enum(["BREAKFAST", "LUNCH", "DINNER", "SNACK"]),
@@ -161,7 +161,9 @@ export function AddFoodLogDialog({
                     <p className="font-medium text-sm">{food.name}</p>
                     <p className="text-xs text-muted-foreground">
                       {food.brand && `${food.brand} · `}
-                      {food.servingSize}{food.servingUnit} · {food.calories} kcal · P: {food.protein}g
+                      {food.servingSize}
+                      {food.servingUnit} · {food.calories} kcal · P:{" "}
+                      {food.protein}g
                     </p>
                   </button>
                 ))
@@ -176,13 +178,18 @@ export function AddFoodLogDialog({
           </div>
         ) : (
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+            <form
+              onSubmit={form.handleSubmit(handleSubmit)}
+              className="space-y-4"
+            >
               {selectedFood && (
                 <div className="rounded-lg border p-3 bg-muted/50">
                   <p className="font-medium">{selectedFood.name}</p>
                   <p className="text-sm text-muted-foreground">
                     {selectedFood.brand && `${selectedFood.brand} · `}
-                    {selectedFood.servingSize}{selectedFood.servingUnit} · {selectedFood.calories} kcal per serving
+                    {selectedFood.servingSize}
+                    {selectedFood.servingUnit} · {selectedFood.calories} kcal
+                    per serving
                   </p>
                 </div>
               )}
@@ -197,7 +204,9 @@ export function AddFoodLogDialog({
                       <select
                         className={selectClassName}
                         value={field.value}
-                        onChange={(e) => field.onChange(e.target.value as MealType)}
+                        onChange={(e) =>
+                          field.onChange(e.target.value as MealType)
+                        }
                       >
                         <option value="BREAKFAST">Breakfast</option>
                         <option value="LUNCH">Lunch</option>

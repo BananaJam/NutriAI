@@ -1,10 +1,11 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { addDays, format } from "date-fns";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { format, addDays } from "date-fns";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -22,7 +23,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import type { MealPlan } from "@/lib/api";
 
 const mealPlanFormSchema = z
@@ -165,7 +165,10 @@ export function MealPlanFormDialog({
                       className="h-4 w-4 rounded border-input"
                     />
                   </FormControl>
-                  <FormLabel htmlFor="isActive" className="!mt-0 cursor-pointer">
+                  <FormLabel
+                    htmlFor="isActive"
+                    className="!mt-0 cursor-pointer"
+                  >
                     Set as active plan
                   </FormLabel>
                   <FormMessage />

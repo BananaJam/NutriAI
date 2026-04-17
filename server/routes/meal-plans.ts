@@ -32,7 +32,7 @@ export const mealPlansRoutes = new Elysia({ prefix: "/meal-plans" })
       query: t.Object({
         active: t.Optional(t.Boolean()),
       }),
-    }
+    },
   )
   .get(
     "/:id",
@@ -63,7 +63,7 @@ export const mealPlansRoutes = new Elysia({ prefix: "/meal-plans" })
       params: t.Object({
         id: t.String(),
       }),
-    }
+    },
   )
   .post(
     "/",
@@ -88,7 +88,7 @@ export const mealPlansRoutes = new Elysia({ prefix: "/meal-plans" })
         startDate: t.String(),
         endDate: t.String(),
       }),
-    }
+    },
   )
   .post(
     "/:id/items",
@@ -137,7 +137,7 @@ export const mealPlansRoutes = new Elysia({ prefix: "/meal-plans" })
         servings: t.Optional(t.Number({ minimum: 0.1, default: 1 })),
         notes: t.Optional(t.String()),
       }),
-    }
+    },
   )
   .put(
     "/:id",
@@ -176,7 +176,7 @@ export const mealPlansRoutes = new Elysia({ prefix: "/meal-plans" })
         startDate: t.Optional(t.String()),
         endDate: t.Optional(t.String()),
       }),
-    }
+    },
   )
   .delete(
     "/:id",
@@ -203,7 +203,7 @@ export const mealPlansRoutes = new Elysia({ prefix: "/meal-plans" })
       params: t.Object({
         id: t.String(),
       }),
-    }
+    },
   )
   .delete(
     "/items/:itemId",
@@ -237,5 +237,5 @@ export const mealPlansRoutes = new Elysia({ prefix: "/meal-plans" })
       params: t.Object({
         itemId: t.String(),
       }),
-    }
+    },
   );

@@ -183,6 +183,20 @@ exports.Prisma.UserProfileScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.UserSettingsScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  themePreference: 'themePreference',
+  defaultDashboardRange: 'defaultDashboardRange',
+  compactMode: 'compactMode',
+  startWeekOn: 'startWeekOn',
+  showCaloriesOnDashboard: 'showCaloriesOnDashboard',
+  showProteinOnDashboard: 'showProteinOnDashboard',
+  showStreakOnDashboard: 'showStreakOnDashboard',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.FoodScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -317,6 +331,23 @@ exports.ActivityLevel = exports.$Enums.ActivityLevel = {
   VERY_ACTIVE: 'VERY_ACTIVE'
 };
 
+exports.ThemePreference = exports.$Enums.ThemePreference = {
+  LIGHT: 'LIGHT',
+  DARK: 'DARK',
+  SYSTEM: 'SYSTEM'
+};
+
+exports.DashboardRange = exports.$Enums.DashboardRange = {
+  DAYS_7: 'DAYS_7',
+  DAYS_30: 'DAYS_30',
+  DAYS_90: 'DAYS_90'
+};
+
+exports.WeekStart = exports.$Enums.WeekStart = {
+  MONDAY: 'MONDAY',
+  SUNDAY: 'SUNDAY'
+};
+
 exports.MealType = exports.$Enums.MealType = {
   BREAKFAST: 'BREAKFAST',
   LUNCH: 'LUNCH',
@@ -352,6 +383,7 @@ exports.Prisma.ModelName = {
   Account: 'Account',
   Verification: 'Verification',
   UserProfile: 'UserProfile',
+  UserSettings: 'UserSettings',
   Food: 'Food',
   FoodLog: 'FoodLog',
   FoodLogItem: 'FoodLogItem',

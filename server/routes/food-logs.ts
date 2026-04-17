@@ -36,7 +36,7 @@ export const foodLogsRoutes = new Elysia({ prefix: "/food-logs" })
         startDate: t.Optional(t.String()),
         endDate: t.Optional(t.String()),
       }),
-    }
+    },
   )
   .get(
     "/:date",
@@ -78,7 +78,7 @@ export const foodLogsRoutes = new Elysia({ prefix: "/food-logs" })
             fat: acc.fat + item.food.fat * multiplier,
           };
         },
-        { calories: 0, protein: 0, carbs: 0, fat: 0 }
+        { calories: 0, protein: 0, carbs: 0, fat: 0 },
       );
 
       return { log, totals };
@@ -87,7 +87,7 @@ export const foodLogsRoutes = new Elysia({ prefix: "/food-logs" })
       params: t.Object({
         date: t.String(),
       }),
-    }
+    },
   )
   .post(
     "/:date/items",
@@ -141,7 +141,7 @@ export const foodLogsRoutes = new Elysia({ prefix: "/food-logs" })
         servings: t.Optional(t.Number({ minimum: 0.1, default: 1 })),
         notes: t.Optional(t.String()),
       }),
-    }
+    },
   )
   .delete(
     "/items/:itemId",
@@ -175,5 +175,5 @@ export const foodLogsRoutes = new Elysia({ prefix: "/food-logs" })
       params: t.Object({
         itemId: t.String(),
       }),
-    }
+    },
   );

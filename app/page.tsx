@@ -1,9 +1,18 @@
 "use client";
 
-import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { format, subDays } from "date-fns";
-import { api } from "@/lib/api";
+import {
+  Apple,
+  Calendar,
+  Flame,
+  MessageSquare,
+  Target,
+  UtensilsCrossed,
+} from "lucide-react";
+import Link from "next/link";
+import { PageHeader } from "@/components/features/page-header";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -11,30 +20,45 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  MessageSquare,
-  UtensilsCrossed,
-  Calendar,
-  Target,
-  TrendingUp,
-  Apple,
-} from "lucide-react";
+import { api } from "@/lib/api";
+import { dashboardRangeDays, dashboardRangeLabels } from "@/lib/settings";
+import { useAppSettings } from "@/lib/use-app-settings";
 import { useSessionUser } from "@/lib/use-session-user";
+import { cn } from "@/lib/utils";
 
 const todayStr = format(new Date(), "yyyy-MM-dd");
-const thirtyDaysAgo = format(subDays(new Date(), 30), "yyyy-MM-dd");
+type DashboardMetric = {
+  key: string;
+  title: string;
+  description: string;
+  value: string;
+  icon: typeof Flame;
+};
 
 export default function DashboardPage() {
   const { userId } = useSessionUser();
+  const { data: settingsData } = useAppSettings();
+  const settings = settingsData?.settings;
+  const dashboardRange = settings?.defaultDashboardRange ?? "DAYS_30";
+  const rangeDays = dashboardRangeDays[dashboardRange];
+  const startDate = format(subDays(new Date(), rangeDays), "yyyy-MM-dd");
+  const compactMode = settings?.compactMode ?? false;
 
   const { data: logData, isLoading: logLoading } = useQuery({
     queryKey: ["foodLog", userId, todayStr],
     queryFn: async () => {
       const result = await api.api["food-logs"]({ date: todayStr }).get();
       if (result.error) return null;
-      return result.data as { totals: { calories: number; protein: number; carbs: number; fat: number } } | null;
+
+      return result.data as {
+        totals: {
+          calories: number;
+          protein: number;
+          carbs: number;
+          fat: number;
+        };
+      } | null;
     },
     enabled: !!userId,
   });
@@ -56,16 +80,21 @@ export default function DashboardPage() {
     queryFn: async () => {
       const result = await api.api.profile.get();
       if (result.error) return null;
-      return result.data as { profile: { targetCalories: number | null; targetProtein: number | null } } | null;
+      return result.data as {
+        profile: {
+          targetCalories: number | null;
+          targetProtein: number | null;
+        };
+      } | null;
     },
     enabled: !!userId,
   });
 
   const { data: statsData, isLoading: statsLoading } = useQuery({
-    queryKey: ["stats", userId],
+    queryKey: ["stats", userId, startDate],
     queryFn: async () => {
       const result = await api.api.profile.stats.get({
-        query: { startDate: thirtyDaysAgo },
+        query: { startDate },
       });
       if (result.error) return null;
       return result.data as { daysLogged: number } | null;
@@ -80,146 +109,139 @@ export default function DashboardPage() {
   const activeGoalsCount = goalsData?.goals?.length ?? 0;
   const daysLogged = statsData?.daysLogged ?? 0;
 
-  const isLoading = logLoading || goalsLoading || profileLoading || statsLoading;
+  const isLoading =
+    logLoading || goalsLoading || profileLoading || statsLoading;
+
+  const metrics: DashboardMetric[] = [
+    settings?.showCaloriesOnDashboard !== false
+      ? {
+          key: "calories",
+          title: "Calories",
+          description: "Consumed today",
+          value: `${calories} / ${targetCalories}`,
+          icon: Flame,
+        }
+      : null,
+    settings?.showProteinOnDashboard !== false
+      ? {
+          key: "protein",
+          title: "Protein",
+          description: "Daily target",
+          value: `${protein}g / ${targetProtein}g`,
+          icon: Apple,
+        }
+      : null,
+    {
+      key: "goals",
+      title: "Active goals",
+      description: "In progress",
+      value: `${activeGoalsCount}`,
+      icon: Target,
+    },
+    settings?.showStreakOnDashboard !== false
+      ? {
+          key: "streak",
+          title: "Logging streak",
+          description: dashboardRangeLabels[dashboardRange],
+          value: `${daysLogged} days`,
+          icon: Calendar,
+        }
+      : null,
+  ].filter((metric): metric is DashboardMetric => metric !== null);
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
-        <p className="text-muted-foreground">
-          Welcome to your nutrition tracking dashboard
-        </p>
+    <div className="space-y-8">
+      <PageHeader
+        eyebrow="Overview"
+        title="Dashboard"
+        description="Quick access to progress, targets, and the next actions that keep your nutrition plan moving."
+      />
+
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {metrics.map((metric) => (
+          <Card
+            key={metric.key}
+            className={cn(
+              "app-surface",
+              compactMode ? "gap-4 py-5" : undefined,
+            )}
+          >
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                {metric.title}
+              </CardTitle>
+              <metric.icon className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              {isLoading ? (
+                <Skeleton className="h-8 w-32" />
+              ) : (
+                <>
+                  <div className="text-2xl font-semibold tracking-tight">
+                    {metric.value}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {metric.description}
+                  </p>
+                </>
+              )}
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Today&apos;s Calories
-            </CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <Skeleton className="h-8 w-32" />
-            ) : (
-              <>
-                <div className="text-2xl font-bold">
-                  {calories} / {targetCalories}
-                </div>
-                <p className="text-xs text-muted-foreground">kcal consumed</p>
-              </>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Protein</CardTitle>
-            <Apple className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <Skeleton className="h-8 w-32" />
-            ) : (
-              <>
-                <div className="text-2xl font-bold">
-                  {protein}g / {targetProtein}g
-                </div>
-                <p className="text-xs text-muted-foreground">daily target</p>
-              </>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Goals</CardTitle>
-            <Target className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <Skeleton className="h-8 w-16" />
-            ) : (
-              <>
-                <div className="text-2xl font-bold">{activeGoalsCount}</div>
-                <p className="text-xs text-muted-foreground">goals in progress</p>
-              </>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Streak</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <Skeleton className="h-8 w-24" />
-            ) : (
-              <>
-                <div className="text-2xl font-bold">{daysLogged} days</div>
-                <p className="text-xs text-muted-foreground">logged in last 30 days</p>
-              </>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <Card>
+      <div className="grid gap-4 lg:grid-cols-3">
+        <Card className="app-surface">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <MessageSquare className="h-5 w-5" />
               AI Assistant
             </CardTitle>
             <CardDescription>
-              Chat with your personal nutrition AI to log meals, get
-              recommendations, and track your progress
+              Chat with your nutrition assistant to log meals, ask questions,
+              and stay on plan.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Link href="/assistant">
-              <Button className="w-full">Start Chatting</Button>
+              <Button className="w-full rounded-xl">Start Chatting</Button>
             </Link>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="app-surface">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <UtensilsCrossed className="h-5 w-5" />
               Food Log
             </CardTitle>
             <CardDescription>
-              View and manage your daily food intake with detailed nutrition
-              information
+              Review meals, macros, and daily totals without leaving the main
+              flow.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Link href="/log">
-              <Button variant="outline" className="w-full">
+              <Button variant="outline" className="w-full rounded-xl">
                 View Log
               </Button>
             </Link>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="app-surface">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Calendar className="h-5 w-5" />
               Meal Plans
             </CardTitle>
             <CardDescription>
-              Create and manage weekly meal plans to stay on track with your
-              nutrition goals
+              Build weekly structure and keep your active plan close at hand.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Link href="/plans">
-              <Button variant="outline" className="w-full">
+              <Button variant="outline" className="w-full rounded-xl">
                 View Plans
               </Button>
             </Link>

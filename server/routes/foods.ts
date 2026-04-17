@@ -29,7 +29,7 @@ export const foodsRoutes = new Elysia({ prefix: "/foods" })
         limit: t.Optional(t.Number({ default: 20 })),
         offset: t.Optional(t.Number({ default: 0 })),
       }),
-    }
+    },
   )
   .get(
     "/:id",
@@ -49,7 +49,7 @@ export const foodsRoutes = new Elysia({ prefix: "/foods" })
       params: t.Object({
         id: t.String(),
       }),
-    }
+    },
   )
   .post(
     "/",
@@ -75,7 +75,7 @@ export const foodsRoutes = new Elysia({ prefix: "/foods" })
         sodium: t.Optional(t.Number({ minimum: 0 })),
         barcode: t.Optional(t.String()),
       }),
-    }
+    },
   )
   .put(
     "/:id",
@@ -114,7 +114,7 @@ export const foodsRoutes = new Elysia({ prefix: "/foods" })
         sodium: t.Optional(t.Number({ minimum: 0 })),
         barcode: t.Optional(t.String()),
       }),
-    }
+    },
   )
   .delete(
     "/:id",
@@ -138,5 +138,5 @@ export const foodsRoutes = new Elysia({ prefix: "/foods" })
       params: t.Object({
         id: t.String(),
       }),
-    }
+    },
   );

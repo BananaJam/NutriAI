@@ -1,10 +1,11 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { format } from "date-fns";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { format } from "date-fns";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -22,8 +23,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import type { Goal, GoalType, GoalStatus } from "@/lib/api";
+import type { Goal, GoalStatus, GoalType } from "@/lib/api";
 
 const goalFormSchema = z.object({
   type: z.enum([
@@ -219,7 +219,7 @@ export function GoalFormDialog({
                           onChange={(e) => {
                             const val = e.target.value;
                             field.onChange(
-                              val === "" ? undefined : parseFloat(val)
+                              val === "" ? undefined : parseFloat(val),
                             );
                           }}
                         />
@@ -243,7 +243,7 @@ export function GoalFormDialog({
                           value={field.value ?? ""}
                           onChange={(e) =>
                             field.onChange(
-                              (e.target.value as GoalStatus) || undefined
+                              (e.target.value as GoalStatus) || undefined,
                             )
                           }
                         >

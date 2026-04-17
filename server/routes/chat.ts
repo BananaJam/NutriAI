@@ -1,7 +1,7 @@
-import { Elysia, t } from "elysia";
-import { openai } from "@ai-sdk/openai";
 import { anthropic } from "@ai-sdk/anthropic";
+import { openai } from "@ai-sdk/openai";
 import { jsonSchema, streamText, tool } from "ai";
+import { Elysia, t } from "elysia";
 import { prisma } from "../lib/prisma";
 import { requireRequestSession } from "../lib/session";
 
@@ -266,7 +266,7 @@ function createNutritionTools(userId: string) {
               fat: acc.fat + item.food.fat * multiplier,
             };
           },
-          { calories: 0, protein: 0, carbs: 0, fat: 0 }
+          { calories: 0, protein: 0, carbs: 0, fat: 0 },
         );
 
         return { log, totals };
@@ -346,7 +346,7 @@ function createNutritionTools(userId: string) {
                 fat: acc.fat + item.food.fat * multiplier,
               };
             },
-            { calories: 0, protein: 0, carbs: 0, fat: 0 }
+            { calories: 0, protein: 0, carbs: 0, fat: 0 },
           );
 
           return {
@@ -369,7 +369,8 @@ function createNutritionTools(userId: string) {
                   dailyTotals.reduce((sum, day) => sum + day.carbs, 0) /
                   daysLogged,
                 fat:
-                  dailyTotals.reduce((sum, day) => sum + day.fat, 0) / daysLogged,
+                  dailyTotals.reduce((sum, day) => sum + day.fat, 0) /
+                  daysLogged,
               }
             : { calories: 0, protein: 0, carbs: 0, fat: 0 };
 
@@ -417,17 +418,17 @@ function createNutritionTools(userId: string) {
             enum: ["LOSE", "MAINTAIN", "GAIN"],
           },
         },
-        required: ["weight", "height", "age", "gender", "activityLevel", "goal"],
+        required: [
+          "weight",
+          "height",
+          "age",
+          "gender",
+          "activityLevel",
+          "goal",
+        ],
         additionalProperties: false,
       }),
-      execute: async ({
-        weight,
-        height,
-        age,
-        gender,
-        activityLevel,
-        goal,
-      }) => {
+      execute: async ({ weight, height, age, gender, activityLevel, goal }) => {
         const bmr =
           gender === "MALE"
             ? 10 * weight + 6.25 * height - 5 * age + 5
@@ -479,7 +480,7 @@ export async function handleChatRequest(
     text: string;
     toolCalls: unknown[];
     toolResults: unknown[];
-  }) => Promise<void>
+  }) => Promise<void>,
 ) {
   const normalizedMessages = Array.isArray(messages)
     ? messages.map((message) => {
@@ -518,7 +519,9 @@ When users want to log food, search for foods first to find the correct food ID,
 Keep answers practical and concise.
 The current user ID is: ${userId}
 Today's date is: ${new Date().toISOString().split("T")[0]}`,
-    messages: normalizedMessages as Parameters<typeof streamText>[0]["messages"],
+    messages: normalizedMessages as Parameters<
+      typeof streamText
+    >[0]["messages"],
     tools: createNutritionTools(userId),
     maxToolRoundtrips: 5,
     onFinish: async ({ text, toolCalls, toolResults }) => {
@@ -532,35 +535,32 @@ Today's date is: ${new Date().toISOString().split("T")[0]}`,
 }
 
 export const chatRoutes = new Elysia({ prefix: "/chat" })
-  .get(
-    "/conversations",
-    async ({ request, set }) => {
-      const session = await requireRequestSession(request, set);
-      if (!session) return { message: "Unauthorized" };
+  .get("/conversations", async ({ request, set }) => {
+    const session = await requireRequestSession(request, set);
+    if (!session) return { message: "Unauthorized" };
 
-      const conversations = await prisma.conversation.findMany({
-        where: {
-          userId: session.user.id,
+    const conversations = await prisma.conversation.findMany({
+      where: {
+        userId: session.user.id,
+      },
+      include: {
+        messages: {
+          orderBy: { createdAt: "desc" },
+          take: 1,
         },
-        include: {
-          messages: {
-            orderBy: { createdAt: "desc" },
-            take: 1,
-          },
-        },
-        orderBy: { updatedAt: "desc" },
-      });
+      },
+      orderBy: { updatedAt: "desc" },
+    });
 
-      return {
-        conversations: conversations.map((conversation) => ({
-          id: conversation.id,
-          title: conversation.title || "New conversation",
-          updatedAt: conversation.updatedAt,
-          preview: conversation.messages[0]?.content || "",
-        })),
-      };
-    }
-  )
+    return {
+      conversations: conversations.map((conversation) => ({
+        id: conversation.id,
+        title: conversation.title || "New conversation",
+        updatedAt: conversation.updatedAt,
+        preview: conversation.messages[0]?.content || "",
+      })),
+    };
+  })
   .post(
     "/conversations",
     async ({ request, body, set }) => {
@@ -580,7 +580,7 @@ export const chatRoutes = new Elysia({ prefix: "/chat" })
       body: t.Object({
         title: t.Optional(t.String()),
       }),
-    }
+    },
   )
   .get(
     "/conversations/:id",
@@ -621,7 +621,7 @@ export const chatRoutes = new Elysia({ prefix: "/chat" })
       params: t.Object({
         id: t.String(),
       }),
-    }
+    },
   )
   .post(
     "/",
@@ -642,21 +642,20 @@ export const chatRoutes = new Elysia({ prefix: "/chat" })
 
       const latestUserText = extractTextContent(latestUserMessage?.content);
 
-      let conversation =
-        body.conversationId
-          ? await prisma.conversation.findFirst({
-              where: {
-                id: body.conversationId,
-                userId: session.user.id,
+      let conversation = body.conversationId
+        ? await prisma.conversation.findFirst({
+            where: {
+              id: body.conversationId,
+              userId: session.user.id,
+            },
+            include: {
+              messages: {
+                orderBy: { createdAt: "desc" },
+                take: 1,
               },
-              include: {
-                messages: {
-                  orderBy: { createdAt: "desc" },
-                  take: 1,
-                },
-              },
-            })
-          : null;
+            },
+          })
+        : null;
 
       if (!conversation) {
         conversation = await prisma.conversation.create({
@@ -708,7 +707,9 @@ export const chatRoutes = new Elysia({ prefix: "/chat" })
               conversationId: conversation.id,
               role: "ASSISTANT",
               content: text,
-              toolCalls: toolCalls ? JSON.parse(JSON.stringify(toolCalls)) : undefined,
+              toolCalls: toolCalls
+                ? JSON.parse(JSON.stringify(toolCalls))
+                : undefined,
               toolResults: toolResults
                 ? JSON.parse(JSON.stringify(toolResults))
                 : undefined,
@@ -721,7 +722,7 @@ export const chatRoutes = new Elysia({ prefix: "/chat" })
               updatedAt: new Date(),
             },
           });
-        }
+        },
       );
 
       return result.toDataStreamResponse({
@@ -749,8 +750,8 @@ export const chatRoutes = new Elysia({ prefix: "/chat" })
                 name: t.Optional(t.String()),
                 toolCallId: t.Optional(t.String()),
               },
-              { additionalProperties: true }
-            )
+              { additionalProperties: true },
+            ),
           ),
           conversationId: t.Optional(t.String()),
           input: t.Optional(t.String()),
@@ -762,7 +763,7 @@ export const chatRoutes = new Elysia({ prefix: "/chat" })
           stop: t.Optional(t.Union([t.String(), t.Array(t.String())])),
           toolChoice: t.Optional(t.Unknown()),
         },
-        { additionalProperties: true }
+        { additionalProperties: true },
       ),
-    }
+    },
   );

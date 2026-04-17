@@ -1,9 +1,18 @@
 "use client";
 
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { format } from "date-fns";
+import { Calendar, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api } from "@/lib/api";
-import type { MealPlan } from "@/lib/api";
+import { toast } from "sonner";
+import { DeleteMealPlanDialog } from "@/components/features/delete-meal-plan-dialog";
+import { MealPlanDetailDialog } from "@/components/features/meal-plan-detail-dialog";
+import {
+  MealPlanFormDialog,
+  type MealPlanFormValues,
+} from "@/components/features/meal-plan-form-dialog";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -11,19 +20,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Calendar, Plus, Trash2 } from "lucide-react";
-import { format } from "date-fns";
-import { toast } from "sonner";
+import type { MealPlan } from "@/lib/api";
+import { api } from "@/lib/api";
 import { useSessionUser } from "@/lib/use-session-user";
-import {
-  MealPlanFormDialog,
-  type MealPlanFormValues,
-} from "@/components/features/meal-plan-form-dialog";
-import { DeleteMealPlanDialog } from "@/components/features/delete-meal-plan-dialog";
-import { MealPlanDetailDialog } from "@/components/features/meal-plan-detail-dialog";
 
 export default function MealPlansPage() {
   const { userId } = useSessionUser();
@@ -172,7 +172,9 @@ export default function MealPlansPage() {
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8 opacity-0 transition-opacity group-hover:opacity-100 text-destructive hover:text-destructive"
-                      onClick={(e) => handleDeleteClick(plan as unknown as MealPlan, e)}
+                      onClick={(e) =>
+                        handleDeleteClick(plan as unknown as MealPlan, e)
+                      }
                     >
                       <Trash2 className="h-4 w-4" />
                       <span className="sr-only">Delete</span>

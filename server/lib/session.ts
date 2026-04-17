@@ -8,7 +8,7 @@ export async function getRequestSession(request: Request) {
 
 export async function requireRequestSession(
   request: Request,
-  set: { status?: number | string }
+  set: { status?: number | string },
 ) {
   const session = await getRequestSession(request);
 

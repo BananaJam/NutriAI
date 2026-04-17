@@ -11,7 +11,7 @@ export const auth = betterAuth({
     requireEmailVerification: false,
     sendResetPassword: async ({ user, url }) => {
       console.log(
-        `[auth] Password reset requested for ${user.email}. Open this link to continue: ${url}`
+        `[auth] Password reset requested for ${user.email}. Open this link to continue: ${url}`,
       );
     },
   },

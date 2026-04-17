@@ -1,8 +1,17 @@
 "use client";
 
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { format } from "date-fns";
+import { Pencil, Plus, Target, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api, type Goal, type GoalStatus } from "@/lib/api";
+import { toast } from "sonner";
+import { DeleteGoalDialog } from "@/components/features/delete-goal-dialog";
+import {
+  GoalFormDialog,
+  type GoalFormValues,
+} from "@/components/features/goal-form-dialog";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -10,19 +19,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Target, Plus, Pencil, Trash2 } from "lucide-react";
-import { format } from "date-fns";
-import { toast } from "sonner";
+import { api, type Goal, type GoalStatus } from "@/lib/api";
 import { useSessionUser } from "@/lib/use-session-user";
-import {
-  GoalFormDialog,
-  type GoalFormValues,
-} from "@/components/features/goal-form-dialog";
-import { DeleteGoalDialog } from "@/components/features/delete-goal-dialog";
 
 const statusColors: Record<GoalStatus, string> = {
   ACTIVE: "bg-green-100 text-green-800",
@@ -72,7 +72,13 @@ export default function GoalsPage() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: async ({ id, values }: { id: string; values: GoalFormValues }) => {
+    mutationFn: async ({
+      id,
+      values,
+    }: {
+      id: string;
+      values: GoalFormValues;
+    }) => {
       const result = await api.api.goals({ id }).put({
         targetValue: values.targetValue,
         currentValue: values.currentValue,
@@ -205,7 +211,8 @@ export default function GoalsPage() {
                         </Badge>
                       </div>
                       <CardDescription>
-                        Started {format(new Date(goal.startDate), "MMM d, yyyy")}
+                        Started{" "}
+                        {format(new Date(goal.startDate), "MMM d, yyyy")}
                         {goal.endDate &&
                           ` - Ends ${format(new Date(goal.endDate), "MMM d, yyyy")}`}
                       </CardDescription>
@@ -224,7 +231,9 @@ export default function GoalsPage() {
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8 text-destructive hover:text-destructive"
-                        onClick={() => handleDeleteClick(goal as unknown as Goal)}
+                        onClick={() =>
+                          handleDeleteClick(goal as unknown as Goal)
+                        }
                       >
                         <Trash2 className="h-4 w-4" />
                         <span className="sr-only">Delete</span>

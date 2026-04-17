@@ -1,12 +1,12 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useQuery } from "@tanstack/react-query";
+import { ChevronLeft, Search } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useQuery } from "@tanstack/react-query";
-import { api } from "@/lib/api";
-import type { Food, MealType } from "@/lib/api";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -24,9 +24,9 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Search, ChevronLeft } from "lucide-react";
+import type { Food, MealType } from "@/lib/api";
+import { api } from "@/lib/api";
 
 const addItemSchema = z.object({
   dayOfWeek: z.number().min(0).max(6),
@@ -47,7 +47,15 @@ interface AddMealPlanItemDialogProps {
 const selectClassName =
   "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring";
 
-const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const dayNames = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+];
 
 export function AddMealPlanItemDialog({
   open,
@@ -165,7 +173,8 @@ export function AddMealPlanItemDialog({
                     <p className="font-medium text-sm">{food.name}</p>
                     <p className="text-xs text-muted-foreground">
                       {food.brand && `${food.brand} · `}
-                      {food.servingSize}{food.servingUnit} · {food.calories} kcal
+                      {food.servingSize}
+                      {food.servingUnit} · {food.calories} kcal
                     </p>
                   </button>
                 ))
@@ -180,13 +189,18 @@ export function AddMealPlanItemDialog({
           </div>
         ) : (
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+            <form
+              onSubmit={form.handleSubmit(handleSubmit)}
+              className="space-y-4"
+            >
               {selectedFood && (
                 <div className="rounded-lg border p-3 bg-muted/50">
                   <p className="font-medium">{selectedFood.name}</p>
                   <p className="text-sm text-muted-foreground">
                     {selectedFood.brand && `${selectedFood.brand} · `}
-                    {selectedFood.servingSize}{selectedFood.servingUnit} · {selectedFood.calories} kcal per serving
+                    {selectedFood.servingSize}
+                    {selectedFood.servingUnit} · {selectedFood.calories} kcal
+                    per serving
                   </p>
                 </div>
               )}
@@ -202,10 +216,14 @@ export function AddMealPlanItemDialog({
                         <select
                           className={selectClassName}
                           value={field.value}
-                          onChange={(e) => field.onChange(parseInt(e.target.value))}
+                          onChange={(e) =>
+                            field.onChange(parseInt(e.target.value, 10))
+                          }
                         >
                           {dayNames.map((day, i) => (
-                            <option key={i} value={i}>{day}</option>
+                            <option key={day} value={i}>
+                              {day}
+                            </option>
                           ))}
                         </select>
                       </FormControl>
@@ -224,7 +242,9 @@ export function AddMealPlanItemDialog({
                         <select
                           className={selectClassName}
                           value={field.value}
-                          onChange={(e) => field.onChange(e.target.value as MealType)}
+                          onChange={(e) =>
+                            field.onChange(e.target.value as MealType)
+                          }
                         >
                           <option value="BREAKFAST">Breakfast</option>
                           <option value="LUNCH">Lunch</option>
