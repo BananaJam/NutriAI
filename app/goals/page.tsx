@@ -294,6 +294,29 @@ export default function GoalsPage() {
         }
       />
 
+      <div className="rounded-xl border bg-muted/30 px-4 py-3 text-sm text-muted-foreground">
+        <span className="font-medium text-foreground">How this works: </span>
+        <span className="font-medium text-foreground">Profile targets</span> are
+        your daily calorie and macro baselines — set them in{" "}
+        <Link
+          href="/profile"
+          className="text-primary underline-offset-2 hover:underline"
+        >
+          Profile
+        </Link>
+        . <span className="font-medium text-foreground">Goals</span> here are
+        explicit time-bound milestones (e.g. hit 150g protein daily for 30
+        days). <span className="font-medium text-foreground">Adherence</span> —
+        how closely your logged meals matched targets — lives in{" "}
+        <Link
+          href="/progress"
+          className="text-primary underline-offset-2 hover:underline"
+        >
+          Progress
+        </Link>
+        .
+      </div>
+
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <SummaryCard
           title="Active goals"

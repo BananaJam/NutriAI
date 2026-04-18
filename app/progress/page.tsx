@@ -31,6 +31,7 @@ import {
   type DailyStatHighlight,
   type DashboardRange,
   normalizeGoalsResponse,
+  normalizeProfileResponse,
   normalizeUserStatsResponse,
 } from "@/lib/api";
 import { formatGoalTypeLabel, getGoalProgressPercentage } from "@/lib/goals";
@@ -64,6 +65,16 @@ export default function ProgressPage() {
       });
       if (result.error || !("dailyTotals" in result.data)) return null;
       return normalizeUserStatsResponse(result.data);
+    },
+    enabled: !!userId,
+  });
+
+  const { data: profileData } = useQuery({
+    queryKey: ["profile", userId],
+    queryFn: async () => {
+      const result = await api.api.profile.get();
+      if (result.error || !("profile" in result.data)) return null;
+      return normalizeProfileResponse(result.data);
     },
     enabled: !!userId,
   });
@@ -270,6 +281,18 @@ export default function ProgressPage() {
               Macro trends for{" "}
               {dashboardRangeLabels[selectedRange].toLowerCase()}.
             </CardDescription>
+            {!profileData?.profile?.targetCalories && (
+              <p className="mt-1 text-xs text-muted-foreground">
+                Charts show raw intake — no target lines yet.{" "}
+                <Link
+                  href="/profile"
+                  className="text-primary underline-offset-2 hover:underline"
+                >
+                  Set targets in your profile
+                </Link>{" "}
+                to see adherence bands.
+              </p>
+            )}
           </CardHeader>
           <CardContent className="grid gap-4 lg:grid-cols-2">
             {statsLoading ? (
