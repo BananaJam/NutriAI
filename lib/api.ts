@@ -119,6 +119,8 @@ export interface RecentFoodsResponse {
 
 export interface GoalsResponse {
   goals: Goal[];
+  summary: GoalSummary;
+  appliedFilters: GoalFilters;
 }
 
 export interface MealPlansResponse {
@@ -228,6 +230,20 @@ export interface Goal {
   endDate: string | null;
   status: GoalStatus;
   derivedProgress?: boolean;
+}
+
+export interface GoalSummary {
+  activeCount: number;
+  completedCount: number;
+  cancelledCount: number;
+  derivedCount: number;
+  endingSoonCount: number;
+}
+
+export interface GoalFilters {
+  status: GoalStatus | null;
+  type: GoalType | null;
+  derivedOnly: boolean;
 }
 
 export interface MealPlanItem {
@@ -537,13 +553,33 @@ export function normalizeFoodLogsResponse(payload: { logs?: RawFoodLog[] }) {
   } satisfies FoodLogsResponse;
 }
 
-export function normalizeGoalsResponse(payload: { goals?: RawGoal[] }) {
+function normalizeGoal(goal: RawGoal): Goal {
   return {
-    goals: (payload.goals ?? []).map((goal) => ({
-      ...goal,
-      startDate: toIsoString(goal.startDate),
-      endDate: goal.endDate ? toIsoString(goal.endDate) : null,
-    })),
+    ...goal,
+    startDate: toIsoString(goal.startDate),
+    endDate: goal.endDate ? toIsoString(goal.endDate) : null,
+  };
+}
+
+export function normalizeGoalsResponse(payload: {
+  goals?: RawGoal[];
+  summary?: GoalSummary;
+  appliedFilters?: GoalFilters;
+}) {
+  return {
+    goals: (payload.goals ?? []).map(normalizeGoal),
+    summary: payload.summary ?? {
+      activeCount: 0,
+      completedCount: 0,
+      cancelledCount: 0,
+      derivedCount: 0,
+      endingSoonCount: 0,
+    },
+    appliedFilters: payload.appliedFilters ?? {
+      status: null,
+      type: null,
+      derivedOnly: false,
+    },
   } satisfies GoalsResponse;
 }
 

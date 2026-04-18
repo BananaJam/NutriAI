@@ -1,4 +1,5 @@
 import { Elysia, t } from "elysia";
+import { buildGoalSummary, isAutoTrackedGoal } from "@/lib/goals";
 import { buildRangeStats, deriveGoalProgress } from "@/lib/nutrition-analytics";
 import { prisma } from "../lib/prisma";
 import { requireRequestSession } from "../lib/session";
@@ -37,7 +38,13 @@ async function getGoalContext(userId: string) {
 
 async function enrichGoal(
   goal: {
-    type: string;
+    type:
+      | "WEIGHT_LOSS"
+      | "WEIGHT_GAIN"
+      | "CALORIE_TARGET"
+      | "PROTEIN_TARGET"
+      | "WATER_INTAKE"
+      | "CUSTOM";
     currentValue: number;
     targetValue: number;
   },
@@ -48,7 +55,7 @@ async function enrichGoal(
   return {
     ...goal,
     currentValue: deriveGoalProgress(goal, context),
-    derivedProgress: true,
+    derivedProgress: isAutoTrackedGoal(goal.type),
   };
 }
 
@@ -59,24 +66,37 @@ export const goalsRoutes = new Elysia({ prefix: "/goals" })
       const session = await requireRequestSession(request, set);
       if (!session) return { message: "Unauthorized" };
 
-      const { status } = query;
+      const { status, type, derivedOnly } = query;
 
       const goals = await prisma.goal.findMany({
         where: {
           userId: session.user.id,
-          status: status || undefined,
         },
         orderBy: { createdAt: "desc" },
       });
 
       const context = await getGoalContext(session.user.id);
+      const enrichedGoals = goals.map((goal) => ({
+        ...goal,
+        currentValue: deriveGoalProgress(goal, context),
+        derivedProgress: isAutoTrackedGoal(goal.type),
+      }));
+
+      const filteredGoals = enrichedGoals.filter((goal) => {
+        if (status && goal.status !== status) return false;
+        if (type && goal.type !== type) return false;
+        if (derivedOnly && !goal.derivedProgress) return false;
+        return true;
+      });
 
       return {
-        goals: goals.map((goal) => ({
-          ...goal,
-          currentValue: deriveGoalProgress(goal, context),
-          derivedProgress: true,
-        })),
+        goals: filteredGoals,
+        summary: buildGoalSummary(enrichedGoals),
+        appliedFilters: {
+          status: status ?? null,
+          type: type ?? null,
+          derivedOnly: derivedOnly ?? false,
+        },
       };
     },
     {
@@ -88,6 +108,17 @@ export const goalsRoutes = new Elysia({ prefix: "/goals" })
             t.Literal("CANCELLED"),
           ]),
         ),
+        type: t.Optional(
+          t.Union([
+            t.Literal("WEIGHT_LOSS"),
+            t.Literal("WEIGHT_GAIN"),
+            t.Literal("CALORIE_TARGET"),
+            t.Literal("PROTEIN_TARGET"),
+            t.Literal("WATER_INTAKE"),
+            t.Literal("CUSTOM"),
+          ]),
+        ),
+        derivedOnly: t.Optional(t.Boolean()),
       }),
     },
   )

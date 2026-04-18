@@ -245,12 +245,20 @@ export default function DashboardPage() {
         title="Dashboard"
         description="Review your current intake, range trends, and the next actions that keep nutrition tracking moving."
         actions={
-          <Link href={`/progress?range=${dashboardRange}`}>
-            <Button variant="outline" className="rounded-xl">
-              <LineChart className="mr-2 h-4 w-4" />
-              View trends
-            </Button>
-          </Link>
+          <div className="flex flex-wrap items-center gap-3">
+            <Link href="/goals">
+              <Button variant="outline" className="rounded-xl">
+                <Target className="mr-2 h-4 w-4" />
+                View all goals
+              </Button>
+            </Link>
+            <Link href={`/progress?range=${dashboardRange}`}>
+              <Button variant="outline" className="rounded-xl">
+                <LineChart className="mr-2 h-4 w-4" />
+                View trends
+              </Button>
+            </Link>
+          </div>
         }
       />
 

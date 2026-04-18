@@ -33,6 +33,7 @@ import {
   normalizeGoalsResponse,
   normalizeUserStatsResponse,
 } from "@/lib/api";
+import { formatGoalTypeLabel, getGoalProgressPercentage } from "@/lib/goals";
 import { dashboardRangeDays, dashboardRangeLabels } from "@/lib/settings";
 import { useAppSettings } from "@/lib/use-app-settings";
 import { useSessionUser } from "@/lib/use-session-user";
@@ -418,13 +419,10 @@ export default function ProgressPage() {
               </>
             ) : activeGoals.length ? (
               activeGoals.map((goal) => {
-                const progressValue =
-                  goal.targetValue > 0
-                    ? Math.min(
-                        (goal.currentValue / goal.targetValue) * 100,
-                        100,
-                      )
-                    : 0;
+                const progressValue = getGoalProgressPercentage(
+                  goal.currentValue,
+                  goal.targetValue,
+                );
 
                 return (
                   <div
@@ -434,7 +432,7 @@ export default function ProgressPage() {
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <p className="font-medium capitalize">
-                          {goal.type.replace(/_/g, " ").toLowerCase()}
+                          {formatGoalTypeLabel(goal.type)}
                         </p>
                         <p className="mt-1 text-sm text-muted-foreground">
                           {Math.round(goal.currentValue)}
