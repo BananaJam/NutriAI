@@ -39,7 +39,7 @@ const starterPrompts = [
   "Compare my saved yogurts by protein and calories",
 ];
 
-export function Chat() {
+export function Chat({ initialInput }: { initialInput?: string } = {}) {
   const queryClient = useQueryClient();
   const [selectedConversationId, setSelectedConversationId] = useState<
     string | null
@@ -212,6 +212,7 @@ export function Chat() {
         <ConversationPane
           key={selectedConversationId}
           conversationId={selectedConversationId}
+          initialInput={initialInput}
           onConversationTouched={() => {
             queryClient.invalidateQueries({ queryKey: ["chatConversations"] });
             queryClient.invalidateQueries({
@@ -233,9 +234,11 @@ export function Chat() {
 
 function ConversationPane({
   conversationId,
+  initialInput,
   onConversationTouched,
 }: {
   conversationId: string;
+  initialInput?: string;
   onConversationTouched: () => void;
 }) {
   const { data, isLoading } = useQuery({
@@ -264,6 +267,7 @@ function ConversationPane({
     <ConversationSession
       conversationId={conversationId}
       conversation={data.conversation}
+      initialInput={initialInput}
       onConversationTouched={onConversationTouched}
     />
   );
@@ -272,10 +276,12 @@ function ConversationPane({
 function ConversationSession({
   conversationId,
   conversation,
+  initialInput,
   onConversationTouched,
 }: {
   conversationId: string;
   conversation: ChatConversationDetail;
+  initialInput?: string;
   onConversationTouched: () => void;
 }) {
   const initialMessages = useMemo(
@@ -305,6 +311,12 @@ function ConversationSession({
       onConversationTouched();
     },
   });
+
+  useEffect(() => {
+    if (initialInput) {
+      setInput(initialInput);
+    }
+  }, [initialInput, setInput]);
 
   return (
     <div className="flex h-[calc(100vh-12rem)] flex-col rounded-lg border p-4">

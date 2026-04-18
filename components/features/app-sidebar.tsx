@@ -33,12 +33,12 @@ import { useSessionUser } from "@/lib/use-session-user";
 
 const navigationItems = [
   { title: "Dashboard", href: "/", icon: Home },
-  { title: "AI Assistant", href: "/assistant", icon: MessageSquare },
   { title: "Food Log", href: "/log", icon: UtensilsCrossed },
-  { title: "Progress", href: "/progress", icon: LineChart },
   { title: "Meal Plans", href: "/plans", icon: Calendar },
-  { title: "Goals", href: "/goals", icon: Target },
+  { title: "Progress", href: "/progress", icon: LineChart },
   { title: "Foods", href: "/foods", icon: Apple },
+  { title: "Goals", href: "/goals", icon: Target },
+  { title: "AI Assistant", href: "/assistant", icon: MessageSquare },
 ];
 
 const settingsItems = [

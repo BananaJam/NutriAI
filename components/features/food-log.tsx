@@ -7,6 +7,7 @@ import {
   CalendarDays,
   ChevronLeft,
   ChevronRight,
+  Clock,
   Pencil,
   Plus,
   Sparkles,
@@ -43,6 +44,7 @@ import {
   type MealType,
   type NutritionTotals,
   normalizeFoodLogResponse,
+  normalizeFoodLogsResponse,
   normalizeMealPlansResponse,
   normalizeProfileResponse,
 } from "@/lib/api";
@@ -109,6 +111,23 @@ export function FoodLog() {
       });
       if (result.error || !("plans" in result.data)) return null;
       return normalizeMealPlansResponse(result.data);
+    },
+    enabled: !!userId,
+  });
+
+  // Fetch recent logs to derive recent foods for quick-add
+  const { data: recentLogsData } = useQuery({
+    queryKey: ["foodLogs", "recent"],
+    queryFn: async () => {
+      const sevenDaysAgo = format(
+        new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+        "yyyy-MM-dd",
+      );
+      const result = await api.api["food-logs"].get({
+        query: { startDate: sevenDaysAgo, endDate: dateStr },
+      });
+      if (result.error || !("logs" in result.data)) return null;
+      return normalizeFoodLogsResponse(result.data);
     },
     enabled: !!userId,
   });
@@ -254,6 +273,23 @@ export function FoodLog() {
     }));
   }, [data?.log?.items]);
 
+  // Derive up to 7 unique recent foods from prior logs (excluding today's already-logged foods)
+  const recentFoods = useMemo(() => {
+    const allItems = (recentLogsData?.logs ?? []).flatMap(
+      (log) => log.items ?? [],
+    );
+    const seen = new Set<string>();
+    const unique: FoodLogItem[] = [];
+    for (const item of allItems) {
+      if (!seen.has(item.food.id)) {
+        seen.add(item.food.id);
+        unique.push(item);
+        if (unique.length >= 7) break;
+      }
+    }
+    return unique;
+  }, [recentLogsData]);
+
   const activePlan = mealPlansData?.plans[0] ?? null;
   const plannedDayItems = useMemo(() => {
     if (!activePlan) return [];
@@ -370,6 +406,46 @@ export function FoodLog() {
         />
       </div>
 
+      {recentFoods.length > 0 && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Clock className="h-4 w-4" />
+              Recent foods
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-2">
+              {recentFoods.map((item) => (
+                <Button
+                  key={item.food.id}
+                  variant="outline"
+                  size="sm"
+                  className="h-auto rounded-xl px-3 py-2 text-left"
+                  onClick={() =>
+                    addItemMutation.mutate({
+                      foodId: item.food.id,
+                      mealType: item.mealType,
+                      servings: item.servings,
+                    })
+                  }
+                  disabled={addItemMutation.isPending}
+                >
+                  <div>
+                    <p className="text-sm font-medium">{item.food.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {item.servings}×{item.food.servingSize}
+                      {item.food.servingUnit} ·{" "}
+                      {Math.round(item.food.calories * item.servings)} kcal
+                    </p>
+                  </div>
+                </Button>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <MealPlanBridgeCard
         date={date}
         dateStr={dateStr}
@@ -404,16 +480,39 @@ export function FoodLog() {
           ) : error || !data?.log?.items?.length ? (
             <div className="flex flex-col items-center py-8 text-center">
               <UtensilsCrossed className="mb-4 h-12 w-12 text-muted-foreground" />
-              <p className="text-muted-foreground">
-                No food logged for this day
-              </p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Use the add flow or quick recent foods to build the day faster.
-              </p>
-              <Button className="mt-4" onClick={() => setIsAddOpen(true)}>
-                <Plus className="mr-2 h-4 w-4" />
-                Add Food
-              </Button>
+              {!activePlan ? (
+                <>
+                  <p className="font-medium text-foreground">
+                    No meal plan active
+                  </p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Create a meal plan to fill this day in one step, or add
+                    foods manually.
+                  </p>
+                  <div className="mt-4 flex flex-wrap justify-center gap-2">
+                    <Button asChild variant="outline">
+                      <Link href="/plans">Browse meal plans</Link>
+                    </Button>
+                    <Button onClick={() => setIsAddOpen(true)}>
+                      <Plus className="mr-2 h-4 w-4" />
+                      Add food manually
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <p className="font-medium text-foreground">
+                    Nothing logged for this day
+                  </p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Apply your meal plan above or add foods manually.
+                  </p>
+                  <Button className="mt-4" onClick={() => setIsAddOpen(true)}>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add Food
+                  </Button>
+                </>
+              )}
             </div>
           ) : (
             <div className="space-y-6">
