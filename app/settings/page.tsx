@@ -314,7 +314,12 @@ export default function SettingsPage() {
             ) : (
               <>
                 <div className="space-y-3">
-                  <p className="text-sm font-medium">Default dashboard range</p>
+                  <div>
+                    <p className="text-sm font-medium">Default dashboard range</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                      Controls the default time window shown on the dashboard overview and the progress page charts.
+                    </p>
+                  </div>
                   <div className="grid gap-2 sm:grid-cols-3">
                     {dashboardRangeOptions.map(([value, label]) => (
                       <Button
@@ -337,7 +342,12 @@ export default function SettingsPage() {
                 </div>
 
                 <div className="space-y-3">
-                  <p className="text-sm font-medium">Week starts on</p>
+                  <div>
+                    <p className="text-sm font-medium">Week starts on</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                      Affects how weekday columns and weekly planning views are ordered.
+                    </p>
+                  </div>
                   <div className="grid gap-2 sm:grid-cols-2">
                     {weekStartOptions.map(([value, label]) => (
                       <Button
@@ -368,14 +378,19 @@ export default function SettingsPage() {
                   <div>
                     <p className="font-medium">Compact mode</p>
                     <p className="mt-1 text-sm text-muted-foreground">
-                      Tighten spacing across the shell and summary cards.
+                      Reduces spacing and card sizes for a denser information layout across all pages.
                     </p>
                   </div>
                   <LayoutGrid className="h-4 w-4 text-muted-foreground" />
                 </button>
 
                 <div className="space-y-3">
-                  <p className="text-sm font-medium">Dashboard metrics</p>
+                  <div>
+                    <p className="text-sm font-medium">Dashboard metrics</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                      Toggling these cards off removes them from the dashboard overview entirely.
+                    </p>
+                  </div>
                   <div className="grid gap-3">
                     {[
                       {

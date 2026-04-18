@@ -128,6 +128,11 @@ export default function ProgressPage() {
     ),
   );
 
+  const hasMissedDays = missedDates.length > 0;
+  const lowProtein =
+    proteinAdherence !== "—" && Number.parseInt(proteinAdherence) < 70;
+  const noGoals = !goalsLoading && activeGoals.length === 0;
+
   return (
     <div className="space-y-8">
       <PageHeader
@@ -151,6 +156,61 @@ export default function ProgressPage() {
           </div>
         }
       />
+
+      {(hasMissedDays || lowProtein || noGoals) && (
+        <div className="space-y-2">
+          {hasMissedDays && (
+            <div className="flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 dark:border-amber-900/40 dark:bg-amber-950/30">
+              <p className="text-sm font-medium text-amber-900 dark:text-amber-200">
+                {missedDates.length} day{missedDates.length === 1 ? "" : "s"}{" "}
+                without a log entry in this range
+              </p>
+              <Link
+                href={`/log?date=${missedDates[0]}&from=progress&range=${selectedRange}`}
+                className="ml-4 shrink-0 text-sm font-semibold text-amber-800 underline-offset-2 hover:underline dark:text-amber-300"
+              >
+                Open earliest missed day
+              </Link>
+            </div>
+          )}
+          {lowProtein && (
+            <div className="flex items-center justify-between rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 dark:border-blue-900/40 dark:bg-blue-950/30">
+              <p className="text-sm font-medium text-blue-900 dark:text-blue-200">
+                Protein adherence is below 70% — consider adjusting your food choices
+              </p>
+              <Link
+                href="/assistant?prompt=Suggest+high-protein+foods+to+help+me+hit+my+daily+protein+target"
+                className="ml-4 shrink-0 text-sm font-semibold text-blue-800 underline-offset-2 hover:underline dark:text-blue-300"
+              >
+                Ask the assistant
+              </Link>
+            </div>
+          )}
+          {noGoals && (
+            <div className="flex items-center justify-between rounded-xl border border-muted bg-muted/40 px-4 py-3">
+              <p className="text-sm font-medium">
+                No active goals — progress is measured against profile targets only
+              </p>
+              <Link
+                href="/goals"
+                className="ml-4 shrink-0 text-sm font-semibold text-primary underline-offset-2 hover:underline"
+              >
+                Create a goal
+              </Link>
+            </div>
+          )}
+        </div>
+      )}
+
+      <div className="rounded-xl border bg-muted/30 px-4 py-3 text-sm text-muted-foreground">
+        <span className="font-medium text-foreground">What you&apos;re measuring:</span>{" "}
+        Adherence % compares your logged intake to your{" "}
+        <Link href="/profile" className="text-primary underline-offset-2 hover:underline">
+          profile targets
+        </Link>
+        . Goals below are explicit time-bound goals you created separately.
+        Both live in parallel — targets are your daily baseline, goals are your larger intentions.
+      </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <ProgressStatCard
@@ -489,6 +549,17 @@ export default function ProgressPage() {
             </div>
           </CardContent>
         </Card>
+      </div>
+      <div className="flex items-center justify-between rounded-xl border bg-muted/30 px-4 py-3">
+        <p className="text-sm text-muted-foreground">
+          Need help interpreting these trends?
+        </p>
+        <Link
+          href="/assistant?prompt=Explain+my+nutrition+progress+this+week+and+suggest+improvements"
+          className="text-sm font-semibold text-primary underline-offset-2 hover:underline"
+        >
+          Ask the assistant
+        </Link>
       </div>
     </div>
   );

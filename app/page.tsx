@@ -173,13 +173,15 @@ export default function DashboardPage() {
           icon: Apple,
         }
       : null,
-    {
-      key: "streak",
-      title: "Current streak",
-      description: dashboardRangeLabels[dashboardRange],
-      value: `${stats?.streak.current ?? 0} days`,
-      icon: Calendar,
-    },
+    settings?.showStreakOnDashboard !== false
+      ? {
+          key: "streak",
+          title: "Current streak",
+          description: dashboardRangeLabels[dashboardRange],
+          value: `${stats?.streak.current ?? 0} days`,
+          icon: Calendar,
+        }
+      : null,
     {
       key: "goals",
       title: "Active goals",
@@ -227,6 +229,20 @@ export default function DashboardPage() {
     });
   }
 
+  const todayHasEntries = (logData?.log?.items?.length ?? 0) > 0;
+  if (!todayHasEntries && !logLoading) {
+    quickActions.push({
+      key: "log-today",
+      title: "Log your first meal today",
+      description: "Nothing logged yet for today. Keep your streak going.",
+      href: "/log",
+      cta: "Open log",
+    });
+  }
+
+  // Cap quick actions at 3 to avoid overwhelming the user
+  const visibleQuickActions = quickActions.slice(0, 3);
+
   const averageCalories = Math.round(
     stats?.targetAdherence.calories.average ?? 0,
   );
@@ -238,8 +254,26 @@ export default function DashboardPage() {
   const proteinTargetHitDays =
     stats?.targetAdherence.protein.daysHitTarget ?? 0;
 
+  const profileIncomplete =
+    !profileLoading &&
+    profileData !== undefined &&
+    (!profileData?.profile?.targetCalories || !profileData?.profile?.targetProtein);
+
   return (
     <div className="space-y-8">
+      {profileIncomplete && (
+        <div className="flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 dark:border-amber-900/40 dark:bg-amber-950/30">
+          <p className="text-sm font-medium text-amber-900 dark:text-amber-200">
+            Profile targets are incomplete — calorie and macro adherence may not be accurate
+          </p>
+          <Link
+            href="/profile"
+            className="ml-4 shrink-0 text-sm font-semibold text-amber-800 underline-offset-2 hover:underline dark:text-amber-300"
+          >
+            Complete profile
+          </Link>
+        </div>
+      )}
       <PageHeader
         eyebrow="Overview"
         title="Dashboard"
@@ -378,8 +412,8 @@ export default function DashboardPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
-              {quickActions.length ? (
-                quickActions.map((action) => (
+              {visibleQuickActions.length ? (
+                visibleQuickActions.map((action) => (
                   <Link key={action.key} href={action.href}>
                     <div className="rounded-2xl border bg-background/70 p-4 transition hover:border-primary/40 hover:bg-accent/30">
                       <p className="font-medium">{action.title}</p>

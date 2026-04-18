@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import Link from "next/link";
 import {
   Apple,
   ArrowUpDown,
@@ -348,15 +349,22 @@ export default function FoodsPage() {
         title="Food database"
         description="Browse, compare, and reuse foods across your log, plans, and assistant workflows."
         actions={
-          <Button
-            onClick={() => {
-              setSelectedFood(null);
-              setIsFormOpen(true);
-            }}
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Add food
-          </Button>
+          <div className="flex flex-wrap items-center gap-3">
+            <Link href="/assistant?prompt=Suggest+high-protein+foods+I+should+add+to+my+library">
+              <Button variant="outline" className="rounded-xl">
+                Ask for suggestions
+              </Button>
+            </Link>
+            <Button
+              onClick={() => {
+                setSelectedFood(null);
+                setIsFormOpen(true);
+              }}
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Add food
+            </Button>
+          </div>
         }
       />
 
