@@ -4,10 +4,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import {
   ArrowLeft,
+  CalendarDays,
   ChevronLeft,
   ChevronRight,
   Pencil,
   Plus,
+  Sparkles,
   Trash2,
   UtensilsCrossed,
 } from "lucide-react";
@@ -22,7 +24,13 @@ import {
 } from "@/components/features/edit-food-log-item-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -30,9 +38,12 @@ import {
   api,
   type FoodLogItem,
   type FoodLogResponse,
+  type MealPlan,
+  type MealPlanItem,
   type MealType,
   type NutritionTotals,
   normalizeFoodLogResponse,
+  normalizeMealPlansResponse,
   normalizeProfileResponse,
 } from "@/lib/api";
 import { useSessionUser } from "@/lib/use-session-user";
@@ -90,6 +101,18 @@ export function FoodLog() {
     enabled: !!userId,
   });
 
+  const { data: mealPlansData, isLoading: mealPlansLoading } = useQuery({
+    queryKey: ["mealPlans", "active", userId],
+    queryFn: async () => {
+      const result = await api.api["meal-plans"].get({
+        query: { active: true },
+      });
+      if (result.error || !("plans" in result.data)) return null;
+      return normalizeMealPlansResponse(result.data);
+    },
+    enabled: !!userId,
+  });
+
   const addItemMutation = useMutation({
     mutationFn: async ({
       foodId,
@@ -118,6 +141,37 @@ export function FoodLog() {
     },
     onError: () => {
       toast.error("Failed to add food");
+    },
+  });
+
+  const applyMealPlanMutation = useMutation({
+    mutationFn: async ({
+      planId,
+      mealType,
+    }: {
+      planId: string;
+      mealType?: MealType;
+    }) => {
+      const result = await api.api["meal-plans"]({ id: planId }).apply.post({
+        date: dateStr,
+        dayOfWeek: date.getDay(),
+        mealType,
+      });
+      if (result.error) throw new Error("Failed to apply meal plan");
+      return result.data;
+    },
+    onSuccess: async (result) => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ["foodLog", userId, dateStr],
+        }),
+        queryClient.invalidateQueries({ queryKey: ["foodLogs", "recent"] }),
+        queryClient.invalidateQueries({ queryKey: ["stats"] }),
+      ]);
+      toast.success(`${result.appliedCount} planned item(s) added to the log`);
+    },
+    onError: () => {
+      toast.error("Failed to apply planned meals");
     },
   });
 
@@ -199,6 +253,33 @@ export function FoodLog() {
       items: items.filter((item) => item.mealType === mealType),
     }));
   }, [data?.log?.items]);
+
+  const activePlan = mealPlansData?.plans[0] ?? null;
+  const plannedDayItems = useMemo(() => {
+    if (!activePlan) return [];
+    return activePlan.items.filter((item) => item.dayOfWeek === date.getDay());
+  }, [activePlan, date]);
+  const plannedItemsByMeal = useMemo(
+    () =>
+      mealOrder.map((mealType) => ({
+        mealType,
+        items: plannedDayItems.filter((item) => item.mealType === mealType),
+      })),
+    [plannedDayItems],
+  );
+  const plannedTotals = useMemo(
+    () =>
+      plannedDayItems.reduce(
+        (acc, item) => {
+          acc.calories += item.food.calories * item.servings;
+          acc.protein += item.food.protein * item.servings;
+          acc.itemCount += 1;
+          return acc;
+        },
+        { calories: 0, protein: 0, itemCount: 0 },
+      ),
+    [plannedDayItems],
+  );
 
   useEffect(() => {
     const nextDate = parseDateParam(dateParam);
@@ -288,6 +369,26 @@ export function FoodLog() {
           target={activeTargets.fat}
         />
       </div>
+
+      <MealPlanBridgeCard
+        date={date}
+        dateStr={dateStr}
+        activePlan={activePlan}
+        isLoading={mealPlansLoading}
+        plannedItemsByMeal={plannedItemsByMeal}
+        plannedTotals={plannedTotals}
+        onApplyFullDay={() =>
+          activePlan
+            ? applyMealPlanMutation.mutate({ planId: activePlan.id })
+            : undefined
+        }
+        onApplyMeal={(mealType) =>
+          activePlan
+            ? applyMealPlanMutation.mutate({ planId: activePlan.id, mealType })
+            : undefined
+        }
+        isApplying={applyMealPlanMutation.isPending}
+      />
 
       <Card>
         <CardHeader>
@@ -423,6 +524,193 @@ function parseDateParam(value: string | null) {
 
   const parsed = new Date(value);
   return Number.isNaN(parsed.getTime()) ? new Date() : parsed;
+}
+
+function MealPlanBridgeCard({
+  date,
+  dateStr,
+  activePlan,
+  isLoading,
+  plannedItemsByMeal,
+  plannedTotals,
+  onApplyFullDay,
+  onApplyMeal,
+  isApplying,
+}: {
+  date: Date;
+  dateStr: string;
+  activePlan: MealPlan | null;
+  isLoading: boolean;
+  plannedItemsByMeal: Array<{ mealType: MealType; items: MealPlanItem[] }>;
+  plannedTotals: {
+    calories: number;
+    protein: number;
+    itemCount: number;
+  };
+  onApplyFullDay: () => void;
+  onApplyMeal: (mealType: MealType) => void;
+  isApplying: boolean;
+}) {
+  if (isLoading) {
+    return <Skeleton className="h-56 rounded-xl" />;
+  }
+
+  if (!activePlan) {
+    return (
+      <Card className="border-dashed">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <CalendarDays className="h-5 w-5" />
+            Connect planning to logging
+          </CardTitle>
+          <CardDescription>
+            There is no active meal plan yet, so this day is being built
+            manually.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-muted-foreground">
+            Create an active plan to bring planned meals into your daily log in
+            one step.
+          </p>
+          <Button asChild variant="outline">
+            <Link href="/plans">Open meal plans</Link>
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="border-primary/20 bg-primary/5">
+      <CardHeader className="gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div className="space-y-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge variant="secondary" className="bg-background/80">
+              Active plan
+            </Badge>
+            <Badge variant="outline">{format(date, "EEEE")}</Badge>
+          </div>
+          <div className="space-y-1">
+            <CardTitle className="text-lg">
+              Planned meals for {format(date, "MMMM d")}
+            </CardTitle>
+            <CardDescription>
+              Pull meals from{" "}
+              <span className="font-medium">{activePlan.name}</span> into this
+              day&apos;s log without leaving the page.
+            </CardDescription>
+          </div>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            asChild
+            className="bg-background/90"
+          >
+            <Link href="/plans">Review plan</Link>
+          </Button>
+          <Button
+            size="sm"
+            onClick={onApplyFullDay}
+            disabled={isApplying || plannedTotals.itemCount === 0}
+          >
+            <Sparkles className="mr-2 h-4 w-4" />
+            Apply full day
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {plannedTotals.itemCount === 0 ? (
+          <div className="rounded-lg border border-dashed bg-background/70 px-4 py-6 text-sm text-muted-foreground">
+            Nothing is planned for {format(date, "EEEE")} in the active plan.
+            Use the planner to add meals, then come back here to apply them to{" "}
+            {dateStr}.
+          </div>
+        ) : (
+          <>
+            <div className="grid gap-3 sm:grid-cols-3">
+              <PlanStat
+                label="Planned items"
+                value={`${plannedTotals.itemCount}`}
+              />
+              <PlanStat
+                label="Planned calories"
+                value={`${Math.round(plannedTotals.calories)} kcal`}
+              />
+              <PlanStat
+                label="Planned protein"
+                value={`${Math.round(plannedTotals.protein)}g`}
+              />
+            </div>
+
+            <div className="grid gap-3 lg:grid-cols-2">
+              {plannedItemsByMeal.map((group) =>
+                group.items.length ? (
+                  <div
+                    key={group.mealType}
+                    className="rounded-lg border bg-background/85 p-4"
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <Badge
+                        variant="secondary"
+                        className={mealTypeColors[group.mealType]}
+                      >
+                        {mealTypeLabels[group.mealType]}
+                      </Badge>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8"
+                        onClick={() => onApplyMeal(group.mealType)}
+                        disabled={isApplying}
+                      >
+                        Apply meal
+                      </Button>
+                    </div>
+                    <div className="mt-3 space-y-3">
+                      {group.items.map((item) => (
+                        <div
+                          key={item.id}
+                          className="flex items-start justify-between gap-3 text-sm"
+                        >
+                          <div>
+                            <p className="font-medium">{item.food.name}</p>
+                            <p className="text-muted-foreground">
+                              {item.servings} x {item.food.servingSize}
+                              {item.food.servingUnit}
+                              {item.food.brand ? ` · ${item.food.brand}` : ""}
+                              {item.notes ? ` · ${item.notes}` : ""}
+                            </p>
+                          </div>
+                          <p className="whitespace-nowrap text-muted-foreground">
+                            {Math.round(item.food.calories * item.servings)}{" "}
+                            kcal
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : null,
+              )}
+            </div>
+          </>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function PlanStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-lg border bg-background/85 p-4">
+      <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+        {label}
+      </p>
+      <p className="mt-2 text-xl font-semibold">{value}</p>
+    </div>
+  );
 }
 
 function MacroCard({
