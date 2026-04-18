@@ -257,14 +257,16 @@ export default function DashboardPage() {
   const profileIncomplete =
     !profileLoading &&
     profileData !== undefined &&
-    (!profileData?.profile?.targetCalories || !profileData?.profile?.targetProtein);
+    (!profileData?.profile?.targetCalories ||
+      !profileData?.profile?.targetProtein);
 
   return (
     <div className="space-y-8">
       {profileIncomplete && (
         <div className="flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 dark:border-amber-900/40 dark:bg-amber-950/30">
           <p className="text-sm font-medium text-amber-900 dark:text-amber-200">
-            Profile targets are incomplete — calorie and macro adherence may not be accurate
+            Profile targets are incomplete — calorie and macro adherence may not
+            be accurate
           </p>
           <Link
             href="/profile"

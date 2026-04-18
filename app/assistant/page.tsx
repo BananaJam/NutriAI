@@ -6,11 +6,7 @@ import { Suspense, useState } from "react";
 import { Chat } from "@/components/features/chat";
 import { PageHeader } from "@/components/features/page-header";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 
 const timeOfDayStarters = () => {
   const hour = new Date().getHours();

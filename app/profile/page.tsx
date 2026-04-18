@@ -86,67 +86,107 @@ export default function ProfilePage() {
         }
       />
 
-      {profile && (() => {
-        const fields = [
-          { label: "Gender", filled: !!profile.gender, required: false },
-          { label: "Date of birth", filled: !!profile.dateOfBirth, required: false },
-          { label: "Height", filled: !!profile.height, required: false },
-          { label: "Weight", filled: !!profile.weight, required: false },
-          { label: "Activity level", filled: !!profile.activityLevel, required: false },
-          { label: "Calorie target", filled: !!profile.targetCalories, required: true },
-          { label: "Protein target", filled: !!profile.targetProtein, required: true },
-          { label: "Carbs target", filled: !!profile.targetCarbs, required: false },
-          { label: "Fat target", filled: !!profile.targetFat, required: false },
-        ];
-        const filled = fields.filter((f) => f.filled).length;
-        const pct = Math.round((filled / fields.length) * 100);
-        return (
-          <Card className="app-surface">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>Profile completeness</CardTitle>
-                  <CardDescription>
-                    Fields marked <span className="font-medium text-foreground">Required</span> affect calorie tracking and adherence reporting.
-                  </CardDescription>
-                </div>
-                <span className="text-2xl font-semibold">{pct}%</span>
-              </div>
-              <Progress value={pct} className="mt-2" />
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-3">
-                {fields.map((field) => (
-                  <div key={field.label} className="flex items-center gap-2 text-sm">
-                    {field.filled ? (
-                      <CheckCircle2 className="h-4 w-4 shrink-0 text-green-500" />
-                    ) : (
-                      <Circle className="h-4 w-4 shrink-0 text-muted-foreground" />
-                    )}
-                    <span className={field.filled ? "text-foreground" : "text-muted-foreground"}>
-                      {field.label}
-                      {field.required && !field.filled && (
-                        <span className="ml-1 text-xs text-destructive">Required</span>
-                      )}
-                    </span>
+      {profile &&
+        (() => {
+          const fields = [
+            { label: "Gender", filled: !!profile.gender, required: false },
+            {
+              label: "Date of birth",
+              filled: !!profile.dateOfBirth,
+              required: false,
+            },
+            { label: "Height", filled: !!profile.height, required: false },
+            { label: "Weight", filled: !!profile.weight, required: false },
+            {
+              label: "Activity level",
+              filled: !!profile.activityLevel,
+              required: false,
+            },
+            {
+              label: "Calorie target",
+              filled: !!profile.targetCalories,
+              required: true,
+            },
+            {
+              label: "Protein target",
+              filled: !!profile.targetProtein,
+              required: true,
+            },
+            {
+              label: "Carbs target",
+              filled: !!profile.targetCarbs,
+              required: false,
+            },
+            {
+              label: "Fat target",
+              filled: !!profile.targetFat,
+              required: false,
+            },
+          ];
+          const filled = fields.filter((f) => f.filled).length;
+          const pct = Math.round((filled / fields.length) * 100);
+          return (
+            <Card className="app-surface">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Profile completeness</CardTitle>
+                    <CardDescription>
+                      Fields marked{" "}
+                      <span className="font-medium text-foreground">
+                        Required
+                      </span>{" "}
+                      affect calorie tracking and adherence reporting.
+                    </CardDescription>
                   </div>
-                ))}
-              </div>
-              {pct < 100 && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="mt-4 rounded-xl"
-                  onClick={() => setIsFormOpen(true)}
-                >
-                  <Edit className="mr-2 h-4 w-4" />
-                  Fill missing fields
-                </Button>
-              )}
-            </CardContent>
-          </Card>
-        );
-      })()}
+                  <span className="text-2xl font-semibold">{pct}%</span>
+                </div>
+                <Progress value={pct} className="mt-2" />
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-3">
+                  {fields.map((field) => (
+                    <div
+                      key={field.label}
+                      className="flex items-center gap-2 text-sm"
+                    >
+                      {field.filled ? (
+                        <CheckCircle2 className="h-4 w-4 shrink-0 text-green-500" />
+                      ) : (
+                        <Circle className="h-4 w-4 shrink-0 text-muted-foreground" />
+                      )}
+                      <span
+                        className={
+                          field.filled
+                            ? "text-foreground"
+                            : "text-muted-foreground"
+                        }
+                      >
+                        {field.label}
+                        {field.required && !field.filled && (
+                          <span className="ml-1 text-xs text-destructive">
+                            Required
+                          </span>
+                        )}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                {pct < 100 && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="mt-4 rounded-xl"
+                    onClick={() => setIsFormOpen(true)}
+                  >
+                    <Edit className="mr-2 h-4 w-4" />
+                    Fill missing fields
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+          );
+        })()}
 
       {isLoading ? (
         <div className="grid gap-4 xl:grid-cols-2">

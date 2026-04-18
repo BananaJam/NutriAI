@@ -21,7 +21,9 @@ export function NextStepCard({
   return (
     <Card
       className={
-        variant === "subtle" ? "border-dashed bg-muted/30" : "border-primary/20 bg-primary/5"
+        variant === "subtle"
+          ? "border-dashed bg-muted/30"
+          : "border-primary/20 bg-primary/5"
       }
     >
       <CardContent className="flex items-center justify-between gap-4 py-4">
@@ -31,7 +33,12 @@ export function NextStepCard({
           </div>
           <p className="text-sm font-medium">{message}</p>
         </div>
-        <Button asChild size="sm" variant={variant === "subtle" ? "outline" : "default"} className="shrink-0 rounded-xl">
+        <Button
+          asChild
+          size="sm"
+          variant={variant === "subtle" ? "outline" : "default"}
+          className="shrink-0 rounded-xl"
+        >
           <Link href={href}>{cta}</Link>
         </Button>
       </CardContent>

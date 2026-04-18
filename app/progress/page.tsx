@@ -176,7 +176,8 @@ export default function ProgressPage() {
           {lowProtein && (
             <div className="flex items-center justify-between rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 dark:border-blue-900/40 dark:bg-blue-950/30">
               <p className="text-sm font-medium text-blue-900 dark:text-blue-200">
-                Protein adherence is below 70% — consider adjusting your food choices
+                Protein adherence is below 70% — consider adjusting your food
+                choices
               </p>
               <Link
                 href="/assistant?prompt=Suggest+high-protein+foods+to+help+me+hit+my+daily+protein+target"
@@ -189,7 +190,8 @@ export default function ProgressPage() {
           {noGoals && (
             <div className="flex items-center justify-between rounded-xl border border-muted bg-muted/40 px-4 py-3">
               <p className="text-sm font-medium">
-                No active goals — progress is measured against profile targets only
+                No active goals — progress is measured against profile targets
+                only
               </p>
               <Link
                 href="/goals"
@@ -203,13 +205,19 @@ export default function ProgressPage() {
       )}
 
       <div className="rounded-xl border bg-muted/30 px-4 py-3 text-sm text-muted-foreground">
-        <span className="font-medium text-foreground">What you&apos;re measuring:</span>{" "}
+        <span className="font-medium text-foreground">
+          What you&apos;re measuring:
+        </span>{" "}
         Adherence % compares your logged intake to your{" "}
-        <Link href="/profile" className="text-primary underline-offset-2 hover:underline">
+        <Link
+          href="/profile"
+          className="text-primary underline-offset-2 hover:underline"
+        >
           profile targets
         </Link>
-        . Goals below are explicit time-bound goals you created separately.
-        Both live in parallel — targets are your daily baseline, goals are your larger intentions.
+        . Goals below are explicit time-bound goals you created separately. Both
+        live in parallel — targets are your daily baseline, goals are your
+        larger intentions.
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
