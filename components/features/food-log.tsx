@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import {
+  ArrowLeft,
   ChevronLeft,
   ChevronRight,
   Pencil,
@@ -10,7 +11,9 @@ import {
   Trash2,
   UtensilsCrossed,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { AddFoodLogDialog } from "@/components/features/add-food-log-dialog";
 import {
@@ -29,6 +32,8 @@ import {
   type FoodLogResponse,
   type MealType,
   type NutritionTotals,
+  normalizeFoodLogResponse,
+  normalizeProfileResponse,
 } from "@/lib/api";
 import { useSessionUser } from "@/lib/use-session-user";
 
@@ -50,8 +55,15 @@ const mealOrder: MealType[] = ["BREAKFAST", "LUNCH", "DINNER", "SNACK"];
 
 export function FoodLog() {
   const { userId } = useSessionUser();
-  const [date, setDate] = useState(new Date());
-  const [dateInput, setDateInput] = useState(format(new Date(), "yyyy-MM-dd"));
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const dateParam = searchParams.get("date");
+  const rangeParam = searchParams.get("range");
+  const fromProgress = searchParams.get("from") === "progress";
+  const [date, setDate] = useState(() => parseDateParam(dateParam));
+  const [dateInput, setDateInput] = useState(() =>
+    format(parseDateParam(dateParam), "yyyy-MM-dd"),
+  );
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<FoodLogItem | null>(null);
@@ -62,8 +74,8 @@ export function FoodLog() {
     queryKey: ["foodLog", userId, dateStr],
     queryFn: async (): Promise<FoodLogResponse | null> => {
       const result = await api.api["food-logs"]({ date: dateStr }).get();
-      if (result.error) return null;
-      return result.data as unknown as FoodLogResponse;
+      if (result.error || !("log" in result.data)) return null;
+      return normalizeFoodLogResponse(result.data);
     },
     enabled: !!userId,
   });
@@ -72,15 +84,8 @@ export function FoodLog() {
     queryKey: ["profile", userId],
     queryFn: async () => {
       const result = await api.api.profile.get();
-      if (result.error) return null;
-      return result.data as unknown as {
-        profile: {
-          targetCalories: number | null;
-          targetProtein: number | null;
-          targetCarbs: number | null;
-          targetFat: number | null;
-        };
-      } | null;
+      if (result.error || !("profile" in result.data)) return null;
+      return normalizeProfileResponse(result.data);
     },
     enabled: !!userId,
   });
@@ -159,19 +164,17 @@ export function FoodLog() {
 
   const goToPreviousDay = () => {
     const nextDate = new Date(date.getTime() - 24 * 60 * 60 * 1000);
-    setDate(nextDate);
-    setDateInput(format(nextDate, "yyyy-MM-dd"));
+    updateDate(nextDate);
   };
 
   const goToNextDay = () => {
     const nextDate = new Date(date.getTime() + 24 * 60 * 60 * 1000);
-    setDate(nextDate);
-    setDateInput(format(nextDate, "yyyy-MM-dd"));
+    updateDate(nextDate);
   };
 
   const handleDateCommit = () => {
     if (!dateInput) return;
-    setDate(new Date(dateInput));
+    updateDate(new Date(dateInput));
   };
 
   const totals: NutritionTotals = data?.totals || {
@@ -197,8 +200,38 @@ export function FoodLog() {
     }));
   }, [data?.log?.items]);
 
+  useEffect(() => {
+    const nextDate = parseDateParam(dateParam);
+    setDate(nextDate);
+    setDateInput(format(nextDate, "yyyy-MM-dd"));
+  }, [dateParam]);
+
+  const updateDate = (nextDate: Date) => {
+    const nextDateKey = format(nextDate, "yyyy-MM-dd");
+    const nextSearchParams = new URLSearchParams(searchParams.toString());
+    nextSearchParams.set("date", nextDateKey);
+
+    setDate(nextDate);
+    setDateInput(nextDateKey);
+    router.replace(`/log?${nextSearchParams.toString()}`, {
+      scroll: false,
+    });
+  };
+
   return (
     <div className="space-y-6">
+      {fromProgress ? (
+        <div className="flex items-center justify-between gap-3">
+          <Link
+            href={rangeParam ? `/progress?range=${rangeParam}` : "/progress"}
+            className="inline-flex items-center text-sm font-medium text-primary"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to progress
+          </Link>
+        </div>
+      ) : null}
+
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex flex-wrap items-center gap-2">
           <Button variant="outline" size="icon" onClick={goToPreviousDay}>
@@ -381,6 +414,15 @@ export function FoodLog() {
       />
     </div>
   );
+}
+
+function parseDateParam(value: string | null) {
+  if (!value) {
+    return new Date();
+  }
+
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? new Date() : parsed;
 }
 
 function MacroCard({

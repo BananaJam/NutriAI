@@ -1,4 +1,5 @@
 type MacroKey = "calories" | "protein" | "carbs" | "fat";
+type MealType = "BREAKFAST" | "LUNCH" | "DINNER" | "SNACK";
 
 export type NutritionTotals = Record<MacroKey, number>;
 
@@ -20,6 +21,35 @@ export type RangeSummary = {
   loggedDates: string[];
 };
 
+export type PeriodSummary = {
+  startDate: string | null;
+  endDate: string | null;
+  totals: NutritionTotals;
+  averages: NutritionTotals;
+  daysLogged: number;
+};
+
+export type WeekdayAverage = {
+  weekday: number;
+  label: string;
+  totals: NutritionTotals;
+  averages: NutritionTotals;
+  loggedDays: number;
+};
+
+export type MealTypeBreakdown = {
+  mealType: MealType;
+  totals: NutritionTotals;
+  averagePerLoggedDay: NutritionTotals;
+  loggedDays: number;
+};
+
+export type DailyHighlight = {
+  date: string;
+  value: number;
+  totals: NutritionTotals;
+};
+
 export type TargetAdherence = Record<MacroKey, MacroTargetSummary>;
 
 export type RangeStats = {
@@ -32,6 +62,10 @@ export type RangeStats = {
   };
   rangeSummary: RangeSummary;
   targetAdherence: TargetAdherence;
+  weekdayAverages: WeekdayAverage[];
+  mealTypeBreakdown: MealTypeBreakdown[];
+  bestDay: Record<"calories" | "protein", DailyHighlight | null>;
+  lowestDay: Record<"calories" | "protein", DailyHighlight | null>;
 };
 
 export type NutritionTargets = {
@@ -44,12 +78,16 @@ export type NutritionTargets = {
 type ReducibleItem = {
   servings: number;
   food: NutritionTotals;
+  mealType?: MealType;
 };
 
 type ReducibleLog = {
   date: Date | string;
   items: ReducibleItem[];
 };
+
+const weekdayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const mealTypes: MealType[] = ["BREAKFAST", "LUNCH", "DINNER", "SNACK"];
 
 export function zeroNutritionTotals(): NutritionTotals {
   return {
@@ -108,6 +146,51 @@ export function buildRangeStats(
       loggedDates: dailyTotals.map((day) => day.date),
     },
     targetAdherence: buildTargetAdherence(dailyTotals, targets),
+    weekdayAverages: buildWeekdayAverages(dailyTotals),
+    mealTypeBreakdown: buildMealTypeBreakdown(logs),
+    bestDay: {
+      calories: buildDayHighlight(dailyTotals, "calories", "max"),
+      protein: buildDayHighlight(dailyTotals, "protein", "max"),
+    },
+    lowestDay: {
+      calories: buildDayHighlight(dailyTotals, "calories", "min"),
+      protein: buildDayHighlight(dailyTotals, "protein", "min"),
+    },
+  };
+}
+
+export function buildPeriodSummary(
+  logs: ReducibleLog[],
+  targets?: NutritionTargets | null,
+  bounds?: {
+    startDate?: Date | string | null;
+    endDate?: Date | string | null;
+  },
+): PeriodSummary {
+  const stats = buildRangeStats(logs, targets);
+
+  return {
+    startDate: bounds?.startDate ? toDateKey(bounds.startDate) : null,
+    endDate: bounds?.endDate ? toDateKey(bounds.endDate) : null,
+    totals: stats.rangeSummary.totals,
+    averages: stats.rangeSummary.averages,
+    daysLogged: stats.daysLogged,
+  };
+}
+
+export function getPreviousPeriodBounds(
+  startDate: Date | string,
+  endDate: Date | string,
+) {
+  const start = parseDateValue(startDate);
+  const end = parseDateValue(endDate);
+  const spanDays = diffDays(start, end) + 1;
+  const previousEnd = addDays(start, -1);
+  const previousStart = addDays(previousEnd, -(spanDays - 1));
+
+  return {
+    startDate: toDateKey(previousStart),
+    endDate: toDateKey(previousEnd),
   };
 }
 
@@ -180,6 +263,89 @@ export function deriveGoalProgress(
   }
 }
 
+export function buildWeekdayAverages(
+  dailyTotals: DailyTotal[],
+): WeekdayAverage[] {
+  const weekdays = weekdayLabels.map((label, weekday) => ({
+    weekday,
+    label,
+    totals: zeroNutritionTotals(),
+    loggedDays: 0,
+  }));
+
+  for (const day of dailyTotals) {
+    const weekday = parseDateKey(day.date).getUTCDay();
+    const current = weekdays[weekday];
+
+    current.loggedDays += 1;
+    current.totals = {
+      calories: current.totals.calories + day.calories,
+      protein: current.totals.protein + day.protein,
+      carbs: current.totals.carbs + day.carbs,
+      fat: current.totals.fat + day.fat,
+    };
+  }
+
+  return weekdays.map((day) => ({
+    weekday: day.weekday,
+    label: day.label,
+    totals: day.totals,
+    averages: averageTotals(day.totals, day.loggedDays),
+    loggedDays: day.loggedDays,
+  }));
+}
+
+export function buildMealTypeBreakdown(
+  logs: ReducibleLog[],
+): MealTypeBreakdown[] {
+  const breakdown = new Map<
+    MealType,
+    {
+      totals: NutritionTotals;
+      loggedDates: Set<string>;
+    }
+  >(
+    mealTypes.map((mealType) => [
+      mealType,
+      { totals: zeroNutritionTotals(), loggedDates: new Set<string>() },
+    ]),
+  );
+
+  for (const log of logs) {
+    const dateKey = toDateKey(log.date);
+
+    for (const item of log.items) {
+      if (!item.mealType) continue;
+
+      const current = breakdown.get(item.mealType);
+      if (!current) continue;
+
+      current.loggedDates.add(dateKey);
+      current.totals = {
+        calories: current.totals.calories + item.food.calories * item.servings,
+        protein: current.totals.protein + item.food.protein * item.servings,
+        carbs: current.totals.carbs + item.food.carbs * item.servings,
+        fat: current.totals.fat + item.food.fat * item.servings,
+      };
+    }
+  }
+
+  return mealTypes.map((mealType) => {
+    const current = breakdown.get(mealType) ?? {
+      totals: zeroNutritionTotals(),
+      loggedDates: new Set<string>(),
+    };
+    const loggedDays = current.loggedDates.size;
+
+    return {
+      mealType,
+      totals: current.totals,
+      averagePerLoggedDay: averageTotals(current.totals, loggedDays),
+      loggedDays,
+    };
+  });
+}
+
 function averageTotals(
   totals: NutritionTotals,
   daysLogged: number,
@@ -193,6 +359,35 @@ function averageTotals(
     protein: totals.protein / daysLogged,
     carbs: totals.carbs / daysLogged,
     fat: totals.fat / daysLogged,
+  };
+}
+
+function buildDayHighlight(
+  dailyTotals: DailyTotal[],
+  key: "calories" | "protein",
+  direction: "max" | "min",
+): DailyHighlight | null {
+  if (!dailyTotals.length) {
+    return null;
+  }
+
+  const selected = dailyTotals.reduce((best, current) => {
+    if (direction === "max") {
+      return current[key] > best[key] ? current : best;
+    }
+
+    return current[key] < best[key] ? current : best;
+  });
+
+  return {
+    date: selected.date,
+    value: selected[key],
+    totals: {
+      calories: selected.calories,
+      protein: selected.protein,
+      carbs: selected.carbs,
+      fat: selected.fat,
+    },
   };
 }
 
@@ -252,6 +447,10 @@ function toDateKey(value: Date | string) {
   return value.slice(0, 10);
 }
 
+function parseDateValue(value: Date | string) {
+  return value instanceof Date ? value : parseDateKey(value.slice(0, 10));
+}
+
 function parseDateKey(value: string) {
   const [year, month, day] = value.split("-").map(Number);
   return new Date(Date.UTC(year, month - 1, day));
@@ -259,4 +458,8 @@ function parseDateKey(value: string) {
 
 function diffDays(start: Date, end: Date) {
   return Math.round((end.getTime() - start.getTime()) / 86_400_000);
+}
+
+function addDays(date: Date, amount: number) {
+  return new Date(date.getTime() + amount * 86_400_000);
 }

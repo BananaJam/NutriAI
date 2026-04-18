@@ -80,10 +80,12 @@ export interface FoodLog {
 }
 
 export interface FoodLogResponse {
-  log: {
-    items: FoodLogItem[];
-  };
+  log: FoodLog;
   totals: NutritionTotals;
+}
+
+export interface FoodLogsResponse {
+  logs: FoodLog[];
 }
 
 export type FoodCatalogSort = "name" | "calories" | "protein" | "recent";
@@ -124,7 +126,7 @@ export interface MealPlansResponse {
 }
 
 export interface ProfileResponse {
-  profile: UserProfile;
+  profile: UserProfile | null;
 }
 
 export interface NutritionTotals {
@@ -133,6 +135,8 @@ export interface NutritionTotals {
   carbs: number;
   fat: number;
 }
+
+export type DailyTotal = { date: string } & NutritionTotals;
 
 export interface UserProfile {
   id: string;
@@ -188,7 +192,7 @@ export interface MealPlan {
 }
 
 export interface UserStats {
-  dailyTotals: Array<{ date: string } & NutritionTotals>;
+  dailyTotals: DailyTotal[];
   averages: NutritionTotals;
   daysLogged: number;
   streak: {
@@ -207,6 +211,17 @@ export interface UserStats {
     carbs: MacroTargetSummary;
     fat: MacroTargetSummary;
   };
+  previousPeriod: PeriodSummary | null;
+  weekdayAverages: WeekdayAverage[];
+  mealTypeBreakdown: MealTypeBreakdown[];
+  bestDay: {
+    calories: DailyStatHighlight | null;
+    protein: DailyStatHighlight | null;
+  };
+  lowestDay: {
+    calories: DailyStatHighlight | null;
+    protein: DailyStatHighlight | null;
+  };
 }
 
 export interface MacroTargetSummary {
@@ -214,6 +229,35 @@ export interface MacroTargetSummary {
   average: number;
   averageProgress: number | null;
   daysHitTarget: number;
+}
+
+export interface PeriodSummary {
+  startDate: string | null;
+  endDate: string | null;
+  totals: NutritionTotals;
+  averages: NutritionTotals;
+  daysLogged: number;
+}
+
+export interface WeekdayAverage {
+  weekday: number;
+  label: string;
+  totals: NutritionTotals;
+  averages: NutritionTotals;
+  loggedDays: number;
+}
+
+export interface MealTypeBreakdown {
+  mealType: MealType;
+  totals: NutritionTotals;
+  averagePerLoggedDay: NutritionTotals;
+  loggedDays: number;
+}
+
+export interface DailyStatHighlight {
+  date: string;
+  value: number;
+  totals: NutritionTotals;
 }
 
 export interface UserSettings {
@@ -277,9 +321,20 @@ export interface ChatConversationResponse {
 
 type DateLike = string | Date;
 
-interface RawFood extends Omit<Food, "createdAt" | "updatedAt"> {
+interface RawFood extends Omit<Food, "createdAt" | "updatedAt" | "lastUsedAt"> {
   createdAt?: DateLike;
   updatedAt?: DateLike;
+  lastUsedAt?: DateLike | null;
+}
+
+interface RawFoodLogItem extends Omit<FoodLogItem, "food" | "loggedAt"> {
+  food: RawFood;
+  loggedAt: DateLike;
+}
+
+interface RawFoodLog extends Omit<FoodLog, "date" | "items"> {
+  date: DateLike;
+  items: RawFoodLogItem[];
 }
 
 interface RawMealPlanItem extends Omit<MealPlanItem, "food"> {
@@ -293,8 +348,75 @@ interface RawMealPlan
   items: RawMealPlanItem[];
 }
 
+interface RawGoal extends Omit<Goal, "startDate" | "endDate"> {
+  startDate: DateLike;
+  endDate: DateLike | null;
+}
+
+interface RawUserProfile extends Omit<UserProfile, "dateOfBirth"> {
+  dateOfBirth: DateLike | null;
+}
+
+interface RawUserStats
+  extends Omit<
+    UserStats,
+    | "dailyTotals"
+    | "previousPeriod"
+    | "bestDay"
+    | "lowestDay"
+    | "weekdayAverages"
+  > {
+  dailyTotals: Array<{ date: DateLike } & NutritionTotals>;
+  previousPeriod: {
+    startDate: DateLike | null;
+    endDate: DateLike | null;
+    totals: NutritionTotals;
+    averages: NutritionTotals;
+    daysLogged: number;
+  } | null;
+  weekdayAverages: Array<
+    Omit<WeekdayAverage, "totals" | "averages"> & {
+      totals: NutritionTotals;
+      averages: NutritionTotals;
+    }
+  >;
+  bestDay: {
+    calories: ({ date: DateLike } & Omit<DailyStatHighlight, "date">) | null;
+    protein: ({ date: DateLike } & Omit<DailyStatHighlight, "date">) | null;
+  };
+  lowestDay: {
+    calories: ({ date: DateLike } & Omit<DailyStatHighlight, "date">) | null;
+    protein: ({ date: DateLike } & Omit<DailyStatHighlight, "date">) | null;
+  };
+}
+
 function toIsoString(value: DateLike) {
   return typeof value === "string" ? value : value.toISOString();
+}
+
+function normalizeFood(food: RawFood): Food {
+  return {
+    ...food,
+    lastUsedAt: food.lastUsedAt ? toIsoString(food.lastUsedAt) : null,
+    createdAt: food.createdAt ? toIsoString(food.createdAt) : undefined,
+    updatedAt: food.updatedAt ? toIsoString(food.updatedAt) : undefined,
+  };
+}
+
+function normalizeFoodLogItem(item: RawFoodLogItem): FoodLogItem {
+  return {
+    ...item,
+    loggedAt: toIsoString(item.loggedAt),
+    food: normalizeFood(item.food),
+  };
+}
+
+function normalizeFoodLog(log: RawFoodLog): FoodLog {
+  return {
+    ...log,
+    date: toIsoString(log.date),
+    items: log.items.map(normalizeFoodLogItem),
+  };
 }
 
 export function normalizeMealPlan(plan: RawMealPlan): MealPlan {
@@ -304,23 +426,140 @@ export function normalizeMealPlan(plan: RawMealPlan): MealPlan {
     endDate: toIsoString(plan.endDate),
     items: plan.items.map((item) => ({
       ...item,
-      food: {
-        ...item.food,
-        createdAt: item.food.createdAt
-          ? toIsoString(item.food.createdAt)
-          : undefined,
-        updatedAt: item.food.updatedAt
-          ? toIsoString(item.food.updatedAt)
-          : undefined,
-      },
+      food: normalizeFood(item.food),
     })),
   };
+}
+
+export function normalizeFoodLogResponse(payload: {
+  log?: RawFoodLog | null;
+  totals?: NutritionTotals;
+}) {
+  if (!payload.log || !payload.totals) {
+    throw new Error("Food log payload is missing");
+  }
+
+  return {
+    log: normalizeFoodLog(payload.log),
+    totals: payload.totals,
+  } satisfies FoodLogResponse;
+}
+
+export function normalizeFoodLogsResponse(payload: { logs?: RawFoodLog[] }) {
+  return {
+    logs: (payload.logs ?? []).map(normalizeFoodLog),
+  } satisfies FoodLogsResponse;
+}
+
+export function normalizeGoalsResponse(payload: { goals?: RawGoal[] }) {
+  return {
+    goals: (payload.goals ?? []).map((goal) => ({
+      ...goal,
+      startDate: toIsoString(goal.startDate),
+      endDate: goal.endDate ? toIsoString(goal.endDate) : null,
+    })),
+  } satisfies GoalsResponse;
+}
+
+export function normalizeProfileResponse(payload: {
+  profile?: RawUserProfile | null;
+}) {
+  if (!payload.profile) {
+    return { profile: null } satisfies ProfileResponse;
+  }
+
+  return {
+    profile: {
+      ...payload.profile,
+      dateOfBirth: payload.profile.dateOfBirth
+        ? toIsoString(payload.profile.dateOfBirth)
+        : null,
+    },
+  } satisfies ProfileResponse;
 }
 
 export function normalizeMealPlansResponse(payload: { plans?: RawMealPlan[] }) {
   return {
     plans: (payload.plans ?? []).map(normalizeMealPlan),
   } satisfies MealPlansResponse;
+}
+
+export function normalizeUserStatsResponse(
+  payload: Partial<RawUserStats>,
+): UserStats {
+  if (
+    !payload.dailyTotals ||
+    !payload.rangeSummary ||
+    !payload.targetAdherence ||
+    !payload.streak ||
+    !payload.bestDay ||
+    !payload.lowestDay ||
+    !payload.mealTypeBreakdown ||
+    !payload.weekdayAverages ||
+    payload.daysLogged === undefined ||
+    !payload.averages
+  ) {
+    throw new Error("User stats payload is incomplete");
+  }
+
+  const {
+    dailyTotals,
+    previousPeriod,
+    bestDay,
+    lowestDay,
+    weekdayAverages,
+    averages,
+    daysLogged,
+    streak,
+    rangeSummary,
+    targetAdherence,
+    mealTypeBreakdown,
+  } = payload;
+
+  const normalizeHighlight = (
+    highlight: ({ date: DateLike } & Omit<DailyStatHighlight, "date">) | null,
+  ): DailyStatHighlight | null =>
+    highlight
+      ? {
+          ...highlight,
+          date: toIsoString(highlight.date),
+        }
+      : null;
+
+  return {
+    dailyTotals: dailyTotals.map((day) => ({
+      ...day,
+      date: toIsoString(day.date),
+    })),
+    averages,
+    daysLogged,
+    streak,
+    rangeSummary,
+    targetAdherence,
+    mealTypeBreakdown,
+    previousPeriod: previousPeriod
+      ? {
+          ...previousPeriod,
+          startDate: previousPeriod.startDate
+            ? toIsoString(previousPeriod.startDate)
+            : null,
+          endDate: previousPeriod.endDate
+            ? toIsoString(previousPeriod.endDate)
+            : null,
+        }
+      : null,
+    weekdayAverages: weekdayAverages.map((weekday) => ({
+      ...weekday,
+    })),
+    bestDay: {
+      calories: normalizeHighlight(bestDay.calories),
+      protein: normalizeHighlight(bestDay.protein),
+    },
+    lowestDay: {
+      calories: normalizeHighlight(lowestDay.calories),
+      protein: normalizeHighlight(lowestDay.protein),
+    },
+  };
 }
 
 export function normalizeChatConversationsResponse(payload: {

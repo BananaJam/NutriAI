@@ -18,7 +18,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { api, type UserProfile } from "@/lib/api";
+import { api, normalizeProfileResponse, type UserProfile } from "@/lib/api";
 import { useSessionUser } from "@/lib/use-session-user";
 
 export default function ProfilePage() {
@@ -30,8 +30,9 @@ export default function ProfilePage() {
     queryKey: ["profile", userId],
     queryFn: async (): Promise<{ profile: UserProfile } | null> => {
       const result = await api.api.profile.get();
-      if (result.error) return null;
-      return result.data as unknown as { profile: UserProfile };
+      if (result.error || !("profile" in result.data)) return null;
+      const payload = normalizeProfileResponse(result.data);
+      return payload.profile ? { profile: payload.profile } : null;
     },
     enabled: !!userId,
   });

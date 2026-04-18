@@ -1,5 +1,9 @@
 import { Elysia, t } from "elysia";
-import { buildRangeStats } from "@/lib/nutrition-analytics";
+import {
+  buildPeriodSummary,
+  buildRangeStats,
+  getPreviousPeriodBounds,
+} from "@/lib/nutrition-analytics";
 import { prisma } from "../lib/prisma";
 import { requireRequestSession } from "../lib/session";
 
@@ -118,6 +122,11 @@ export const profileRoutes = new Elysia({ prefix: "/profile" })
         orderBy: { date: "asc" },
       });
 
+      const previousBounds =
+        startDate && endDate
+          ? getPreviousPeriodBounds(startDate, endDate)
+          : null;
+
       const profile = await prisma.userProfile.findUnique({
         where: { userId: session.user.id },
         select: {
@@ -128,7 +137,34 @@ export const profileRoutes = new Elysia({ prefix: "/profile" })
         },
       });
 
-      return buildRangeStats(logs, profile);
+      const stats = buildRangeStats(logs, profile);
+
+      const previousLogs = previousBounds
+        ? await prisma.foodLog.findMany({
+            where: {
+              userId: session.user.id,
+              date: {
+                gte: new Date(previousBounds.startDate),
+                lte: new Date(previousBounds.endDate),
+              },
+            },
+            include: {
+              items: {
+                include: {
+                  food: true,
+                },
+              },
+            },
+            orderBy: { date: "asc" },
+          })
+        : [];
+
+      return {
+        ...stats,
+        previousPeriod: previousBounds
+          ? buildPeriodSummary(previousLogs, profile, previousBounds)
+          : null,
+      };
     },
     {
       query: t.Object({

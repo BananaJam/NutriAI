@@ -32,6 +32,10 @@ const pageContent = {
     title: "Food Log",
     description: "Review meals, nutrition totals, and daily history.",
   },
+  "/progress": {
+    title: "Progress",
+    description: "Explore longer-range trends, consistency, and goal context.",
+  },
   "/plans": {
     title: "Meal Plans",
     description:

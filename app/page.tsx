@@ -14,6 +14,7 @@ import {
   UtensilsCrossed,
 } from "lucide-react";
 import Link from "next/link";
+import { DailyTrendList } from "@/components/features/daily-trend-list";
 import { PageHeader } from "@/components/features/page-header";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,11 +28,12 @@ import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   api,
-  type FoodLogResponse,
-  type GoalsResponse,
-  type MealPlansResponse,
-  type ProfileResponse,
-  type UserStats,
+  normalizeFoodLogResponse,
+  normalizeFoodLogsResponse,
+  normalizeGoalsResponse,
+  normalizeMealPlansResponse,
+  normalizeProfileResponse,
+  normalizeUserStatsResponse,
 } from "@/lib/api";
 import { dashboardRangeDays, dashboardRangeLabels } from "@/lib/settings";
 import { useAppSettings } from "@/lib/use-app-settings";
@@ -71,8 +73,8 @@ export default function DashboardPage() {
     queryKey: ["foodLog", userId, todayStr],
     queryFn: async () => {
       const result = await api.api["food-logs"]({ date: todayStr }).get();
-      if (result.error) return null;
-      return result.data as unknown as FoodLogResponse | null;
+      if (result.error || !("log" in result.data)) return null;
+      return normalizeFoodLogResponse(result.data);
     },
     enabled: !!userId,
   });
@@ -83,8 +85,8 @@ export default function DashboardPage() {
       const result = await api.api.goals.get({
         query: { status: "ACTIVE" },
       });
-      if (result.error) return null;
-      return result.data as unknown as GoalsResponse | null;
+      if (result.error || !("goals" in result.data)) return null;
+      return normalizeGoalsResponse(result.data);
     },
     enabled: !!userId,
   });
@@ -93,8 +95,8 @@ export default function DashboardPage() {
     queryKey: ["profile", userId],
     queryFn: async () => {
       const result = await api.api.profile.get();
-      if (result.error) return null;
-      return result.data as unknown as ProfileResponse | null;
+      if (result.error || !("profile" in result.data)) return null;
+      return normalizeProfileResponse(result.data);
     },
     enabled: !!userId,
   });
@@ -105,8 +107,8 @@ export default function DashboardPage() {
       const result = await api.api.profile.stats.get({
         query: { startDate, endDate: todayStr },
       });
-      if (result.error) return null;
-      return result.data as unknown as UserStats | null;
+      if (result.error || !("dailyTotals" in result.data)) return null;
+      return normalizeUserStatsResponse(result.data);
     },
     enabled: !!userId,
   });
@@ -117,8 +119,8 @@ export default function DashboardPage() {
       const result = await api.api["meal-plans"].get({
         query: { active: true },
       });
-      if (result.error) return null;
-      return result.data as unknown as MealPlansResponse | null;
+      if (result.error || !("plans" in result.data)) return null;
+      return normalizeMealPlansResponse(result.data);
     },
     enabled: !!userId,
   });
@@ -129,14 +131,8 @@ export default function DashboardPage() {
       const result = await api.api["food-logs"].get({
         query: { startDate, endDate: todayStr },
       });
-      if (result.error) return null;
-      return result.data as unknown as {
-        logs: Array<{
-          id: string;
-          date: string;
-          items: Array<{ id: string }>;
-        }>;
-      } | null;
+      if (result.error || !("logs" in result.data)) return null;
+      return normalizeFoodLogsResponse(result.data);
     },
     enabled: !!userId,
   });
@@ -248,6 +244,14 @@ export default function DashboardPage() {
         eyebrow="Overview"
         title="Dashboard"
         description="Review your current intake, range trends, and the next actions that keep nutrition tracking moving."
+        actions={
+          <Link href={`/progress?range=${dashboardRange}`}>
+            <Button variant="outline" className="rounded-xl">
+              <LineChart className="mr-2 h-4 w-4" />
+              View trends
+            </Button>
+          </Link>
+        }
       />
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -344,38 +348,15 @@ export default function DashboardPage() {
               </div>
             )}
 
-            <div className="mt-4 space-y-2">
-              {(stats?.dailyTotals ?? []).slice(-6).map((day) => {
-                const calorieProgress = targetCalories
-                  ? (day.calories / targetCalories) * 100
-                  : 0;
-
-                return (
-                  <div
-                    key={day.date}
-                    className="rounded-2xl border bg-background/60 p-4"
-                  >
-                    <div className="flex items-center justify-between gap-4">
-                      <div>
-                        <p className="font-medium">
-                          {format(new Date(day.date), "EEE, MMM d")}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {Math.round(day.calories)} kcal,{" "}
-                          {Math.round(day.protein)}g protein
-                        </p>
-                      </div>
-                      <div className="min-w-24 text-right text-sm text-muted-foreground">
-                        {Math.round(calorieProgress)}% of calorie target
-                      </div>
-                    </div>
-                    <Progress
-                      className="mt-3"
-                      value={Math.min(calorieProgress, 100)}
-                    />
-                  </div>
-                );
-              })}
+            <div className="mt-4">
+              <DailyTrendList
+                title="Recent calorie trend"
+                description="Latest logged days against your calorie target."
+                days={stats?.dailyTotals ?? []}
+                metric="calories"
+                target={targetCalories}
+                maxItems={6}
+              />
             </div>
           </CardContent>
         </Card>
@@ -430,7 +411,7 @@ export default function DashboardPage() {
             <CardContent className="space-y-3">
               {recentLogs.length ? (
                 recentLogs.map((log) => (
-                  <Link key={log.id} href="/log">
+                  <Link key={log.id} href={`/log?date=${log.date}`}>
                     <div className="rounded-2xl border bg-background/70 p-4 transition hover:border-primary/40 hover:bg-accent/30">
                       <p className="font-medium">
                         {format(new Date(log.date), "EEEE, MMM d")}
@@ -451,6 +432,13 @@ export default function DashboardPage() {
           </Card>
 
           <div className="grid gap-4 md:grid-cols-3 xl:grid-cols-1">
+            <ShortcutCard
+              href={`/progress?range=${dashboardRange}`}
+              icon={LineChart}
+              title="Progress"
+              description="Explore range trends, consistency, and goal context in one place."
+              cta="Open progress"
+            />
             <ShortcutCard
               href="/assistant"
               icon={MessageSquare}
