@@ -52,6 +52,13 @@ export interface Food {
   fiber: number | null;
   sugar: number | null;
   sodium: number | null;
+  barcode?: string | null;
+  isVerified?: boolean;
+  isFavorite?: boolean;
+  usageCount?: number;
+  lastUsedAt?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface FoodLogItem {
@@ -79,7 +86,32 @@ export interface FoodLogResponse {
   totals: NutritionTotals;
 }
 
+export type FoodCatalogSort = "name" | "calories" | "protein" | "recent";
+export type FoodCatalogDirection = "asc" | "desc";
+
+export interface FoodCatalogFilters {
+  search: string;
+  brand: string | null;
+  minProtein: number | null;
+  maxCalories: number | null;
+  favoritesOnly: boolean;
+  sort: FoodCatalogSort;
+  direction: FoodCatalogDirection;
+  limit: number;
+  offset: number;
+}
+
 export interface FoodsResponse {
+  foods: Food[];
+  total: number;
+  hasMore: boolean;
+  facets: {
+    brands: string[];
+  };
+  appliedFilters: FoodCatalogFilters;
+}
+
+export interface RecentFoodsResponse {
   foods: Food[];
 }
 
@@ -241,4 +273,100 @@ export interface ChatConversationsResponse {
 
 export interface ChatConversationResponse {
   conversation: ChatConversationDetail;
+}
+
+type DateLike = string | Date;
+
+interface RawFood extends Omit<Food, "createdAt" | "updatedAt"> {
+  createdAt?: DateLike;
+  updatedAt?: DateLike;
+}
+
+interface RawMealPlanItem extends Omit<MealPlanItem, "food"> {
+  food: RawFood;
+}
+
+interface RawMealPlan
+  extends Omit<MealPlan, "startDate" | "endDate" | "items"> {
+  startDate: DateLike;
+  endDate: DateLike;
+  items: RawMealPlanItem[];
+}
+
+function toIsoString(value: DateLike) {
+  return typeof value === "string" ? value : value.toISOString();
+}
+
+export function normalizeMealPlan(plan: RawMealPlan): MealPlan {
+  return {
+    ...plan,
+    startDate: toIsoString(plan.startDate),
+    endDate: toIsoString(plan.endDate),
+    items: plan.items.map((item) => ({
+      ...item,
+      food: {
+        ...item.food,
+        createdAt: item.food.createdAt
+          ? toIsoString(item.food.createdAt)
+          : undefined,
+        updatedAt: item.food.updatedAt
+          ? toIsoString(item.food.updatedAt)
+          : undefined,
+      },
+    })),
+  };
+}
+
+export function normalizeMealPlansResponse(payload: { plans?: RawMealPlan[] }) {
+  return {
+    plans: (payload.plans ?? []).map(normalizeMealPlan),
+  } satisfies MealPlansResponse;
+}
+
+export function normalizeChatConversationsResponse(payload: {
+  conversations?: Array<{
+    id: string;
+    title: string;
+    preview: string;
+    updatedAt: DateLike;
+  }>;
+}) {
+  return {
+    conversations: (payload.conversations ?? []).map((conversation) => ({
+      ...conversation,
+      updatedAt: toIsoString(conversation.updatedAt),
+    })),
+  } satisfies ChatConversationsResponse;
+}
+
+export function normalizeChatConversationResponse(payload: {
+  conversation?: {
+    id: string;
+    title: string | null;
+    updatedAt: DateLike;
+    createdAt: DateLike;
+    messages: Array<{
+      id: string;
+      role: string;
+      content: string;
+      createdAt: DateLike;
+    }>;
+  };
+}) {
+  if (!payload.conversation) {
+    throw new Error("Conversation payload is missing");
+  }
+
+  return {
+    conversation: {
+      ...payload.conversation,
+      updatedAt: toIsoString(payload.conversation.updatedAt),
+      createdAt: toIsoString(payload.conversation.createdAt),
+      messages: payload.conversation.messages.map((message) => ({
+        ...message,
+        role: message.role === "assistant" ? "assistant" : "user",
+        createdAt: toIsoString(message.createdAt),
+      })),
+    },
+  } satisfies ChatConversationResponse;
 }

@@ -2,6 +2,7 @@ import { anthropic } from "@ai-sdk/anthropic";
 import { openai } from "@ai-sdk/openai";
 import { jsonSchema, streamText, tool } from "ai";
 import { Elysia, t } from "elysia";
+import { buildFoodCatalogWhere } from "@/lib/food-catalog";
 import { buildRangeStats, sumNutritionTotals } from "@/lib/nutrition-analytics";
 import { prisma } from "../lib/prisma";
 import { requireRequestSession } from "../lib/session";
@@ -122,6 +123,46 @@ function extractTextContent(content: unknown) {
   return String(content);
 }
 
+async function getFoodCatalogContext(userId: string) {
+  const [favoriteFoods, recentFoodItems, highProteinFoods] = await Promise.all([
+    prisma.userFoodFavorite.findMany({
+      where: { userId },
+      include: {
+        food: true,
+      },
+      orderBy: { createdAt: "desc" },
+      take: 5,
+    }),
+    prisma.foodLogItem.findMany({
+      where: {
+        foodLog: {
+          userId,
+        },
+      },
+      include: {
+        food: true,
+      },
+      orderBy: { loggedAt: "desc" },
+      take: 20,
+    }),
+    prisma.food.findMany({
+      where: buildFoodCatalogWhere({ minProtein: 20 }),
+      orderBy: [{ protein: "desc" }, { calories: "asc" }],
+      take: 5,
+    }),
+  ]);
+
+  const recentFoods = Array.from(
+    new Map(recentFoodItems.map((item) => [item.foodId, item.food])).values(),
+  ).slice(0, 5);
+
+  return {
+    favorites: favoriteFoods.map((favorite) => favorite.food),
+    recentFoods,
+    highProteinFoods,
+  };
+}
+
 function createNutritionTools(userId: string) {
   return {
     searchFoods: tool({
@@ -143,7 +184,7 @@ function createNutritionTools(userId: string) {
         additionalProperties: false,
       }),
       execute: async ({ query, limit = 10 }) => {
-        return prisma.food.findMany({
+        const foods = await prisma.food.findMany({
           where: {
             OR: [
               { name: { contains: query, mode: "insensitive" } },
@@ -153,6 +194,52 @@ function createNutritionTools(userId: string) {
           take: limit,
           orderBy: { name: "asc" },
         });
+
+        const [favorites, recentFoods] = await Promise.all([
+          prisma.userFoodFavorite.findMany({
+            where: {
+              userId,
+              foodId: {
+                in: foods.map((food) => food.id),
+              },
+            },
+            select: {
+              foodId: true,
+            },
+          }),
+          prisma.foodLogItem.findMany({
+            where: {
+              foodId: {
+                in: foods.map((food) => food.id),
+              },
+              foodLog: {
+                userId,
+              },
+            },
+            select: {
+              foodId: true,
+              loggedAt: true,
+            },
+            orderBy: { loggedAt: "desc" },
+          }),
+        ]);
+
+        const favoriteIds = new Set(
+          favorites.map((favorite) => favorite.foodId),
+        );
+        const recentByFood = new Map<string, string>();
+
+        for (const item of recentFoods) {
+          if (!recentByFood.has(item.foodId)) {
+            recentByFood.set(item.foodId, item.loggedAt.toISOString());
+          }
+        }
+
+        return foods.map((food) => ({
+          ...food,
+          isFavorite: favoriteIds.has(food.id),
+          lastUsedAt: recentByFood.get(food.id) ?? null,
+        }));
       },
     }),
     logFood: tool({
@@ -453,7 +540,7 @@ export async function handleChatRequest(
     modelProvider === "anthropic"
       ? anthropic("claude-sonnet-4-20250514")
       : openai("gpt-4o");
-  const [profile, goals] = await Promise.all([
+  const [profile, goals, foodCatalogContext] = await Promise.all([
     prisma.userProfile.findUnique({
       where: { userId },
       select: {
@@ -477,6 +564,7 @@ export async function handleChatRequest(
       },
       take: 5,
     }),
+    getFoodCatalogContext(userId),
   ]);
 
   const profileContext = profile
@@ -490,6 +578,26 @@ export async function handleChatRequest(
         .map((goal) => `- ${goal.type}: ${goal.targetValue} ${goal.unit}`)
         .join("\n")}`
     : "Active goals: none.";
+  const foodContext = `Food catalog context:
+- Favorite foods: ${
+    foodCatalogContext.favorites.length
+      ? foodCatalogContext.favorites
+          .map((food) => `${food.name}${food.brand ? ` (${food.brand})` : ""}`)
+          .join(", ")
+      : "none"
+  }
+- Recently used foods: ${
+    foodCatalogContext.recentFoods.length
+      ? foodCatalogContext.recentFoods.map((food) => food.name).join(", ")
+      : "none"
+  }
+- High-protein saved foods: ${
+    foodCatalogContext.highProteinFoods.length
+      ? foodCatalogContext.highProteinFoods
+          .map((food) => `${food.name} (${food.protein}g protein)`)
+          .join(", ")
+      : "none"
+  }`;
 
   return streamText({
     model,
@@ -507,7 +615,8 @@ The current user ID is: ${userId}
 Today's date is: ${new Date().toISOString().split("T")[0]}
 
 ${profileContext}
-${goalContext}`,
+${goalContext}
+${foodContext}`,
     messages: normalizedMessages as Parameters<
       typeof streamText
     >[0]["messages"],

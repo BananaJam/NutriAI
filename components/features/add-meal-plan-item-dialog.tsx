@@ -1,11 +1,11 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useQuery } from "@tanstack/react-query";
-import { ChevronLeft, Search } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { FoodPicker } from "@/components/features/food-picker";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -24,9 +24,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
 import type { Food, MealType } from "@/lib/api";
-import { api } from "@/lib/api";
 
 const addItemSchema = z.object({
   dayOfWeek: z.number().min(0).max(6),
@@ -64,21 +62,7 @@ export function AddMealPlanItemDialog({
   isSubmitting = false,
 }: AddMealPlanItemDialogProps) {
   const [stage, setStage] = useState<"search" | "confirm">("search");
-  const [search, setSearch] = useState("");
-  const [submittedSearch, setSubmittedSearch] = useState("");
   const [selectedFood, setSelectedFood] = useState<Food | null>(null);
-
-  const { data: foodsData, isLoading: foodsLoading } = useQuery({
-    queryKey: ["foods", submittedSearch],
-    queryFn: async () => {
-      const result = await api.api.foods.get({
-        query: { search: submittedSearch || undefined, limit: 10 },
-      });
-      if (result.error) return null;
-      return result.data;
-    },
-    enabled: open,
-  });
 
   const form = useForm<AddItemFormValues>({
     resolver: zodResolver(addItemSchema),
@@ -92,8 +76,6 @@ export function AddMealPlanItemDialog({
 
   const handleClose = () => {
     setStage("search");
-    setSearch("");
-    setSubmittedSearch("");
     setSelectedFood(null);
     form.reset();
     onOpenChange(false);
@@ -114,12 +96,6 @@ export function AddMealPlanItemDialog({
     await onSubmit(selectedFood.id, values);
     handleClose();
   };
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmittedSearch(search);
-  };
-
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-lg">
@@ -136,50 +112,7 @@ export function AddMealPlanItemDialog({
 
         {stage === "search" ? (
           <div className="space-y-4">
-            <form onSubmit={handleSearch} className="flex gap-2">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  placeholder="Search foods..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-              <Button type="submit">Search</Button>
-            </form>
-
-            <div className="max-h-64 overflow-y-auto space-y-1">
-              {foodsLoading ? (
-                <div className="space-y-2">
-                  {[1, 2, 3].map((i) => (
-                    <Skeleton key={i} className="h-14 w-full" />
-                  ))}
-                </div>
-              ) : !foodsData?.foods?.length ? (
-                <p className="text-center text-sm text-muted-foreground py-8">
-                  {submittedSearch
-                    ? `No results for "${submittedSearch}"`
-                    : "Search for foods above"}
-                </p>
-              ) : (
-                foodsData.foods.map((food) => (
-                  <button
-                    key={food.id}
-                    type="button"
-                    className="w-full text-left rounded-lg border p-3 hover:bg-accent transition-colors"
-                    onClick={() => handleFoodSelect(food as Food)}
-                  >
-                    <p className="font-medium text-sm">{food.name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {food.brand && `${food.brand} · `}
-                      {food.servingSize}
-                      {food.servingUnit} · {food.calories} kcal
-                    </p>
-                  </button>
-                ))
-              )}
-            </div>
+            <FoodPicker open={open} onSelect={handleFoodSelect} />
 
             <DialogFooter>
               <Button variant="outline" onClick={handleClose}>

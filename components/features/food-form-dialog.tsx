@@ -90,7 +90,7 @@ export function FoodFormDialog({
         fiber: food.fiber ?? undefined,
         sugar: food.sugar ?? undefined,
         sodium: food.sodium ?? undefined,
-        barcode: "",
+        barcode: food.barcode ?? "",
       });
     } else if (open && !food) {
       form.reset({

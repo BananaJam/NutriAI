@@ -29,14 +29,14 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   api,
   type ChatConversationDetail,
-  type ChatConversationResponse,
-  type ChatConversationsResponse,
+  normalizeChatConversationResponse,
+  normalizeChatConversationsResponse,
 } from "@/lib/api";
 
 const starterPrompts = [
-  "Log my breakfast for today",
-  "Review today’s macros against my targets",
-  "Build a simple 7-day meal plan with high protein meals",
+  "Find a high-protein breakfast from my saved foods",
+  "Add one of my recent lunches to today",
+  "Compare my saved yogurts by protein and calories",
 ];
 
 export function Chat() {
@@ -51,7 +51,7 @@ export function Chat() {
       queryFn: async () => {
         const result = await api.api.chat.conversations.get();
         if (result.error) throw new Error("Failed to load conversations");
-        return result.data as unknown as ChatConversationsResponse;
+        return normalizeChatConversationsResponse(result.data);
       },
     },
   );
@@ -60,7 +60,7 @@ export function Chat() {
     mutationFn: async () => {
       const result = await api.api.chat.conversations.post({});
       if (result.error) throw new Error("Failed to create conversation");
-      return result.data as unknown as {
+      return result.data as {
         conversation: {
           id: string;
         };
@@ -245,7 +245,7 @@ function ConversationPane({
         .conversations({ id: conversationId })
         .get();
       if (result.error) throw new Error("Failed to load conversation");
-      return result.data as unknown as ChatConversationResponse;
+      return normalizeChatConversationResponse(result.data);
     },
   });
 

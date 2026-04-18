@@ -28,6 +28,7 @@ model User {
   mealPlans     MealPlan[]
   goals         Goal[]
   conversations Conversation[]
+  foodFavorites UserFoodFavorite[]
 
   @@map("users")
 }
@@ -165,9 +166,23 @@ model Food {
 
   foodLogs      FoodLogItem[]
   mealPlanItems MealPlanItem[]
+  favorites     UserFoodFavorite[]
 
   @@index([name])
   @@map("foods")
+}
+
+model UserFoodFavorite {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  foodId    String
+  food      Food     @relation(fields: [foodId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, foodId])
+  @@index([userId, createdAt])
+  @@map("user_food_favorites")
 }
 
 model FoodLog {

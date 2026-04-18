@@ -216,6 +216,13 @@ exports.Prisma.FoodScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.UserFoodFavoriteScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  foodId: 'foodId',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.FoodLogScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -385,6 +392,7 @@ exports.Prisma.ModelName = {
   UserProfile: 'UserProfile',
   UserSettings: 'UserSettings',
   Food: 'Food',
+  UserFoodFavorite: 'UserFoodFavorite',
   FoodLog: 'FoodLog',
   FoodLogItem: 'FoodLogItem',
   MealPlan: 'MealPlan',
