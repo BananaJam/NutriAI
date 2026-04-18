@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ChevronLeft } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { FoodPicker } from "@/components/features/food-picker";
@@ -40,6 +40,8 @@ interface AddMealPlanItemDialogProps {
   onOpenChange: (open: boolean) => void;
   onSubmit: (foodId: string, values: AddItemFormValues) => Promise<void>;
   isSubmitting?: boolean;
+  initialDayOfWeek?: number;
+  initialMealType?: MealType;
 }
 
 const selectClassName =
@@ -60,6 +62,8 @@ export function AddMealPlanItemDialog({
   onOpenChange,
   onSubmit,
   isSubmitting = false,
+  initialDayOfWeek = 1,
+  initialMealType = "BREAKFAST",
 }: AddMealPlanItemDialogProps) {
   const [stage, setStage] = useState<"search" | "confirm">("search");
   const [selectedFood, setSelectedFood] = useState<Food | null>(null);
@@ -67,17 +71,32 @@ export function AddMealPlanItemDialog({
   const form = useForm<AddItemFormValues>({
     resolver: zodResolver(addItemSchema),
     defaultValues: {
-      dayOfWeek: 1,
-      mealType: "BREAKFAST",
+      dayOfWeek: initialDayOfWeek,
+      mealType: initialMealType,
       servings: 1,
       notes: "",
     },
   });
 
+  useEffect(() => {
+    if (!open) return;
+    form.reset({
+      dayOfWeek: initialDayOfWeek,
+      mealType: initialMealType,
+      servings: 1,
+      notes: "",
+    });
+  }, [form, initialDayOfWeek, initialMealType, open]);
+
   const handleClose = () => {
     setStage("search");
     setSelectedFood(null);
-    form.reset();
+    form.reset({
+      dayOfWeek: initialDayOfWeek,
+      mealType: initialMealType,
+      servings: 1,
+      notes: "",
+    });
     onOpenChange(false);
   };
 

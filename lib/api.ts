@@ -125,6 +125,65 @@ export interface MealPlansResponse {
   plans: MealPlan[];
 }
 
+export interface MealPlanResponse {
+  plan: MealPlan;
+}
+
+export interface MealPlanItemResponse {
+  item: MealPlanItem;
+}
+
+export interface MealPlanShoppingListItem {
+  foodId: string;
+  food: Pick<
+    Food,
+    | "id"
+    | "name"
+    | "brand"
+    | "servingSize"
+    | "servingUnit"
+    | "calories"
+    | "protein"
+    | "carbs"
+    | "fat"
+  >;
+  totalServings: number;
+  mealCount: number;
+  totals: NutritionTotals;
+  mealTypes: MealType[];
+  notes: Array<{
+    itemId: string;
+    dayOfWeek: number;
+    mealType: MealType;
+    note: string;
+  }>;
+}
+
+export interface MealPlanShoppingMealTypeSummary {
+  mealType: MealType;
+  itemCount: number;
+  totalServings: number;
+  totals: NutritionTotals;
+}
+
+export interface MealPlanShoppingList {
+  items: MealPlanShoppingListItem[];
+  totals: {
+    totalItems: number;
+    uniqueFoods: number;
+    totalServings: number;
+    calories: number;
+    protein: number;
+    carbs: number;
+    fat: number;
+  };
+  byMealType: MealPlanShoppingMealTypeSummary[];
+}
+
+export interface MealPlanShoppingListResponse {
+  shoppingList: MealPlanShoppingList;
+}
+
 export interface ProfileResponse {
   profile: UserProfile | null;
 }
@@ -348,6 +407,29 @@ interface RawMealPlan
   items: RawMealPlanItem[];
 }
 
+interface RawMealPlanShoppingFood
+  extends Pick<
+    Food,
+    | "id"
+    | "name"
+    | "brand"
+    | "servingSize"
+    | "servingUnit"
+    | "calories"
+    | "protein"
+    | "carbs"
+    | "fat"
+  > {}
+
+interface RawMealPlanShoppingListItem
+  extends Omit<MealPlanShoppingListItem, "food"> {
+  food: RawMealPlanShoppingFood;
+}
+
+interface RawMealPlanShoppingList extends Omit<MealPlanShoppingList, "items"> {
+  items: RawMealPlanShoppingListItem[];
+}
+
 interface RawGoal extends Omit<Goal, "startDate" | "endDate"> {
   startDate: DateLike;
   endDate: DateLike | null;
@@ -424,10 +506,14 @@ export function normalizeMealPlan(plan: RawMealPlan): MealPlan {
     ...plan,
     startDate: toIsoString(plan.startDate),
     endDate: toIsoString(plan.endDate),
-    items: plan.items.map((item) => ({
-      ...item,
-      food: normalizeFood(item.food),
-    })),
+    items: plan.items.map(normalizeMealPlanItem),
+  };
+}
+
+export function normalizeMealPlanItem(item: RawMealPlanItem): MealPlanItem {
+  return {
+    ...item,
+    food: normalizeFood(item.food),
   };
 }
 
@@ -482,6 +568,48 @@ export function normalizeMealPlansResponse(payload: { plans?: RawMealPlan[] }) {
   return {
     plans: (payload.plans ?? []).map(normalizeMealPlan),
   } satisfies MealPlansResponse;
+}
+
+export function normalizeMealPlanResponse(payload: {
+  plan?: RawMealPlan | null;
+}) {
+  if (!payload.plan) {
+    throw new Error("Meal plan payload is missing");
+  }
+
+  return {
+    plan: normalizeMealPlan(payload.plan),
+  } satisfies MealPlanResponse;
+}
+
+export function normalizeMealPlanItemResponse(payload: {
+  item?: RawMealPlanItem | null;
+}) {
+  if (!payload.item) {
+    throw new Error("Meal plan item payload is missing");
+  }
+
+  return {
+    item: normalizeMealPlanItem(payload.item),
+  } satisfies MealPlanItemResponse;
+}
+
+export function normalizeMealPlanShoppingListResponse(payload: {
+  shoppingList?: RawMealPlanShoppingList | null;
+}) {
+  if (!payload.shoppingList) {
+    throw new Error("Meal plan shopping list payload is missing");
+  }
+
+  return {
+    shoppingList: {
+      ...payload.shoppingList,
+      items: payload.shoppingList.items.map((item) => ({
+        ...item,
+        food: item.food,
+      })),
+    },
+  } satisfies MealPlanShoppingListResponse;
 }
 
 export function normalizeUserStatsResponse(

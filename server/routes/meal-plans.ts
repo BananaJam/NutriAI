@@ -1,4 +1,8 @@
 import { Elysia, t } from "elysia";
+import {
+  aggregateMealPlanShoppingList,
+  duplicateMealPlanDayItems,
+} from "@/lib/meal-plan";
 import { prisma } from "../lib/prisma";
 import { requireRequestSession } from "../lib/session";
 
@@ -75,13 +79,23 @@ export const mealPlansRoutes = new Elysia({ prefix: "/meal-plans" })
       const session = await requireRequestSession(request, set);
       if (!session) return { message: "Unauthorized" };
 
-      const plan = await prisma.mealPlan.create({
-        data: {
-          userId: session.user.id,
-          name: body.name,
-          startDate: new Date(body.startDate),
-          endDate: new Date(body.endDate),
-        },
+      const plan = await prisma.$transaction(async (tx) => {
+        if (body.isActive) {
+          await tx.mealPlan.updateMany({
+            where: { userId: session.user.id, isActive: true },
+            data: { isActive: false },
+          });
+        }
+
+        return tx.mealPlan.create({
+          data: {
+            userId: session.user.id,
+            name: body.name,
+            startDate: new Date(body.startDate),
+            endDate: new Date(body.endDate),
+            isActive: body.isActive ?? false,
+          },
+        });
       });
 
       return { plan };
@@ -91,6 +105,7 @@ export const mealPlansRoutes = new Elysia({ prefix: "/meal-plans" })
         name: t.String({ minLength: 1 }),
         startDate: t.String(),
         endDate: t.String(),
+        isActive: t.Optional(t.Boolean()),
       }),
     },
   )
@@ -140,6 +155,104 @@ export const mealPlansRoutes = new Elysia({ prefix: "/meal-plans" })
         ]),
         servings: t.Optional(t.Number({ minimum: 0.1, default: 1 })),
         notes: t.Optional(t.String()),
+      }),
+    },
+  )
+  .post(
+    "/:id/duplicate-week",
+    async ({ params, request, body, set }) => {
+      const session = await requireRequestSession(request, set);
+      if (!session) return { message: "Unauthorized" };
+
+      const plan = await prisma.mealPlan.findUnique({
+        where: { id: params.id },
+        include: {
+          items: true,
+        },
+      });
+
+      if (!plan || plan.userId !== session.user.id) {
+        set.status = 404;
+        return { message: "Meal plan not found" };
+      }
+
+      const duplicatedItems = duplicateMealPlanDayItems(
+        plan.items.map((item) => ({
+          foodId: item.foodId,
+          dayOfWeek: item.dayOfWeek,
+          mealType: item.mealType,
+          servings: item.servings,
+          notes: item.notes,
+        })),
+        body.sourceDayOfWeek,
+        body.targetDayOfWeek,
+      );
+
+      if (!duplicatedItems.length) {
+        set.status = 400;
+        return { message: "No meal items found for the selected source day" };
+      }
+
+      await prisma.$transaction(async (tx) => {
+        await tx.mealPlanItem.deleteMany({
+          where: {
+            mealPlanId: params.id,
+            dayOfWeek: body.targetDayOfWeek,
+          },
+        });
+
+        await tx.mealPlanItem.createMany({
+          data: duplicatedItems.map((item) => ({
+            mealPlanId: params.id,
+            ...item,
+          })),
+        });
+      });
+
+      return {
+        message: "Meal plan day duplicated successfully",
+        duplicatedCount: duplicatedItems.length,
+      };
+    },
+    {
+      params: t.Object({
+        id: t.String(),
+      }),
+      body: t.Object({
+        sourceDayOfWeek: t.Number({ minimum: 0, maximum: 6 }),
+        targetDayOfWeek: t.Number({ minimum: 0, maximum: 6 }),
+      }),
+    },
+  )
+  .get(
+    "/:id/shopping-list",
+    async ({ params, request, set }) => {
+      const session = await requireRequestSession(request, set);
+      if (!session) return { message: "Unauthorized" };
+
+      const plan = await prisma.mealPlan.findUnique({
+        where: { id: params.id },
+        include: {
+          items: {
+            include: {
+              food: true,
+            },
+          },
+        },
+      });
+
+      if (!plan || plan.userId !== session.user.id) {
+        set.status = 404;
+        return { message: "Meal plan not found" };
+      }
+
+      return {
+        shoppingList: aggregateMealPlanShoppingList(plan.items),
+      };
+    },
+    {
+      params: t.Object({
+        id: t.String(),
       }),
     },
   )
@@ -248,14 +361,27 @@ export const mealPlansRoutes = new Elysia({ prefix: "/meal-plans" })
         return { message: "Meal plan not found" };
       }
 
-      const plan = await prisma.mealPlan.update({
-        where: { id: params.id },
-        data: {
-          name: body.name,
-          isActive: body.isActive,
-          startDate: body.startDate ? new Date(body.startDate) : undefined,
-          endDate: body.endDate ? new Date(body.endDate) : undefined,
-        },
+      const plan = await prisma.$transaction(async (tx) => {
+        if (body.isActive) {
+          await tx.mealPlan.updateMany({
+            where: {
+              userId: session.user.id,
+              isActive: true,
+              id: { not: params.id },
+            },
+            data: { isActive: false },
+          });
+        }
+
+        return tx.mealPlan.update({
+          where: { id: params.id },
+          data: {
+            name: body.name,
+            isActive: body.isActive,
+            startDate: body.startDate ? new Date(body.startDate) : undefined,
+            endDate: body.endDate ? new Date(body.endDate) : undefined,
+          },
+        });
       });
 
       return { plan };
@@ -330,6 +456,60 @@ export const mealPlansRoutes = new Elysia({ prefix: "/meal-plans" })
     {
       params: t.Object({
         itemId: t.String(),
+      }),
+    },
+  )
+  .patch(
+    "/items/:itemId",
+    async ({ params, request, body, set }) => {
+      const session = await requireRequestSession(request, set);
+      if (!session) return { message: "Unauthorized" };
+
+      const existing = await prisma.mealPlanItem.findUnique({
+        where: { id: params.itemId },
+        include: {
+          mealPlan: {
+            select: {
+              userId: true,
+            },
+          },
+        },
+      });
+
+      if (!existing || existing.mealPlan.userId !== session.user.id) {
+        set.status = 404;
+        return { message: "Meal plan item not found" };
+      }
+
+      const item = await prisma.mealPlanItem.update({
+        where: { id: params.itemId },
+        data: {
+          dayOfWeek: body.dayOfWeek,
+          mealType: body.mealType,
+          servings: body.servings,
+          notes: body.notes,
+        },
+        include: {
+          food: true,
+        },
+      });
+
+      return { item };
+    },
+    {
+      params: t.Object({
+        itemId: t.String(),
+      }),
+      body: t.Object({
+        dayOfWeek: t.Number({ minimum: 0, maximum: 6 }),
+        mealType: t.Union([
+          t.Literal("BREAKFAST"),
+          t.Literal("LUNCH"),
+          t.Literal("DINNER"),
+          t.Literal("SNACK"),
+        ]),
+        servings: t.Number({ minimum: 0.1 }),
+        notes: t.Nullable(t.String()),
       }),
     },
   );
