@@ -1,4 +1,4 @@
-#import "@preview/mmdr:0.2.1": mermaid
+#import "@preview/pintorita:0.1.4"
 
 #let student-name = "Вибираний Владислав"
 #let student-group = "ФЕІ-42"
@@ -85,19 +85,28 @@
   caption: [#caption],
 )
 
-#let mermaid-diagram(source, caption) = figure(
-  mermaid(
-    source,
-    base-theme: "default",
-    theme: (
-      background: "transparent",
-      primary_color: "#f5f5f5",
-      primary_text_color: "#111111",
-      primary_border_color: "#444444",
-      line_color: "#444444",
-      secondary_color: "#efefef",
-      tertiary_color: "#ffffff",
-    ),
+#let to-string(it) = {
+  if type(it) == str {
+    it
+  } else if type(it) != content {
+    str(it)
+  } else if it.has("text") {
+    it.text
+  } else if it.has("children") {
+    it.children.map(to-string).join()
+  } else if it.has("body") {
+    to-string(it.body)
+  } else if it == [ ] {
+    " "
+  }
+}
+
+#let diagram(source, caption) = figure(
+  pintorita.render(
+    to-string(source),
+    style: "default",
+    font: "Times New Roman",
+    width: 100%,
   ),
   caption: [#caption],
 )
@@ -220,12 +229,11 @@
   )[Календарний план і підписи на звороті аркуша заповнюються відповідно до кафедрального бланка перед поданням роботи.]]
 ]
 
-#let annotation-page(title, body, keywords) = [
+#let annotation-page(title, body) = [
   #block-title([#title])
   #v(1em)
   #no-indent[#body]
   #v(1em)
-  #no-indent[*Ключові слова:* #keywords.]
 ]
 
 #let abbreviations-page() = [

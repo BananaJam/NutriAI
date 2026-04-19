@@ -18,7 +18,6 @@
 
       Окрему увагу приділено відтворюваності демонстраційних матеріалів: у репозиторії підготовлено сценарій формування demo-даних та автоматизованого знімання скріншотів проєкту для подальшого оновлення пояснювальної записки. Запропоновано каркас для майбутнього кількісного порівняння різних методів побудови AI-агентів у контексті nutrition assistant.
     ],
-    [планування харчування, калорійність, AI-асистент, LLM, NutriAI, Next.js, Prisma, tool calling, персоналізоване харчування],
   )
 
   #pagebreak()
@@ -31,7 +30,6 @@
 
       Special attention is paid to reproducible documentation assets: the repository includes a demo-data generator and an automated screenshot pipeline so the report can be updated with fresh interface illustrations. A scaffold for future quantitative comparison of agent-building approaches is also prepared.
     ],
-    [meal planning, calorie monitoring, AI assistant, LLM, Next.js, Prisma, nutrition tracking, tool calling],
   )
 
   #pagebreak()
@@ -179,118 +177,118 @@
   + моделі харчування: `Food`, `FoodLog`, `FoodLogItem`, `MealPlan`, `MealPlanItem`, `UserFoodFavorite`;
   + аналітичні моделі взаємодії та цілей: `Goal`, `Conversation`, `Message`.
 
-  #mermaid-diagram(
-    "erDiagram\n"
-      + "  USER {\n"
-      + "    string id PK\n"
-      + "    string email\n"
-      + "    string name\n"
-      + "    boolean emailVerified\n"
-      + "    datetime createdAt\n"
-      + "  }\n"
-      + "  USER_PROFILE {\n"
-      + "    string id PK\n"
-      + "    string userId FK\n"
-      + "    date dateOfBirth\n"
-      + "    string gender\n"
-      + "    float height\n"
-      + "    float weight\n"
-      + "    int targetCalories\n"
-      + "    float targetProtein\n"
-      + "  }\n"
-      + "  USER_SETTINGS {\n"
-      + "    string id PK\n"
-      + "    string userId FK\n"
-      + "    string themePreference\n"
-      + "    string defaultDashboardRange\n"
-      + "    boolean compactMode\n"
-      + "    string startWeekOn\n"
-      + "  }\n"
-      + "  FOOD {\n"
-      + "    string id PK\n"
-      + "    string name\n"
-      + "    string brand\n"
-      + "    float servingSize\n"
-      + "    string servingUnit\n"
-      + "    float calories\n"
-      + "    float protein\n"
-      + "    float carbs\n"
-      + "    float fat\n"
-      + "  }\n"
-      + "  USER_FOOD_FAVORITE {\n"
-      + "    string id PK\n"
-      + "    string userId FK\n"
-      + "    string foodId FK\n"
-      + "    datetime createdAt\n"
-      + "  }\n"
-      + "  FOOD_LOG {\n"
-      + "    string id PK\n"
-      + "    string userId FK\n"
-      + "    date date\n"
-      + "    string notes\n"
-      + "    datetime createdAt\n"
-      + "  }\n"
-      + "  FOOD_LOG_ITEM {\n"
-      + "    string id PK\n"
-      + "    string foodLogId FK\n"
-      + "    string foodId FK\n"
-      + "    string mealType\n"
-      + "    float servings\n"
-      + "    datetime loggedAt\n"
-      + "  }\n"
-      + "  MEAL_PLAN {\n"
-      + "    string id PK\n"
-      + "    string userId FK\n"
-      + "    string name\n"
-      + "    date startDate\n"
-      + "    date endDate\n"
-      + "    boolean isActive\n"
-      + "  }\n"
-      + "  MEAL_PLAN_ITEM {\n"
-      + "    string id PK\n"
-      + "    string mealPlanId FK\n"
-      + "    string foodId FK\n"
-      + "    int dayOfWeek\n"
-      + "    string mealType\n"
-      + "    float servings\n"
-      + "  }\n"
-      + "  GOAL {\n"
-      + "    string id PK\n"
-      + "    string userId FK\n"
-      + "    string type\n"
-      + "    float targetValue\n"
-      + "    float currentValue\n"
-      + "    string unit\n"
-      + "    string status\n"
-      + "  }\n"
-      + "  CONVERSATION {\n"
-      + "    string id PK\n"
-      + "    string userId FK\n"
-      + "    string title\n"
-      + "    datetime createdAt\n"
-      + "  }\n"
-      + "  MESSAGE {\n"
-      + "    string id PK\n"
-      + "    string conversationId FK\n"
-      + "    string role\n"
-      + "    string content\n"
-      + "    json toolCalls\n"
-      + "    json toolResults\n"
-      + "    datetime createdAt\n"
-      + "  }\n"
-      + "  USER ||--|| USER_PROFILE : has\n"
-      + "  USER ||--|| USER_SETTINGS : configures\n"
-      + "  USER ||--o{ FOOD_LOG : owns\n"
-      + "  USER ||--o{ MEAL_PLAN : creates\n"
-      + "  USER ||--o{ GOAL : tracks\n"
-      + "  USER ||--o{ CONVERSATION : starts\n"
-      + "  USER ||--o{ USER_FOOD_FAVORITE : marks\n"
-      + "  FOOD_LOG ||--o{ FOOD_LOG_ITEM : contains\n"
-      + "  MEAL_PLAN ||--o{ MEAL_PLAN_ITEM : contains\n"
-      + "  FOOD ||--o{ FOOD_LOG_ITEM : references\n"
-      + "  FOOD ||--o{ MEAL_PLAN_ITEM : references\n"
-      + "  FOOD ||--o{ USER_FOOD_FAVORITE : referenced_by\n"
-      + "  CONVERSATION ||--o{ MESSAGE : stores\n",
+  #diagram(
+    `erDiagram
+      USER {
+        string id PK
+        string email
+        string name
+        boolean emailVerified
+        datetime createdAt
+      }
+      USER_PROFILE {
+        string id PK
+        string userId FK
+        date dateOfBirth
+        string gender
+        float height
+        float weight
+        int targetCalories
+        float targetProtein
+      }
+      USER_SETTINGS {
+        string id PK
+        string userId FK
+        string themePreference
+        string defaultDashboardRange
+        boolean compactMode
+        string startWeekOn
+      }
+      FOOD {
+        string id PK
+        string name
+        string brand
+        float servingSize
+        string servingUnit
+        float calories
+        float protein
+        float carbs
+        float fat
+      }
+      USER_FOOD_FAVORITE {
+        string id PK
+        string userId FK
+        string foodId FK
+        datetime createdAt
+      }
+      FOOD_LOG {
+        string id PK
+        string userId FK
+        date date
+        string notes
+        datetime createdAt
+      }
+      FOOD_LOG_ITEM {
+        string id PK
+        string foodLogId FK
+        string foodId FK
+        string mealType
+        float servings
+        datetime loggedAt
+      }
+      MEAL_PLAN {
+        string id PK
+        string userId FK
+        string name
+        date startDate
+        date endDate
+        boolean isActive
+      }
+      MEAL_PLAN_ITEM {
+        string id PK
+        string mealPlanId FK
+        string foodId FK
+        int dayOfWeek
+        string mealType
+        float servings
+      }
+      GOAL {
+        string id PK
+        string userId FK
+        string type
+        float targetValue
+        float currentValue
+        string unit
+        string status
+      }
+      CONVERSATION {
+        string id PK
+        string userId FK
+        string title
+        datetime createdAt
+      }
+      MESSAGE {
+        string id PK
+        string conversationId FK
+        string role
+        string content
+        json toolCalls
+        json toolResults
+        datetime createdAt
+      }
+      USER ||--|| USER_PROFILE : has
+      USER ||--|| USER_SETTINGS : configures
+      USER ||--o{ FOOD_LOG : owns
+      USER ||--o{ MEAL_PLAN : creates
+      USER ||--o{ GOAL : tracks
+      USER ||--o{ CONVERSATION : starts
+      USER ||--o{ USER_FOOD_FAVORITE : marks
+      FOOD_LOG ||--o{ FOOD_LOG_ITEM : contains
+      MEAL_PLAN ||--o{ MEAL_PLAN_ITEM : contains
+      FOOD ||--o{ FOOD_LOG_ITEM : references
+      FOOD ||--o{ MEAL_PLAN_ITEM : references
+      FOOD ||--o{ USER_FOOD_FAVORITE : referenced_by
+      CONVERSATION ||--o{ MESSAGE : stores`,
     [ER-діаграма основних сутностей NutriAI на основі Prisma-схеми.],
   )
 
@@ -383,17 +381,35 @@
 
   == Загальна архітектура
 
-  #mermaid-diagram(
-    "flowchart LR\n"
-      + "  U[\"Користувач\"] --> UI[\"Next.js 16 App Router UI\"]\n"
-      + "  UI --> RQ[\"React Query + форми\"]\n"
-      + "  RQ --> API[\"Elysia API / server routes\"]\n"
-      + "  API --> AUTH[\"Better Auth\"]\n"
-      + "  API --> TOOLS[\"AI tools + nutrition analytics\"]\n"
-      + "  API --> DB[\"Prisma ORM\"]\n"
-      + "  DB --> PG[\"PostgreSQL\"]\n"
-      + "  UI --> PAGES[\"Dashboard / Foods / Log / Plans / Goals / Profile / Assistant\"]\n",
-    [Mermaid-діаграма загальної архітектури NutriAI.],
+  #diagram(
+    `dotDiagram
+      digraph Architecture {
+        rankdir=LR
+        bgcolor="white"
+        graph [bgcolor="white"]
+        node [shape="box", style="rounded,filled", fillcolor="#EAF1FB", color="#4C647A", fontcolor="#1F2933"]
+        edge [color="#60758A", fontcolor="#3B4A5A"]
+
+        U [label="Користувач"]
+        UI [label="Next.js 16 App Router UI"]
+        RQ [label="React Query + форми"]
+        API [label="Elysia API / server routes"]
+        AUTH [label="Better Auth"]
+        TOOLS [label="AI tools\n+ nutrition analytics"]
+        DB [label="Prisma ORM"]
+        PG [label="PostgreSQL"]
+        PAGES [label="Dashboard / Foods / Log / Plans / Goals / Profile / Assistant"]
+
+        U -> UI
+        UI -> RQ
+        RQ -> API
+        API -> AUTH
+        API -> TOOLS
+        API -> DB
+        DB -> PG
+        UI -> PAGES
+      }`,
+    [Діаграма загальної архітектури NutriAI.],
   )
 
   Архітектурно застосунок поділяється на три рівні:
@@ -464,21 +480,41 @@
 
   == Схема обробки AI-запиту
 
-  #mermaid-diagram(
-    "flowchart LR\n"
-      + "  USER[\"Запит користувача\"] --> CHAT[\"Chat UI\"]\n"
-      + "  CHAT --> ROUTE[\"Маршрут /api/chat\"]\n"
-      + "  ROUTE --> CTX[\"Системний контекст<br/>профіль + цілі + історія\"]\n"
-      + "  CTX --> LLM[\"LLM\"]\n"
-      + "  LLM --> DECISION{\"Потрібен інструмент?\"}\n"
-      + "  DECISION -- \"так\" --> TOOLS[\"Tool registry\"]\n"
-      + "  TOOLS --> DATA[\"Prisma + nutrition analytics\"]\n"
-      + "  DATA --> RESULT[\"Tool result\"]\n"
-      + "  RESULT --> LLM\n"
-      + "  DECISION -- \"ні\" --> SAVE[\"Збереження messages + tool activity\"]\n"
-      + "  LLM --> SAVE\n"
-      + "  SAVE --> UI[\"Відповідь в UI\"]\n",
-    [Mermaid-діаграма обробки AI-запиту в NutriAI.],
+  #diagram(
+    `dotDiagram
+      digraph ChatFlow {
+        rankdir=LR
+        bgcolor="white"
+        graph [bgcolor="white"]
+        node [shape="box", style="rounded,filled", fillcolor="#EEF4FA", color="#4C647A", fontcolor="#1F2933"]
+        edge [color="#60758A", fontcolor="#3B4A5A"]
+
+        USER [label="Запит користувача"]
+        CHAT [label="Chat UI"]
+        ROUTE [label="Маршрут\n/api/chat"]
+        CTX [label="Системний контекст\nпрофіль + цілі + історія"]
+        LLM [label="LLM"]
+        DECISION [label="Потрібен інструмент?", shape="diamond", style="filled", fillcolor="#FFF4D6", color="#8A6B22"]
+        TOOLS [label="Tool registry"]
+        DATA [label="Prisma\n+ nutrition analytics"]
+        RESULT [label="Tool result"]
+        SAVE [label="Збереження messages\n+ tool activity"]
+        UI [label="Відповідь в UI"]
+
+        USER -> CHAT
+        CHAT -> ROUTE
+        ROUTE -> CTX
+        CTX -> LLM
+        LLM -> DECISION
+        DECISION -> TOOLS [label="так"]
+        TOOLS -> DATA
+        DATA -> RESULT
+        RESULT -> LLM
+        DECISION -> SAVE [label="ні"]
+        LLM -> SAVE
+        SAVE -> UI
+      }`,
+    [Діаграма обробки AI-запиту в NutriAI.],
   )
 
   Ця схема показує, що LLM не взаємодіє з даними напряму. Усі дії проходять через серверний registry інструментів, а результати зберігаються в історії conversation. Це одночасно підвищує контрольованість і покращує UX, бо інтерфейс може показувати, які саме дії виконав асистент.
