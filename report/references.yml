@@ -1,0 +1,112 @@
+who-healthy-diet:
+  type: web
+  title: "Healthy diet"
+  author: "World Health Organization"
+  url:
+    value: https://www.who.int/news-room/fact-sheets/detail/healthy-diet
+    date: 2026-04-18
+
+who-obesity:
+  type: web
+  title: "Obesity and overweight"
+  author: "World Health Organization"
+  url:
+    value: https://www.who.int/news-room/fact-sheets/detail/obesity-and-overweight
+    date: 2026-04-18
+
+nextjs-docs:
+  type: web
+  title: "Next.js Documentation"
+  author: Vercel
+  url:
+    value: https://nextjs.org/docs
+    date: 2026-04-18
+
+bun-docs:
+  type: web
+  title: "Bun Documentation"
+  author: Oven
+  url:
+    value: https://bun.sh/docs
+    date: 2026-04-18
+
+prisma-docs:
+  type: web
+  title: "Prisma Documentation"
+  author: Prisma
+  url:
+    value: https://www.prisma.io/docs
+    date: 2026-04-18
+
+better-auth-docs:
+  type: web
+  title: "Better Auth Documentation"
+  author: Better Auth
+  url:
+    value: https://www.better-auth.com/docs
+    date: 2026-04-18
+
+elysia-docs:
+  type: web
+  title: "Elysia Documentation"
+  author: ElysiaJS
+  url:
+    value: https://elysiajs.com/
+    date: 2026-04-18
+
+react-query-docs:
+  type: web
+  title: "TanStack Query Documentation"
+  author: TanStack
+  url:
+    value: https://tanstack.com/query/latest
+    date: 2026-04-18
+
+anthropic-mcp:
+  type: web
+  title: "Introducing the Model Context Protocol"
+  author: Anthropic
+  date: 2024-11-25
+  url:
+    value: https://www.anthropic.com/news/model-context-protocol
+    date: 2026-04-18
+
+langgraph:
+  type: web
+  title: "LangGraph"
+  author: LangChain
+  url:
+    value: https://www.langchain.com/langgraph
+    date: 2026-04-18
+
+autogen:
+  type: web
+  title: "AutoGen"
+  author: Microsoft
+  url:
+    value: https://github.com/microsoft/autogen
+    date: 2026-04-18
+
+openai-agents:
+  type: web
+  title: "OpenAI Agents SDK"
+  author: OpenAI
+  url:
+    value: https://openai.github.io/openai-agents-python/
+    date: 2026-04-18
+
+ai-engineering:
+  type: book
+  title: "AI Engineering"
+  author: "Chip Huyen"
+  date: 2025
+  publisher: O'Reilly Media
+
+software-architecture:
+  type: book
+  title: "Fundamentals of Software Architecture"
+  author:
+    - "Mark Richards"
+    - "Neal Ford"
+  date: 2020
+  publisher: O'Reilly Media

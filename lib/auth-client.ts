@@ -2,13 +2,22 @@
 
 import { createAuthClient } from "better-auth/react";
 
-const baseURL =
-  typeof window === "undefined"
-    ? "http://localhost:3000/api/auth"
-    : "/api/auth";
+function getAuthBaseUrl() {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+
+  if (appUrl) {
+    return new URL("/api/auth", appUrl).toString();
+  }
+
+  if (typeof window !== "undefined") {
+    return new URL("/api/auth", window.location.origin).toString();
+  }
+
+  return "http://localhost:3000/api/auth";
+}
 
 export const authClient = createAuthClient({
-  baseURL,
+  baseURL: getAuthBaseUrl(),
 });
 
 export type AuthSession = typeof authClient.$Infer.Session;

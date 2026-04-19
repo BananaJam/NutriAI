@@ -509,6 +509,53 @@ function buildConversationTitle(message: string) {
   return cleaned.length > 60 ? `${cleaned.slice(0, 57)}...` : cleaned;
 }
 
+function mergeToolInvocations(toolCalls: unknown, toolResults: unknown) {
+  const calls = Array.isArray(toolCalls) ? toolCalls : [];
+  const results = Array.isArray(toolResults) ? toolResults : [];
+
+  const resultsById = new Map<string, unknown>();
+
+  for (const result of results) {
+    if (!result || typeof result !== "object") continue;
+
+    const typedResult = result as Record<string, unknown>;
+    const toolCallId =
+      typeof typedResult.toolCallId === "string"
+        ? typedResult.toolCallId
+        : null;
+
+    if (toolCallId) {
+      resultsById.set(toolCallId, typedResult.result);
+    }
+  }
+
+  return calls
+    .map((call) => {
+      if (!call || typeof call !== "object") return null;
+
+      const typedCall = call as Record<string, unknown>;
+      const toolCallId =
+        typeof typedCall.toolCallId === "string"
+          ? typedCall.toolCallId
+          : undefined;
+      const toolName =
+        typeof typedCall.toolName === "string" ? typedCall.toolName : undefined;
+
+      if (!toolName) return null;
+
+      return {
+        toolCallId,
+        toolName,
+        state: resultsById.has(toolCallId ?? "") ? "result" : "call",
+        args: typedCall.args,
+        result: toolCallId ? resultsById.get(toolCallId) : undefined,
+      };
+    })
+    .filter((invocation): invocation is NonNullable<typeof invocation> =>
+      Boolean(invocation),
+    );
+}
+
 export async function handleChatRequest(
   messages: unknown[],
   userId: string,
@@ -711,6 +758,10 @@ export const chatRoutes = new Elysia({ prefix: "/chat" })
             role: message.role === "ASSISTANT" ? "assistant" : "user",
             content: message.content,
             createdAt: message.createdAt,
+            toolInvocations:
+              message.role === "ASSISTANT"
+                ? mergeToolInvocations(message.toolCalls, message.toolResults)
+                : undefined,
           })),
         },
       };

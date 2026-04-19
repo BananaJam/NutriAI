@@ -141,7 +141,7 @@ export default function ProgressPage() {
 
   const hasMissedDays = missedDates.length > 0;
   const lowProtein =
-    proteinAdherence !== "—" && Number.parseInt(proteinAdherence) < 70;
+    proteinAdherence !== "—" && Number.parseInt(proteinAdherence, 10) < 70;
   const noGoals = !goalsLoading && activeGoals.length === 0;
 
   return (

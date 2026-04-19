@@ -1,8 +1,9 @@
 import { treaty } from "@elysiajs/eden";
-import type { Api } from "@/server";
 
-// Create type-safe API client using Eden Treaty
-// Uses different base URL for server vs client components
+// Keep the browser client decoupled from the server module graph.
+// Importing `typeof api` from `@/server` here forced Next/Turbopack to
+// analyze the entire Elysia server, Prisma client, and AI routes whenever
+// a client route imported this file.
 const getBaseUrl = () => {
   if (typeof process !== "undefined" && process.env.NEXT_PUBLIC_APP_URL) {
     return process.env.NEXT_PUBLIC_APP_URL;
@@ -13,10 +14,7 @@ const getBaseUrl = () => {
   return "http://localhost:3000";
 };
 
-export const api = treaty<Api>(getBaseUrl());
-
-// Re-export types for convenience
-export type { Api };
+export const api: ReturnType<typeof treaty> = treaty(getBaseUrl());
 
 // Type helpers extracted from Prisma schema for client-side use
 export type MealType = "BREAKFAST" | "LUNCH" | "DINNER" | "SNACK";
@@ -373,6 +371,14 @@ export interface ChatConversation {
   preview: string;
 }
 
+export interface ChatToolInvocation {
+  toolCallId?: string;
+  toolName: string;
+  state?: "partial-call" | "call" | "result";
+  args?: unknown;
+  result?: unknown;
+}
+
 export interface ChatConversationDetail {
   id: string;
   title: string | null;
@@ -383,6 +389,7 @@ export interface ChatConversationDetail {
     role: "user" | "assistant";
     content: string;
     createdAt: string;
+    toolInvocations?: ChatToolInvocation[];
   }>;
 }
 
@@ -753,6 +760,7 @@ export function normalizeChatConversationResponse(payload: {
       role: string;
       content: string;
       createdAt: DateLike;
+      toolInvocations?: unknown;
     }>;
   };
 }) {
@@ -769,6 +777,9 @@ export function normalizeChatConversationResponse(payload: {
         ...message,
         role: message.role === "assistant" ? "assistant" : "user",
         createdAt: toIsoString(message.createdAt),
+        toolInvocations: Array.isArray(message.toolInvocations)
+          ? (message.toolInvocations as ChatToolInvocation[])
+          : undefined,
       })),
     },
   } satisfies ChatConversationResponse;
