@@ -3,9 +3,10 @@
 #let student-name = "Вибираний Владислав"
 #let student-group = "ФЕІ-42"
 #let supervisor-name = "доц. Стахіра Р. Й."
-#let reviewer-name = "________________________"
-#let specialty-code = "121"
-#let specialty-name = "Інженерія програмного забезпечення"
+#let reviewer-name = ""
+#let department-head-name = "доц. Шувар Р. Я."
+#let specialty-code = "122"
+#let specialty-name = "Компʼютерні науки"
 #let university-name = "Львівський національний університет імені Івана Франка"
 #let faculty-name = "Факультет електроніки та комп'ютерних технологій"
 #let department-name = "Кафедра системного проектування"
@@ -16,56 +17,61 @@
 #let approval-date = "____________"
 #let submission-date = "____________"
 
-#set text(
-  font: "Times New Roman",
-  size: 14pt,
-  lang: "uk",
-)
+#let report-template(body) = {
+  set text(
+    font: "Times New Roman",
+    size: 14pt,
+    lang: "uk",
+  )
 
-#set page(
-  paper: "a4",
-  margin: (top: 20mm, bottom: 20mm, left: 20mm, right: 10mm),
-)
+  set page(
+    paper: "a4",
+    margin: (top: 20mm, bottom: 20mm, left: 20mm, right: 10mm),
+  )
 
-#set par(
-  justify: true,
-  first-line-indent: 1.25cm,
-  leading: 0.75em,
-)
+  set par(
+    justify: true,
+    first-line-indent: 1.25cm,
+    leading: 0.75em,
+  )
 
-#set heading(numbering: "1.1")
+  set heading(numbering: "1.1.")
 
-#show heading.where(level: 1): it => [
-  #pagebreak(weak: true)
-  #set align(center)
-  #set text(weight: "bold", size: 14pt)
-  #upper(it.body)
-  #v(1em)
-]
+  show heading.where(level: 1): it => [
+    #pagebreak(weak: true)
+    #align(center)[
+      #set text(weight: "bold", size: 14pt)
+      #counter(heading).display("1.")
+      #h(0.5em)
+      #upper(it.body)
+    ]
+    #v(1em)
+  ]
 
-#show heading.where(level: 2): it => [
-  #set align(left)
-  #set text(weight: "bold", size: 14pt)
-  #counter(heading).display(it.numbering)
-  #h(0.5em)
-  #it.body
-  #v(0.5em)
-]
+  show heading.where(level: 2): it => [
+    #set text(weight: "bold", size: 14pt)
+    #counter(heading).display("1.1.")
+    #h(0.5em)
+    #it.body
+    #v(0.5em)
+  ]
 
-#show heading.where(level: 3): it => [
-  #set align(left)
-  #set text(weight: "bold", style: "italic", size: 14pt)
-  #counter(heading).display(it.numbering)
-  #h(0.5em)
-  #it.body
-  #v(0.35em)
-]
+  show heading.where(level: 3): it => [
+    #set text(weight: "bold", style: "italic", size: 14pt)
+    #counter(heading).display("1.1.1.")
+    #h(0.5em)
+    #it.body
+    #v(0.35em)
+  ]
+
+  body
+}
 
 #let center-title(body) = align(center)[#body]
 
 #let block-title(body) = [
   #align(center)[
-    #text(weight: "bold", body)
+    #text(weight: "bold", upper(body))
   ]
 ]
 
@@ -114,15 +120,13 @@
   stroke: (bottom: 0.7pt + black),
 )[]
 
-#let sign-row(role, name, width: 7.2cm) = [
-  #align(right)[
-    #role #linebreak()
-    #underline(width) #linebreak()
-    #text(size: 9pt)[(підпис)          (ПІБ)]
-    #if name != none [
-      #linebreak()
-      #name
-    ]
+#let sign-row(width: 2cm) = [
+  #box(baseline: 0.8em)[
+    #stack(
+      underline(width),
+      v(2pt),
+      align(center)[#text(size: 9pt)[(підпис)]],
+    )
   ]
 ]
 
@@ -139,25 +143,16 @@
   #align(right)[
     Допустити до захисту #linebreak()
     Завідувач кафедри #linebreak()
-    #underline(5.2cm) . #linebreak()
-    #text(size: 9pt)[(підпис)          (ПІБ)] #linebreak()
-    «...» ............ 20.. р.
+    #department-head-name #sign-row() #linebreak()
+    «...» ............ #defense-year р.
   ]
 
   #v(82pt)
 
   #align(center)[
-    *Кваліфікаційна робота* #linebreak()
-    *Бакалавр* #linebreak()
-    #text(size: 10pt)[(освітній ступінь)]
-  ]
-
-  #v(26pt)
-
-  #align(center)[
-    #underline(13cm) #linebreak()
+    #text(size: 20pt)[*Кваліфікаційна робота*] #linebreak()
+    #text(size: 16pt)[*Бакалавр*] #linebreak()
     #topic #linebreak()
-    #underline(13cm)
   ]
 
   #v(38pt)
@@ -165,26 +160,21 @@
   #align(right)[
     *Виконав:* #linebreak()
     студент групи #student-group #linebreak()
-    спеціальності: #linebreak()
+    спеціальності #linebreak()
     #specialty-code #specialty-name #linebreak()
     #student-name #linebreak()
     #v(0.8em)
     *Науковий керівник:* #linebreak()
-    #underline(5.2cm) . #linebreak()
-    #text(size: 9pt)[(підпис)          (ПІБ)] #linebreak()
-    #supervisor-name #linebreak()
-    «...» ............  р. #linebreak()
+    #supervisor-name #sign-row() #linebreak()
+    «...» ............ #defense-year р. #linebreak()
     #v(0.8em)
     *Рецензент:* #linebreak()
-    #underline(5.2cm) . #linebreak()
-    #text(size: 9pt)[(підпис)          (ПІБ)] #linebreak()
+    #reviewer-name #sign-row() #linebreak()
     #reviewer-name
   ]
 
-  #v(64pt)
-
-  #align(center)[
-    #city 20..
+  #align(center + bottom)[
+    #city #defense-year
   ]
 ]
 
@@ -205,7 +195,7 @@
 
   #v(1.5em)
 
-  #block-title([ЗАВДАННЯ])
+  #block-title("Завдання")
   #v(0.3em)
   #block-title([НА КВАЛІФІКАЦІЙНУ (БАКАЛАВРСЬКУ) РОБОТУ СТУДЕНТУ])
   #v(0.8em)
@@ -239,16 +229,18 @@
 ]
 
 #let abbreviations-page() = [
-  #block-title([ПЕРЕЛІК УМОВНИХ ПОЗНАЧЕНЬ, СИМВОЛІВ, СКОРОЧЕНЬ І ТЕРМІНІВ])
+  #block-title("Перелік умовних позначень, символів, скорочень і термінів")
   #v(1em)
   #no-indent[
-    *AI* — штучний інтелект. #linebreak()
-    *API* — програмний інтерфейс застосунку. #linebreak()
-    *CRUD* — операції створення, читання, оновлення та видалення даних. #linebreak()
-    *LLM* — велика мовна модель. #linebreak()
-    *MCP* — Model Context Protocol. #linebreak()
-    *ORM* — засіб об'єктно-реляційного відображення. #linebreak()
-    *UI* — користувацький інтерфейс. #linebreak()
-    *UX* — користувацький досвід.
+    *AI* (Artificial Intelligence) — штучний інтелект; сукупність методів, моделей і програмних засобів, що забезпечують імітацію окремих інтелектуальних функцій людини, зокрема аналіз вхідних даних, побудову висновків, генерацію відповідей і підтримку прийняття рішень у межах інформаційної системи. #linebreak()
+    *API* (Application Programming Interface) — прикладний програмний інтерфейс; формалізований набір правил, структур даних і викликів, за допомогою яких окремі програмні модулі або зовнішні системи взаємодіють між собою та обмінюються даними. #linebreak()
+    *BMR* (Basal Metabolic Rate) — базальний обмін речовин; мінімальний рівень добових енерговитрат організму, необхідний для підтримання життєво важливих функцій у стані фізіологічного спокою. #linebreak()
+    *BMI* (Body Mass Index) — індекс маси тіла; розрахунковий антропометричний показник, що визначається як відношення маси тіла до квадрату зросту та використовується для попередньої оцінки відповідності маси тіла зросту людини. #linebreak()
+    *CRUD* (Create, Read, Update, Delete) — базові операції роботи з даними, що охоплюють створення нових записів, читання наявної інформації, оновлення збережених значень і видалення об'єктів із системи. #linebreak()
+    *ER-діаграма* (Entity-Relationship diagram) — діаграма «сутність-зв'язок»; графічна модель предметної області, яка відображає основні сутності системи, їх атрибути та логічні зв'язки між ними. #linebreak()
+    *LLM* (Large Language Model) — велика мовна модель; різновид моделі штучного інтелекту, навчений на значних обсягах текстових даних і призначений для розуміння природної мови, генерації тексту, узагальнення інформації та підтримки діалогової взаємодії. #linebreak()
+    *MCP* (Model Context Protocol) — протокол передавання контексту моделі; підхід до стандартизованої взаємодії мовної моделі із зовнішніми інструментами, джерелами даних і службами, що дає змогу керовано передавати контекст і отримувати результати виконання дій. #linebreak()
+    *ORM* (Object-Relational Mapping) — об'єктно-реляційне відображення; підхід до роботи з базою даних, за якого записи реляційних таблиць подаються у вигляді програмних об'єктів, а операції над даними виконуються через абстракції прикладного коду. #linebreak()
+    *TDEE* (Total Daily Energy Expenditure) — загальні добові енерговитрати; сумарна кількість енергії, яку організм витрачає протягом доби з урахуванням базального обміну речовин, рівня фізичної активності та інших енергетичних витрат. #linebreak()
   ]
 ]
