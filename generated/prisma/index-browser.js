@@ -299,6 +299,33 @@ exports.Prisma.MessageScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.AgentLabRunScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  sdk: 'sdk',
+  scenarioId: 'scenarioId',
+  conversationId: 'conversationId',
+  prompt: 'prompt',
+  response: 'response',
+  status: 'status',
+  latencyMs: 'latencyMs',
+  error: 'error',
+  rawTrace: 'rawTrace',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.AgentLabToolEventScalarFieldEnum = {
+  id: 'id',
+  runId: 'runId',
+  position: 'position',
+  toolName: 'toolName',
+  state: 'state',
+  args: 'args',
+  result: 'result',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -384,6 +411,32 @@ exports.MessageRole = exports.$Enums.MessageRole = {
   TOOL: 'TOOL'
 };
 
+exports.AgentLabSdk = exports.$Enums.AgentLabSdk = {
+  VERCEL_AI: 'VERCEL_AI',
+  OPENAI_AGENTS: 'OPENAI_AGENTS',
+  LANGGRAPH: 'LANGGRAPH'
+};
+
+exports.AgentLabScenario = exports.$Enums.AgentLabScenario = {
+  HIGH_PROTEIN_BREAKFAST: 'HIGH_PROTEIN_BREAKFAST',
+  LOG_RECENT_LUNCH: 'LOG_RECENT_LUNCH',
+  WEEKLY_NUTRITION_REVIEW: 'WEEKLY_NUTRITION_REVIEW',
+  CALCULATE_MACROS: 'CALCULATE_MACROS'
+};
+
+exports.AgentLabRunStatus = exports.$Enums.AgentLabRunStatus = {
+  PENDING: 'PENDING',
+  RUNNING: 'RUNNING',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED'
+};
+
+exports.AgentLabToolEventState = exports.$Enums.AgentLabToolEventState = {
+  CALL: 'CALL',
+  RESULT: 'RESULT',
+  ERROR: 'ERROR'
+};
+
 exports.Prisma.ModelName = {
   User: 'User',
   Session: 'Session',
@@ -399,7 +452,9 @@ exports.Prisma.ModelName = {
   MealPlanItem: 'MealPlanItem',
   Goal: 'Goal',
   Conversation: 'Conversation',
-  Message: 'Message'
+  Message: 'Message',
+  AgentLabRun: 'AgentLabRun',
+  AgentLabToolEvent: 'AgentLabToolEvent'
 };
 
 /**

@@ -88,6 +88,16 @@ export type Conversation = $Result.DefaultSelection<Prisma.$ConversationPayload>
  * 
  */
 export type Message = $Result.DefaultSelection<Prisma.$MessagePayload>
+/**
+ * Model AgentLabRun
+ * 
+ */
+export type AgentLabRun = $Result.DefaultSelection<Prisma.$AgentLabRunPayload>
+/**
+ * Model AgentLabToolEvent
+ * 
+ */
+export type AgentLabToolEvent = $Result.DefaultSelection<Prisma.$AgentLabToolEventPayload>
 
 /**
  * Enums
@@ -179,6 +189,44 @@ export const MessageRole: {
 
 export type MessageRole = (typeof MessageRole)[keyof typeof MessageRole]
 
+
+export const AgentLabSdk: {
+  VERCEL_AI: 'VERCEL_AI',
+  OPENAI_AGENTS: 'OPENAI_AGENTS',
+  LANGGRAPH: 'LANGGRAPH'
+};
+
+export type AgentLabSdk = (typeof AgentLabSdk)[keyof typeof AgentLabSdk]
+
+
+export const AgentLabScenario: {
+  HIGH_PROTEIN_BREAKFAST: 'HIGH_PROTEIN_BREAKFAST',
+  LOG_RECENT_LUNCH: 'LOG_RECENT_LUNCH',
+  WEEKLY_NUTRITION_REVIEW: 'WEEKLY_NUTRITION_REVIEW',
+  CALCULATE_MACROS: 'CALCULATE_MACROS'
+};
+
+export type AgentLabScenario = (typeof AgentLabScenario)[keyof typeof AgentLabScenario]
+
+
+export const AgentLabRunStatus: {
+  PENDING: 'PENDING',
+  RUNNING: 'RUNNING',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED'
+};
+
+export type AgentLabRunStatus = (typeof AgentLabRunStatus)[keyof typeof AgentLabRunStatus]
+
+
+export const AgentLabToolEventState: {
+  CALL: 'CALL',
+  RESULT: 'RESULT',
+  ERROR: 'ERROR'
+};
+
+export type AgentLabToolEventState = (typeof AgentLabToolEventState)[keyof typeof AgentLabToolEventState]
+
 }
 
 export type Gender = $Enums.Gender
@@ -216,6 +264,22 @@ export const GoalStatus: typeof $Enums.GoalStatus
 export type MessageRole = $Enums.MessageRole
 
 export const MessageRole: typeof $Enums.MessageRole
+
+export type AgentLabSdk = $Enums.AgentLabSdk
+
+export const AgentLabSdk: typeof $Enums.AgentLabSdk
+
+export type AgentLabScenario = $Enums.AgentLabScenario
+
+export const AgentLabScenario: typeof $Enums.AgentLabScenario
+
+export type AgentLabRunStatus = $Enums.AgentLabRunStatus
+
+export const AgentLabRunStatus: typeof $Enums.AgentLabRunStatus
+
+export type AgentLabToolEventState = $Enums.AgentLabToolEventState
+
+export const AgentLabToolEventState: typeof $Enums.AgentLabToolEventState
 
 /**
  * ##  Prisma Client ʲˢ
@@ -484,6 +548,26 @@ export class PrismaClient<
     * ```
     */
   get message(): Prisma.MessageDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.agentLabRun`: Exposes CRUD operations for the **AgentLabRun** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AgentLabRuns
+    * const agentLabRuns = await prisma.agentLabRun.findMany()
+    * ```
+    */
+  get agentLabRun(): Prisma.AgentLabRunDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.agentLabToolEvent`: Exposes CRUD operations for the **AgentLabToolEvent** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AgentLabToolEvents
+    * const agentLabToolEvents = await prisma.agentLabToolEvent.findMany()
+    * ```
+    */
+  get agentLabToolEvent(): Prisma.AgentLabToolEventDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -939,7 +1023,9 @@ export namespace Prisma {
     MealPlanItem: 'MealPlanItem',
     Goal: 'Goal',
     Conversation: 'Conversation',
-    Message: 'Message'
+    Message: 'Message',
+    AgentLabRun: 'AgentLabRun',
+    AgentLabToolEvent: 'AgentLabToolEvent'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -958,7 +1044,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "session" | "account" | "verification" | "userProfile" | "userSettings" | "food" | "userFoodFavorite" | "foodLog" | "foodLogItem" | "mealPlan" | "mealPlanItem" | "goal" | "conversation" | "message"
+      modelProps: "user" | "session" | "account" | "verification" | "userProfile" | "userSettings" | "food" | "userFoodFavorite" | "foodLog" | "foodLogItem" | "mealPlan" | "mealPlanItem" | "goal" | "conversation" | "message" | "agentLabRun" | "agentLabToolEvent"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2072,6 +2158,154 @@ export namespace Prisma {
           }
         }
       }
+      AgentLabRun: {
+        payload: Prisma.$AgentLabRunPayload<ExtArgs>
+        fields: Prisma.AgentLabRunFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AgentLabRunFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentLabRunPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AgentLabRunFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentLabRunPayload>
+          }
+          findFirst: {
+            args: Prisma.AgentLabRunFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentLabRunPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AgentLabRunFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentLabRunPayload>
+          }
+          findMany: {
+            args: Prisma.AgentLabRunFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentLabRunPayload>[]
+          }
+          create: {
+            args: Prisma.AgentLabRunCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentLabRunPayload>
+          }
+          createMany: {
+            args: Prisma.AgentLabRunCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AgentLabRunCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentLabRunPayload>[]
+          }
+          delete: {
+            args: Prisma.AgentLabRunDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentLabRunPayload>
+          }
+          update: {
+            args: Prisma.AgentLabRunUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentLabRunPayload>
+          }
+          deleteMany: {
+            args: Prisma.AgentLabRunDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AgentLabRunUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.AgentLabRunUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentLabRunPayload>[]
+          }
+          upsert: {
+            args: Prisma.AgentLabRunUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentLabRunPayload>
+          }
+          aggregate: {
+            args: Prisma.AgentLabRunAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAgentLabRun>
+          }
+          groupBy: {
+            args: Prisma.AgentLabRunGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AgentLabRunGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AgentLabRunCountArgs<ExtArgs>
+            result: $Utils.Optional<AgentLabRunCountAggregateOutputType> | number
+          }
+        }
+      }
+      AgentLabToolEvent: {
+        payload: Prisma.$AgentLabToolEventPayload<ExtArgs>
+        fields: Prisma.AgentLabToolEventFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AgentLabToolEventFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentLabToolEventPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AgentLabToolEventFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentLabToolEventPayload>
+          }
+          findFirst: {
+            args: Prisma.AgentLabToolEventFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentLabToolEventPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AgentLabToolEventFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentLabToolEventPayload>
+          }
+          findMany: {
+            args: Prisma.AgentLabToolEventFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentLabToolEventPayload>[]
+          }
+          create: {
+            args: Prisma.AgentLabToolEventCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentLabToolEventPayload>
+          }
+          createMany: {
+            args: Prisma.AgentLabToolEventCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AgentLabToolEventCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentLabToolEventPayload>[]
+          }
+          delete: {
+            args: Prisma.AgentLabToolEventDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentLabToolEventPayload>
+          }
+          update: {
+            args: Prisma.AgentLabToolEventUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentLabToolEventPayload>
+          }
+          deleteMany: {
+            args: Prisma.AgentLabToolEventDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AgentLabToolEventUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.AgentLabToolEventUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentLabToolEventPayload>[]
+          }
+          upsert: {
+            args: Prisma.AgentLabToolEventUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentLabToolEventPayload>
+          }
+          aggregate: {
+            args: Prisma.AgentLabToolEventAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAgentLabToolEvent>
+          }
+          groupBy: {
+            args: Prisma.AgentLabToolEventGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AgentLabToolEventGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AgentLabToolEventCountArgs<ExtArgs>
+            result: $Utils.Optional<AgentLabToolEventCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -2183,6 +2417,8 @@ export namespace Prisma {
     goal?: GoalOmit
     conversation?: ConversationOmit
     message?: MessageOmit
+    agentLabRun?: AgentLabRunOmit
+    agentLabToolEvent?: AgentLabToolEventOmit
   }
 
   /* Types for Logging */
@@ -2270,6 +2506,7 @@ export namespace Prisma {
     goals: number
     conversations: number
     foodFavorites: number
+    agentLabRuns: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2280,6 +2517,7 @@ export namespace Prisma {
     goals?: boolean | UserCountOutputTypeCountGoalsArgs
     conversations?: boolean | UserCountOutputTypeCountConversationsArgs
     foodFavorites?: boolean | UserCountOutputTypeCountFoodFavoritesArgs
+    agentLabRuns?: boolean | UserCountOutputTypeCountAgentLabRunsArgs
   }
 
   // Custom InputTypes
@@ -2340,6 +2578,13 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountFoodFavoritesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: UserFoodFavoriteWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountAgentLabRunsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AgentLabRunWhereInput
   }
 
 
@@ -2482,6 +2727,37 @@ export namespace Prisma {
    */
   export type ConversationCountOutputTypeCountMessagesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: MessageWhereInput
+  }
+
+
+  /**
+   * Count Type AgentLabRunCountOutputType
+   */
+
+  export type AgentLabRunCountOutputType = {
+    toolEvents: number
+  }
+
+  export type AgentLabRunCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    toolEvents?: boolean | AgentLabRunCountOutputTypeCountToolEventsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * AgentLabRunCountOutputType without action
+   */
+  export type AgentLabRunCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentLabRunCountOutputType
+     */
+    select?: AgentLabRunCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * AgentLabRunCountOutputType without action
+   */
+  export type AgentLabRunCountOutputTypeCountToolEventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AgentLabToolEventWhereInput
   }
 
 
@@ -2678,6 +2954,7 @@ export namespace Prisma {
     goals?: boolean | User$goalsArgs<ExtArgs>
     conversations?: boolean | User$conversationsArgs<ExtArgs>
     foodFavorites?: boolean | User$foodFavoritesArgs<ExtArgs>
+    agentLabRuns?: boolean | User$agentLabRunsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -2722,6 +2999,7 @@ export namespace Prisma {
     goals?: boolean | User$goalsArgs<ExtArgs>
     conversations?: boolean | User$conversationsArgs<ExtArgs>
     foodFavorites?: boolean | User$foodFavoritesArgs<ExtArgs>
+    agentLabRuns?: boolean | User$agentLabRunsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -2739,6 +3017,7 @@ export namespace Prisma {
       goals: Prisma.$GoalPayload<ExtArgs>[]
       conversations: Prisma.$ConversationPayload<ExtArgs>[]
       foodFavorites: Prisma.$UserFoodFavoritePayload<ExtArgs>[]
+      agentLabRuns: Prisma.$AgentLabRunPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -3151,6 +3430,7 @@ export namespace Prisma {
     goals<T extends User$goalsArgs<ExtArgs> = {}>(args?: Subset<T, User$goalsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GoalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     conversations<T extends User$conversationsArgs<ExtArgs> = {}>(args?: Subset<T, User$conversationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConversationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     foodFavorites<T extends User$foodFavoritesArgs<ExtArgs> = {}>(args?: Subset<T, User$foodFavoritesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserFoodFavoritePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    agentLabRuns<T extends User$agentLabRunsArgs<ExtArgs> = {}>(args?: Subset<T, User$agentLabRunsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AgentLabRunPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3778,6 +4058,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: UserFoodFavoriteScalarFieldEnum | UserFoodFavoriteScalarFieldEnum[]
+  }
+
+  /**
+   * User.agentLabRuns
+   */
+  export type User$agentLabRunsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentLabRun
+     */
+    select?: AgentLabRunSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentLabRun
+     */
+    omit?: AgentLabRunOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentLabRunInclude<ExtArgs> | null
+    where?: AgentLabRunWhereInput
+    orderBy?: AgentLabRunOrderByWithRelationInput | AgentLabRunOrderByWithRelationInput[]
+    cursor?: AgentLabRunWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AgentLabRunScalarFieldEnum | AgentLabRunScalarFieldEnum[]
   }
 
   /**
@@ -19677,6 +19981,2351 @@ export namespace Prisma {
 
 
   /**
+   * Model AgentLabRun
+   */
+
+  export type AggregateAgentLabRun = {
+    _count: AgentLabRunCountAggregateOutputType | null
+    _avg: AgentLabRunAvgAggregateOutputType | null
+    _sum: AgentLabRunSumAggregateOutputType | null
+    _min: AgentLabRunMinAggregateOutputType | null
+    _max: AgentLabRunMaxAggregateOutputType | null
+  }
+
+  export type AgentLabRunAvgAggregateOutputType = {
+    latencyMs: number | null
+  }
+
+  export type AgentLabRunSumAggregateOutputType = {
+    latencyMs: number | null
+  }
+
+  export type AgentLabRunMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    sdk: $Enums.AgentLabSdk | null
+    scenarioId: $Enums.AgentLabScenario | null
+    conversationId: string | null
+    prompt: string | null
+    response: string | null
+    status: $Enums.AgentLabRunStatus | null
+    latencyMs: number | null
+    error: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type AgentLabRunMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    sdk: $Enums.AgentLabSdk | null
+    scenarioId: $Enums.AgentLabScenario | null
+    conversationId: string | null
+    prompt: string | null
+    response: string | null
+    status: $Enums.AgentLabRunStatus | null
+    latencyMs: number | null
+    error: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type AgentLabRunCountAggregateOutputType = {
+    id: number
+    userId: number
+    sdk: number
+    scenarioId: number
+    conversationId: number
+    prompt: number
+    response: number
+    status: number
+    latencyMs: number
+    error: number
+    rawTrace: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type AgentLabRunAvgAggregateInputType = {
+    latencyMs?: true
+  }
+
+  export type AgentLabRunSumAggregateInputType = {
+    latencyMs?: true
+  }
+
+  export type AgentLabRunMinAggregateInputType = {
+    id?: true
+    userId?: true
+    sdk?: true
+    scenarioId?: true
+    conversationId?: true
+    prompt?: true
+    response?: true
+    status?: true
+    latencyMs?: true
+    error?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type AgentLabRunMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    sdk?: true
+    scenarioId?: true
+    conversationId?: true
+    prompt?: true
+    response?: true
+    status?: true
+    latencyMs?: true
+    error?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type AgentLabRunCountAggregateInputType = {
+    id?: true
+    userId?: true
+    sdk?: true
+    scenarioId?: true
+    conversationId?: true
+    prompt?: true
+    response?: true
+    status?: true
+    latencyMs?: true
+    error?: true
+    rawTrace?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type AgentLabRunAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AgentLabRun to aggregate.
+     */
+    where?: AgentLabRunWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AgentLabRuns to fetch.
+     */
+    orderBy?: AgentLabRunOrderByWithRelationInput | AgentLabRunOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AgentLabRunWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AgentLabRuns from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AgentLabRuns.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AgentLabRuns
+    **/
+    _count?: true | AgentLabRunCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: AgentLabRunAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: AgentLabRunSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AgentLabRunMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AgentLabRunMaxAggregateInputType
+  }
+
+  export type GetAgentLabRunAggregateType<T extends AgentLabRunAggregateArgs> = {
+        [P in keyof T & keyof AggregateAgentLabRun]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAgentLabRun[P]>
+      : GetScalarType<T[P], AggregateAgentLabRun[P]>
+  }
+
+
+
+
+  export type AgentLabRunGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AgentLabRunWhereInput
+    orderBy?: AgentLabRunOrderByWithAggregationInput | AgentLabRunOrderByWithAggregationInput[]
+    by: AgentLabRunScalarFieldEnum[] | AgentLabRunScalarFieldEnum
+    having?: AgentLabRunScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AgentLabRunCountAggregateInputType | true
+    _avg?: AgentLabRunAvgAggregateInputType
+    _sum?: AgentLabRunSumAggregateInputType
+    _min?: AgentLabRunMinAggregateInputType
+    _max?: AgentLabRunMaxAggregateInputType
+  }
+
+  export type AgentLabRunGroupByOutputType = {
+    id: string
+    userId: string
+    sdk: $Enums.AgentLabSdk
+    scenarioId: $Enums.AgentLabScenario
+    conversationId: string | null
+    prompt: string
+    response: string | null
+    status: $Enums.AgentLabRunStatus
+    latencyMs: number | null
+    error: string | null
+    rawTrace: JsonValue | null
+    createdAt: Date
+    updatedAt: Date
+    _count: AgentLabRunCountAggregateOutputType | null
+    _avg: AgentLabRunAvgAggregateOutputType | null
+    _sum: AgentLabRunSumAggregateOutputType | null
+    _min: AgentLabRunMinAggregateOutputType | null
+    _max: AgentLabRunMaxAggregateOutputType | null
+  }
+
+  type GetAgentLabRunGroupByPayload<T extends AgentLabRunGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AgentLabRunGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AgentLabRunGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AgentLabRunGroupByOutputType[P]>
+            : GetScalarType<T[P], AgentLabRunGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AgentLabRunSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    sdk?: boolean
+    scenarioId?: boolean
+    conversationId?: boolean
+    prompt?: boolean
+    response?: boolean
+    status?: boolean
+    latencyMs?: boolean
+    error?: boolean
+    rawTrace?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    toolEvents?: boolean | AgentLabRun$toolEventsArgs<ExtArgs>
+    _count?: boolean | AgentLabRunCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["agentLabRun"]>
+
+  export type AgentLabRunSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    sdk?: boolean
+    scenarioId?: boolean
+    conversationId?: boolean
+    prompt?: boolean
+    response?: boolean
+    status?: boolean
+    latencyMs?: boolean
+    error?: boolean
+    rawTrace?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["agentLabRun"]>
+
+  export type AgentLabRunSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    sdk?: boolean
+    scenarioId?: boolean
+    conversationId?: boolean
+    prompt?: boolean
+    response?: boolean
+    status?: boolean
+    latencyMs?: boolean
+    error?: boolean
+    rawTrace?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["agentLabRun"]>
+
+  export type AgentLabRunSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    sdk?: boolean
+    scenarioId?: boolean
+    conversationId?: boolean
+    prompt?: boolean
+    response?: boolean
+    status?: boolean
+    latencyMs?: boolean
+    error?: boolean
+    rawTrace?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type AgentLabRunOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "sdk" | "scenarioId" | "conversationId" | "prompt" | "response" | "status" | "latencyMs" | "error" | "rawTrace" | "createdAt" | "updatedAt", ExtArgs["result"]["agentLabRun"]>
+  export type AgentLabRunInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    toolEvents?: boolean | AgentLabRun$toolEventsArgs<ExtArgs>
+    _count?: boolean | AgentLabRunCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type AgentLabRunIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type AgentLabRunIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $AgentLabRunPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AgentLabRun"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+      toolEvents: Prisma.$AgentLabToolEventPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string
+      sdk: $Enums.AgentLabSdk
+      scenarioId: $Enums.AgentLabScenario
+      conversationId: string | null
+      prompt: string
+      response: string | null
+      status: $Enums.AgentLabRunStatus
+      latencyMs: number | null
+      error: string | null
+      rawTrace: Prisma.JsonValue | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["agentLabRun"]>
+    composites: {}
+  }
+
+  type AgentLabRunGetPayload<S extends boolean | null | undefined | AgentLabRunDefaultArgs> = $Result.GetResult<Prisma.$AgentLabRunPayload, S>
+
+  type AgentLabRunCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AgentLabRunFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AgentLabRunCountAggregateInputType | true
+    }
+
+  export interface AgentLabRunDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AgentLabRun'], meta: { name: 'AgentLabRun' } }
+    /**
+     * Find zero or one AgentLabRun that matches the filter.
+     * @param {AgentLabRunFindUniqueArgs} args - Arguments to find a AgentLabRun
+     * @example
+     * // Get one AgentLabRun
+     * const agentLabRun = await prisma.agentLabRun.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AgentLabRunFindUniqueArgs>(args: SelectSubset<T, AgentLabRunFindUniqueArgs<ExtArgs>>): Prisma__AgentLabRunClient<$Result.GetResult<Prisma.$AgentLabRunPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one AgentLabRun that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AgentLabRunFindUniqueOrThrowArgs} args - Arguments to find a AgentLabRun
+     * @example
+     * // Get one AgentLabRun
+     * const agentLabRun = await prisma.agentLabRun.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AgentLabRunFindUniqueOrThrowArgs>(args: SelectSubset<T, AgentLabRunFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AgentLabRunClient<$Result.GetResult<Prisma.$AgentLabRunPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AgentLabRun that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentLabRunFindFirstArgs} args - Arguments to find a AgentLabRun
+     * @example
+     * // Get one AgentLabRun
+     * const agentLabRun = await prisma.agentLabRun.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AgentLabRunFindFirstArgs>(args?: SelectSubset<T, AgentLabRunFindFirstArgs<ExtArgs>>): Prisma__AgentLabRunClient<$Result.GetResult<Prisma.$AgentLabRunPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AgentLabRun that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentLabRunFindFirstOrThrowArgs} args - Arguments to find a AgentLabRun
+     * @example
+     * // Get one AgentLabRun
+     * const agentLabRun = await prisma.agentLabRun.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AgentLabRunFindFirstOrThrowArgs>(args?: SelectSubset<T, AgentLabRunFindFirstOrThrowArgs<ExtArgs>>): Prisma__AgentLabRunClient<$Result.GetResult<Prisma.$AgentLabRunPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more AgentLabRuns that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentLabRunFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AgentLabRuns
+     * const agentLabRuns = await prisma.agentLabRun.findMany()
+     * 
+     * // Get first 10 AgentLabRuns
+     * const agentLabRuns = await prisma.agentLabRun.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const agentLabRunWithIdOnly = await prisma.agentLabRun.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AgentLabRunFindManyArgs>(args?: SelectSubset<T, AgentLabRunFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AgentLabRunPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a AgentLabRun.
+     * @param {AgentLabRunCreateArgs} args - Arguments to create a AgentLabRun.
+     * @example
+     * // Create one AgentLabRun
+     * const AgentLabRun = await prisma.agentLabRun.create({
+     *   data: {
+     *     // ... data to create a AgentLabRun
+     *   }
+     * })
+     * 
+     */
+    create<T extends AgentLabRunCreateArgs>(args: SelectSubset<T, AgentLabRunCreateArgs<ExtArgs>>): Prisma__AgentLabRunClient<$Result.GetResult<Prisma.$AgentLabRunPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many AgentLabRuns.
+     * @param {AgentLabRunCreateManyArgs} args - Arguments to create many AgentLabRuns.
+     * @example
+     * // Create many AgentLabRuns
+     * const agentLabRun = await prisma.agentLabRun.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AgentLabRunCreateManyArgs>(args?: SelectSubset<T, AgentLabRunCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AgentLabRuns and returns the data saved in the database.
+     * @param {AgentLabRunCreateManyAndReturnArgs} args - Arguments to create many AgentLabRuns.
+     * @example
+     * // Create many AgentLabRuns
+     * const agentLabRun = await prisma.agentLabRun.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AgentLabRuns and only return the `id`
+     * const agentLabRunWithIdOnly = await prisma.agentLabRun.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AgentLabRunCreateManyAndReturnArgs>(args?: SelectSubset<T, AgentLabRunCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AgentLabRunPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a AgentLabRun.
+     * @param {AgentLabRunDeleteArgs} args - Arguments to delete one AgentLabRun.
+     * @example
+     * // Delete one AgentLabRun
+     * const AgentLabRun = await prisma.agentLabRun.delete({
+     *   where: {
+     *     // ... filter to delete one AgentLabRun
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AgentLabRunDeleteArgs>(args: SelectSubset<T, AgentLabRunDeleteArgs<ExtArgs>>): Prisma__AgentLabRunClient<$Result.GetResult<Prisma.$AgentLabRunPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one AgentLabRun.
+     * @param {AgentLabRunUpdateArgs} args - Arguments to update one AgentLabRun.
+     * @example
+     * // Update one AgentLabRun
+     * const agentLabRun = await prisma.agentLabRun.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AgentLabRunUpdateArgs>(args: SelectSubset<T, AgentLabRunUpdateArgs<ExtArgs>>): Prisma__AgentLabRunClient<$Result.GetResult<Prisma.$AgentLabRunPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more AgentLabRuns.
+     * @param {AgentLabRunDeleteManyArgs} args - Arguments to filter AgentLabRuns to delete.
+     * @example
+     * // Delete a few AgentLabRuns
+     * const { count } = await prisma.agentLabRun.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AgentLabRunDeleteManyArgs>(args?: SelectSubset<T, AgentLabRunDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AgentLabRuns.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentLabRunUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AgentLabRuns
+     * const agentLabRun = await prisma.agentLabRun.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AgentLabRunUpdateManyArgs>(args: SelectSubset<T, AgentLabRunUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AgentLabRuns and returns the data updated in the database.
+     * @param {AgentLabRunUpdateManyAndReturnArgs} args - Arguments to update many AgentLabRuns.
+     * @example
+     * // Update many AgentLabRuns
+     * const agentLabRun = await prisma.agentLabRun.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more AgentLabRuns and only return the `id`
+     * const agentLabRunWithIdOnly = await prisma.agentLabRun.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends AgentLabRunUpdateManyAndReturnArgs>(args: SelectSubset<T, AgentLabRunUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AgentLabRunPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one AgentLabRun.
+     * @param {AgentLabRunUpsertArgs} args - Arguments to update or create a AgentLabRun.
+     * @example
+     * // Update or create a AgentLabRun
+     * const agentLabRun = await prisma.agentLabRun.upsert({
+     *   create: {
+     *     // ... data to create a AgentLabRun
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AgentLabRun we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AgentLabRunUpsertArgs>(args: SelectSubset<T, AgentLabRunUpsertArgs<ExtArgs>>): Prisma__AgentLabRunClient<$Result.GetResult<Prisma.$AgentLabRunPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of AgentLabRuns.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentLabRunCountArgs} args - Arguments to filter AgentLabRuns to count.
+     * @example
+     * // Count the number of AgentLabRuns
+     * const count = await prisma.agentLabRun.count({
+     *   where: {
+     *     // ... the filter for the AgentLabRuns we want to count
+     *   }
+     * })
+    **/
+    count<T extends AgentLabRunCountArgs>(
+      args?: Subset<T, AgentLabRunCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AgentLabRunCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AgentLabRun.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentLabRunAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AgentLabRunAggregateArgs>(args: Subset<T, AgentLabRunAggregateArgs>): Prisma.PrismaPromise<GetAgentLabRunAggregateType<T>>
+
+    /**
+     * Group by AgentLabRun.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentLabRunGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AgentLabRunGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AgentLabRunGroupByArgs['orderBy'] }
+        : { orderBy?: AgentLabRunGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AgentLabRunGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAgentLabRunGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AgentLabRun model
+   */
+  readonly fields: AgentLabRunFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AgentLabRun.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AgentLabRunClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    toolEvents<T extends AgentLabRun$toolEventsArgs<ExtArgs> = {}>(args?: Subset<T, AgentLabRun$toolEventsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AgentLabToolEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AgentLabRun model
+   */
+  interface AgentLabRunFieldRefs {
+    readonly id: FieldRef<"AgentLabRun", 'String'>
+    readonly userId: FieldRef<"AgentLabRun", 'String'>
+    readonly sdk: FieldRef<"AgentLabRun", 'AgentLabSdk'>
+    readonly scenarioId: FieldRef<"AgentLabRun", 'AgentLabScenario'>
+    readonly conversationId: FieldRef<"AgentLabRun", 'String'>
+    readonly prompt: FieldRef<"AgentLabRun", 'String'>
+    readonly response: FieldRef<"AgentLabRun", 'String'>
+    readonly status: FieldRef<"AgentLabRun", 'AgentLabRunStatus'>
+    readonly latencyMs: FieldRef<"AgentLabRun", 'Int'>
+    readonly error: FieldRef<"AgentLabRun", 'String'>
+    readonly rawTrace: FieldRef<"AgentLabRun", 'Json'>
+    readonly createdAt: FieldRef<"AgentLabRun", 'DateTime'>
+    readonly updatedAt: FieldRef<"AgentLabRun", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AgentLabRun findUnique
+   */
+  export type AgentLabRunFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentLabRun
+     */
+    select?: AgentLabRunSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentLabRun
+     */
+    omit?: AgentLabRunOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentLabRunInclude<ExtArgs> | null
+    /**
+     * Filter, which AgentLabRun to fetch.
+     */
+    where: AgentLabRunWhereUniqueInput
+  }
+
+  /**
+   * AgentLabRun findUniqueOrThrow
+   */
+  export type AgentLabRunFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentLabRun
+     */
+    select?: AgentLabRunSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentLabRun
+     */
+    omit?: AgentLabRunOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentLabRunInclude<ExtArgs> | null
+    /**
+     * Filter, which AgentLabRun to fetch.
+     */
+    where: AgentLabRunWhereUniqueInput
+  }
+
+  /**
+   * AgentLabRun findFirst
+   */
+  export type AgentLabRunFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentLabRun
+     */
+    select?: AgentLabRunSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentLabRun
+     */
+    omit?: AgentLabRunOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentLabRunInclude<ExtArgs> | null
+    /**
+     * Filter, which AgentLabRun to fetch.
+     */
+    where?: AgentLabRunWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AgentLabRuns to fetch.
+     */
+    orderBy?: AgentLabRunOrderByWithRelationInput | AgentLabRunOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AgentLabRuns.
+     */
+    cursor?: AgentLabRunWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AgentLabRuns from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AgentLabRuns.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AgentLabRuns.
+     */
+    distinct?: AgentLabRunScalarFieldEnum | AgentLabRunScalarFieldEnum[]
+  }
+
+  /**
+   * AgentLabRun findFirstOrThrow
+   */
+  export type AgentLabRunFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentLabRun
+     */
+    select?: AgentLabRunSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentLabRun
+     */
+    omit?: AgentLabRunOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentLabRunInclude<ExtArgs> | null
+    /**
+     * Filter, which AgentLabRun to fetch.
+     */
+    where?: AgentLabRunWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AgentLabRuns to fetch.
+     */
+    orderBy?: AgentLabRunOrderByWithRelationInput | AgentLabRunOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AgentLabRuns.
+     */
+    cursor?: AgentLabRunWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AgentLabRuns from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AgentLabRuns.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AgentLabRuns.
+     */
+    distinct?: AgentLabRunScalarFieldEnum | AgentLabRunScalarFieldEnum[]
+  }
+
+  /**
+   * AgentLabRun findMany
+   */
+  export type AgentLabRunFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentLabRun
+     */
+    select?: AgentLabRunSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentLabRun
+     */
+    omit?: AgentLabRunOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentLabRunInclude<ExtArgs> | null
+    /**
+     * Filter, which AgentLabRuns to fetch.
+     */
+    where?: AgentLabRunWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AgentLabRuns to fetch.
+     */
+    orderBy?: AgentLabRunOrderByWithRelationInput | AgentLabRunOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AgentLabRuns.
+     */
+    cursor?: AgentLabRunWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AgentLabRuns from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AgentLabRuns.
+     */
+    skip?: number
+    distinct?: AgentLabRunScalarFieldEnum | AgentLabRunScalarFieldEnum[]
+  }
+
+  /**
+   * AgentLabRun create
+   */
+  export type AgentLabRunCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentLabRun
+     */
+    select?: AgentLabRunSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentLabRun
+     */
+    omit?: AgentLabRunOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentLabRunInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AgentLabRun.
+     */
+    data: XOR<AgentLabRunCreateInput, AgentLabRunUncheckedCreateInput>
+  }
+
+  /**
+   * AgentLabRun createMany
+   */
+  export type AgentLabRunCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AgentLabRuns.
+     */
+    data: AgentLabRunCreateManyInput | AgentLabRunCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AgentLabRun createManyAndReturn
+   */
+  export type AgentLabRunCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentLabRun
+     */
+    select?: AgentLabRunSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentLabRun
+     */
+    omit?: AgentLabRunOmit<ExtArgs> | null
+    /**
+     * The data used to create many AgentLabRuns.
+     */
+    data: AgentLabRunCreateManyInput | AgentLabRunCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentLabRunIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AgentLabRun update
+   */
+  export type AgentLabRunUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentLabRun
+     */
+    select?: AgentLabRunSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentLabRun
+     */
+    omit?: AgentLabRunOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentLabRunInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AgentLabRun.
+     */
+    data: XOR<AgentLabRunUpdateInput, AgentLabRunUncheckedUpdateInput>
+    /**
+     * Choose, which AgentLabRun to update.
+     */
+    where: AgentLabRunWhereUniqueInput
+  }
+
+  /**
+   * AgentLabRun updateMany
+   */
+  export type AgentLabRunUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AgentLabRuns.
+     */
+    data: XOR<AgentLabRunUpdateManyMutationInput, AgentLabRunUncheckedUpdateManyInput>
+    /**
+     * Filter which AgentLabRuns to update
+     */
+    where?: AgentLabRunWhereInput
+    /**
+     * Limit how many AgentLabRuns to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AgentLabRun updateManyAndReturn
+   */
+  export type AgentLabRunUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentLabRun
+     */
+    select?: AgentLabRunSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentLabRun
+     */
+    omit?: AgentLabRunOmit<ExtArgs> | null
+    /**
+     * The data used to update AgentLabRuns.
+     */
+    data: XOR<AgentLabRunUpdateManyMutationInput, AgentLabRunUncheckedUpdateManyInput>
+    /**
+     * Filter which AgentLabRuns to update
+     */
+    where?: AgentLabRunWhereInput
+    /**
+     * Limit how many AgentLabRuns to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentLabRunIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AgentLabRun upsert
+   */
+  export type AgentLabRunUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentLabRun
+     */
+    select?: AgentLabRunSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentLabRun
+     */
+    omit?: AgentLabRunOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentLabRunInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AgentLabRun to update in case it exists.
+     */
+    where: AgentLabRunWhereUniqueInput
+    /**
+     * In case the AgentLabRun found by the `where` argument doesn't exist, create a new AgentLabRun with this data.
+     */
+    create: XOR<AgentLabRunCreateInput, AgentLabRunUncheckedCreateInput>
+    /**
+     * In case the AgentLabRun was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AgentLabRunUpdateInput, AgentLabRunUncheckedUpdateInput>
+  }
+
+  /**
+   * AgentLabRun delete
+   */
+  export type AgentLabRunDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentLabRun
+     */
+    select?: AgentLabRunSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentLabRun
+     */
+    omit?: AgentLabRunOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentLabRunInclude<ExtArgs> | null
+    /**
+     * Filter which AgentLabRun to delete.
+     */
+    where: AgentLabRunWhereUniqueInput
+  }
+
+  /**
+   * AgentLabRun deleteMany
+   */
+  export type AgentLabRunDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AgentLabRuns to delete
+     */
+    where?: AgentLabRunWhereInput
+    /**
+     * Limit how many AgentLabRuns to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * AgentLabRun.toolEvents
+   */
+  export type AgentLabRun$toolEventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentLabToolEvent
+     */
+    select?: AgentLabToolEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentLabToolEvent
+     */
+    omit?: AgentLabToolEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentLabToolEventInclude<ExtArgs> | null
+    where?: AgentLabToolEventWhereInput
+    orderBy?: AgentLabToolEventOrderByWithRelationInput | AgentLabToolEventOrderByWithRelationInput[]
+    cursor?: AgentLabToolEventWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AgentLabToolEventScalarFieldEnum | AgentLabToolEventScalarFieldEnum[]
+  }
+
+  /**
+   * AgentLabRun without action
+   */
+  export type AgentLabRunDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentLabRun
+     */
+    select?: AgentLabRunSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentLabRun
+     */
+    omit?: AgentLabRunOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentLabRunInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model AgentLabToolEvent
+   */
+
+  export type AggregateAgentLabToolEvent = {
+    _count: AgentLabToolEventCountAggregateOutputType | null
+    _avg: AgentLabToolEventAvgAggregateOutputType | null
+    _sum: AgentLabToolEventSumAggregateOutputType | null
+    _min: AgentLabToolEventMinAggregateOutputType | null
+    _max: AgentLabToolEventMaxAggregateOutputType | null
+  }
+
+  export type AgentLabToolEventAvgAggregateOutputType = {
+    position: number | null
+  }
+
+  export type AgentLabToolEventSumAggregateOutputType = {
+    position: number | null
+  }
+
+  export type AgentLabToolEventMinAggregateOutputType = {
+    id: string | null
+    runId: string | null
+    position: number | null
+    toolName: string | null
+    state: $Enums.AgentLabToolEventState | null
+    createdAt: Date | null
+  }
+
+  export type AgentLabToolEventMaxAggregateOutputType = {
+    id: string | null
+    runId: string | null
+    position: number | null
+    toolName: string | null
+    state: $Enums.AgentLabToolEventState | null
+    createdAt: Date | null
+  }
+
+  export type AgentLabToolEventCountAggregateOutputType = {
+    id: number
+    runId: number
+    position: number
+    toolName: number
+    state: number
+    args: number
+    result: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type AgentLabToolEventAvgAggregateInputType = {
+    position?: true
+  }
+
+  export type AgentLabToolEventSumAggregateInputType = {
+    position?: true
+  }
+
+  export type AgentLabToolEventMinAggregateInputType = {
+    id?: true
+    runId?: true
+    position?: true
+    toolName?: true
+    state?: true
+    createdAt?: true
+  }
+
+  export type AgentLabToolEventMaxAggregateInputType = {
+    id?: true
+    runId?: true
+    position?: true
+    toolName?: true
+    state?: true
+    createdAt?: true
+  }
+
+  export type AgentLabToolEventCountAggregateInputType = {
+    id?: true
+    runId?: true
+    position?: true
+    toolName?: true
+    state?: true
+    args?: true
+    result?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type AgentLabToolEventAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AgentLabToolEvent to aggregate.
+     */
+    where?: AgentLabToolEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AgentLabToolEvents to fetch.
+     */
+    orderBy?: AgentLabToolEventOrderByWithRelationInput | AgentLabToolEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AgentLabToolEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AgentLabToolEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AgentLabToolEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AgentLabToolEvents
+    **/
+    _count?: true | AgentLabToolEventCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: AgentLabToolEventAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: AgentLabToolEventSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AgentLabToolEventMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AgentLabToolEventMaxAggregateInputType
+  }
+
+  export type GetAgentLabToolEventAggregateType<T extends AgentLabToolEventAggregateArgs> = {
+        [P in keyof T & keyof AggregateAgentLabToolEvent]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAgentLabToolEvent[P]>
+      : GetScalarType<T[P], AggregateAgentLabToolEvent[P]>
+  }
+
+
+
+
+  export type AgentLabToolEventGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AgentLabToolEventWhereInput
+    orderBy?: AgentLabToolEventOrderByWithAggregationInput | AgentLabToolEventOrderByWithAggregationInput[]
+    by: AgentLabToolEventScalarFieldEnum[] | AgentLabToolEventScalarFieldEnum
+    having?: AgentLabToolEventScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AgentLabToolEventCountAggregateInputType | true
+    _avg?: AgentLabToolEventAvgAggregateInputType
+    _sum?: AgentLabToolEventSumAggregateInputType
+    _min?: AgentLabToolEventMinAggregateInputType
+    _max?: AgentLabToolEventMaxAggregateInputType
+  }
+
+  export type AgentLabToolEventGroupByOutputType = {
+    id: string
+    runId: string
+    position: number
+    toolName: string
+    state: $Enums.AgentLabToolEventState
+    args: JsonValue | null
+    result: JsonValue | null
+    createdAt: Date
+    _count: AgentLabToolEventCountAggregateOutputType | null
+    _avg: AgentLabToolEventAvgAggregateOutputType | null
+    _sum: AgentLabToolEventSumAggregateOutputType | null
+    _min: AgentLabToolEventMinAggregateOutputType | null
+    _max: AgentLabToolEventMaxAggregateOutputType | null
+  }
+
+  type GetAgentLabToolEventGroupByPayload<T extends AgentLabToolEventGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AgentLabToolEventGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AgentLabToolEventGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AgentLabToolEventGroupByOutputType[P]>
+            : GetScalarType<T[P], AgentLabToolEventGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AgentLabToolEventSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    runId?: boolean
+    position?: boolean
+    toolName?: boolean
+    state?: boolean
+    args?: boolean
+    result?: boolean
+    createdAt?: boolean
+    run?: boolean | AgentLabRunDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["agentLabToolEvent"]>
+
+  export type AgentLabToolEventSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    runId?: boolean
+    position?: boolean
+    toolName?: boolean
+    state?: boolean
+    args?: boolean
+    result?: boolean
+    createdAt?: boolean
+    run?: boolean | AgentLabRunDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["agentLabToolEvent"]>
+
+  export type AgentLabToolEventSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    runId?: boolean
+    position?: boolean
+    toolName?: boolean
+    state?: boolean
+    args?: boolean
+    result?: boolean
+    createdAt?: boolean
+    run?: boolean | AgentLabRunDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["agentLabToolEvent"]>
+
+  export type AgentLabToolEventSelectScalar = {
+    id?: boolean
+    runId?: boolean
+    position?: boolean
+    toolName?: boolean
+    state?: boolean
+    args?: boolean
+    result?: boolean
+    createdAt?: boolean
+  }
+
+  export type AgentLabToolEventOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "runId" | "position" | "toolName" | "state" | "args" | "result" | "createdAt", ExtArgs["result"]["agentLabToolEvent"]>
+  export type AgentLabToolEventInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    run?: boolean | AgentLabRunDefaultArgs<ExtArgs>
+  }
+  export type AgentLabToolEventIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    run?: boolean | AgentLabRunDefaultArgs<ExtArgs>
+  }
+  export type AgentLabToolEventIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    run?: boolean | AgentLabRunDefaultArgs<ExtArgs>
+  }
+
+  export type $AgentLabToolEventPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AgentLabToolEvent"
+    objects: {
+      run: Prisma.$AgentLabRunPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      runId: string
+      position: number
+      toolName: string
+      state: $Enums.AgentLabToolEventState
+      args: Prisma.JsonValue | null
+      result: Prisma.JsonValue | null
+      createdAt: Date
+    }, ExtArgs["result"]["agentLabToolEvent"]>
+    composites: {}
+  }
+
+  type AgentLabToolEventGetPayload<S extends boolean | null | undefined | AgentLabToolEventDefaultArgs> = $Result.GetResult<Prisma.$AgentLabToolEventPayload, S>
+
+  type AgentLabToolEventCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AgentLabToolEventFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AgentLabToolEventCountAggregateInputType | true
+    }
+
+  export interface AgentLabToolEventDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AgentLabToolEvent'], meta: { name: 'AgentLabToolEvent' } }
+    /**
+     * Find zero or one AgentLabToolEvent that matches the filter.
+     * @param {AgentLabToolEventFindUniqueArgs} args - Arguments to find a AgentLabToolEvent
+     * @example
+     * // Get one AgentLabToolEvent
+     * const agentLabToolEvent = await prisma.agentLabToolEvent.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AgentLabToolEventFindUniqueArgs>(args: SelectSubset<T, AgentLabToolEventFindUniqueArgs<ExtArgs>>): Prisma__AgentLabToolEventClient<$Result.GetResult<Prisma.$AgentLabToolEventPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one AgentLabToolEvent that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AgentLabToolEventFindUniqueOrThrowArgs} args - Arguments to find a AgentLabToolEvent
+     * @example
+     * // Get one AgentLabToolEvent
+     * const agentLabToolEvent = await prisma.agentLabToolEvent.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AgentLabToolEventFindUniqueOrThrowArgs>(args: SelectSubset<T, AgentLabToolEventFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AgentLabToolEventClient<$Result.GetResult<Prisma.$AgentLabToolEventPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AgentLabToolEvent that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentLabToolEventFindFirstArgs} args - Arguments to find a AgentLabToolEvent
+     * @example
+     * // Get one AgentLabToolEvent
+     * const agentLabToolEvent = await prisma.agentLabToolEvent.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AgentLabToolEventFindFirstArgs>(args?: SelectSubset<T, AgentLabToolEventFindFirstArgs<ExtArgs>>): Prisma__AgentLabToolEventClient<$Result.GetResult<Prisma.$AgentLabToolEventPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AgentLabToolEvent that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentLabToolEventFindFirstOrThrowArgs} args - Arguments to find a AgentLabToolEvent
+     * @example
+     * // Get one AgentLabToolEvent
+     * const agentLabToolEvent = await prisma.agentLabToolEvent.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AgentLabToolEventFindFirstOrThrowArgs>(args?: SelectSubset<T, AgentLabToolEventFindFirstOrThrowArgs<ExtArgs>>): Prisma__AgentLabToolEventClient<$Result.GetResult<Prisma.$AgentLabToolEventPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more AgentLabToolEvents that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentLabToolEventFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AgentLabToolEvents
+     * const agentLabToolEvents = await prisma.agentLabToolEvent.findMany()
+     * 
+     * // Get first 10 AgentLabToolEvents
+     * const agentLabToolEvents = await prisma.agentLabToolEvent.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const agentLabToolEventWithIdOnly = await prisma.agentLabToolEvent.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AgentLabToolEventFindManyArgs>(args?: SelectSubset<T, AgentLabToolEventFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AgentLabToolEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a AgentLabToolEvent.
+     * @param {AgentLabToolEventCreateArgs} args - Arguments to create a AgentLabToolEvent.
+     * @example
+     * // Create one AgentLabToolEvent
+     * const AgentLabToolEvent = await prisma.agentLabToolEvent.create({
+     *   data: {
+     *     // ... data to create a AgentLabToolEvent
+     *   }
+     * })
+     * 
+     */
+    create<T extends AgentLabToolEventCreateArgs>(args: SelectSubset<T, AgentLabToolEventCreateArgs<ExtArgs>>): Prisma__AgentLabToolEventClient<$Result.GetResult<Prisma.$AgentLabToolEventPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many AgentLabToolEvents.
+     * @param {AgentLabToolEventCreateManyArgs} args - Arguments to create many AgentLabToolEvents.
+     * @example
+     * // Create many AgentLabToolEvents
+     * const agentLabToolEvent = await prisma.agentLabToolEvent.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AgentLabToolEventCreateManyArgs>(args?: SelectSubset<T, AgentLabToolEventCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AgentLabToolEvents and returns the data saved in the database.
+     * @param {AgentLabToolEventCreateManyAndReturnArgs} args - Arguments to create many AgentLabToolEvents.
+     * @example
+     * // Create many AgentLabToolEvents
+     * const agentLabToolEvent = await prisma.agentLabToolEvent.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AgentLabToolEvents and only return the `id`
+     * const agentLabToolEventWithIdOnly = await prisma.agentLabToolEvent.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AgentLabToolEventCreateManyAndReturnArgs>(args?: SelectSubset<T, AgentLabToolEventCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AgentLabToolEventPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a AgentLabToolEvent.
+     * @param {AgentLabToolEventDeleteArgs} args - Arguments to delete one AgentLabToolEvent.
+     * @example
+     * // Delete one AgentLabToolEvent
+     * const AgentLabToolEvent = await prisma.agentLabToolEvent.delete({
+     *   where: {
+     *     // ... filter to delete one AgentLabToolEvent
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AgentLabToolEventDeleteArgs>(args: SelectSubset<T, AgentLabToolEventDeleteArgs<ExtArgs>>): Prisma__AgentLabToolEventClient<$Result.GetResult<Prisma.$AgentLabToolEventPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one AgentLabToolEvent.
+     * @param {AgentLabToolEventUpdateArgs} args - Arguments to update one AgentLabToolEvent.
+     * @example
+     * // Update one AgentLabToolEvent
+     * const agentLabToolEvent = await prisma.agentLabToolEvent.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AgentLabToolEventUpdateArgs>(args: SelectSubset<T, AgentLabToolEventUpdateArgs<ExtArgs>>): Prisma__AgentLabToolEventClient<$Result.GetResult<Prisma.$AgentLabToolEventPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more AgentLabToolEvents.
+     * @param {AgentLabToolEventDeleteManyArgs} args - Arguments to filter AgentLabToolEvents to delete.
+     * @example
+     * // Delete a few AgentLabToolEvents
+     * const { count } = await prisma.agentLabToolEvent.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AgentLabToolEventDeleteManyArgs>(args?: SelectSubset<T, AgentLabToolEventDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AgentLabToolEvents.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentLabToolEventUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AgentLabToolEvents
+     * const agentLabToolEvent = await prisma.agentLabToolEvent.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AgentLabToolEventUpdateManyArgs>(args: SelectSubset<T, AgentLabToolEventUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AgentLabToolEvents and returns the data updated in the database.
+     * @param {AgentLabToolEventUpdateManyAndReturnArgs} args - Arguments to update many AgentLabToolEvents.
+     * @example
+     * // Update many AgentLabToolEvents
+     * const agentLabToolEvent = await prisma.agentLabToolEvent.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more AgentLabToolEvents and only return the `id`
+     * const agentLabToolEventWithIdOnly = await prisma.agentLabToolEvent.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends AgentLabToolEventUpdateManyAndReturnArgs>(args: SelectSubset<T, AgentLabToolEventUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AgentLabToolEventPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one AgentLabToolEvent.
+     * @param {AgentLabToolEventUpsertArgs} args - Arguments to update or create a AgentLabToolEvent.
+     * @example
+     * // Update or create a AgentLabToolEvent
+     * const agentLabToolEvent = await prisma.agentLabToolEvent.upsert({
+     *   create: {
+     *     // ... data to create a AgentLabToolEvent
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AgentLabToolEvent we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AgentLabToolEventUpsertArgs>(args: SelectSubset<T, AgentLabToolEventUpsertArgs<ExtArgs>>): Prisma__AgentLabToolEventClient<$Result.GetResult<Prisma.$AgentLabToolEventPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of AgentLabToolEvents.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentLabToolEventCountArgs} args - Arguments to filter AgentLabToolEvents to count.
+     * @example
+     * // Count the number of AgentLabToolEvents
+     * const count = await prisma.agentLabToolEvent.count({
+     *   where: {
+     *     // ... the filter for the AgentLabToolEvents we want to count
+     *   }
+     * })
+    **/
+    count<T extends AgentLabToolEventCountArgs>(
+      args?: Subset<T, AgentLabToolEventCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AgentLabToolEventCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AgentLabToolEvent.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentLabToolEventAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AgentLabToolEventAggregateArgs>(args: Subset<T, AgentLabToolEventAggregateArgs>): Prisma.PrismaPromise<GetAgentLabToolEventAggregateType<T>>
+
+    /**
+     * Group by AgentLabToolEvent.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentLabToolEventGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AgentLabToolEventGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AgentLabToolEventGroupByArgs['orderBy'] }
+        : { orderBy?: AgentLabToolEventGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AgentLabToolEventGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAgentLabToolEventGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AgentLabToolEvent model
+   */
+  readonly fields: AgentLabToolEventFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AgentLabToolEvent.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AgentLabToolEventClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    run<T extends AgentLabRunDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AgentLabRunDefaultArgs<ExtArgs>>): Prisma__AgentLabRunClient<$Result.GetResult<Prisma.$AgentLabRunPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AgentLabToolEvent model
+   */
+  interface AgentLabToolEventFieldRefs {
+    readonly id: FieldRef<"AgentLabToolEvent", 'String'>
+    readonly runId: FieldRef<"AgentLabToolEvent", 'String'>
+    readonly position: FieldRef<"AgentLabToolEvent", 'Int'>
+    readonly toolName: FieldRef<"AgentLabToolEvent", 'String'>
+    readonly state: FieldRef<"AgentLabToolEvent", 'AgentLabToolEventState'>
+    readonly args: FieldRef<"AgentLabToolEvent", 'Json'>
+    readonly result: FieldRef<"AgentLabToolEvent", 'Json'>
+    readonly createdAt: FieldRef<"AgentLabToolEvent", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AgentLabToolEvent findUnique
+   */
+  export type AgentLabToolEventFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentLabToolEvent
+     */
+    select?: AgentLabToolEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentLabToolEvent
+     */
+    omit?: AgentLabToolEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentLabToolEventInclude<ExtArgs> | null
+    /**
+     * Filter, which AgentLabToolEvent to fetch.
+     */
+    where: AgentLabToolEventWhereUniqueInput
+  }
+
+  /**
+   * AgentLabToolEvent findUniqueOrThrow
+   */
+  export type AgentLabToolEventFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentLabToolEvent
+     */
+    select?: AgentLabToolEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentLabToolEvent
+     */
+    omit?: AgentLabToolEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentLabToolEventInclude<ExtArgs> | null
+    /**
+     * Filter, which AgentLabToolEvent to fetch.
+     */
+    where: AgentLabToolEventWhereUniqueInput
+  }
+
+  /**
+   * AgentLabToolEvent findFirst
+   */
+  export type AgentLabToolEventFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentLabToolEvent
+     */
+    select?: AgentLabToolEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentLabToolEvent
+     */
+    omit?: AgentLabToolEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentLabToolEventInclude<ExtArgs> | null
+    /**
+     * Filter, which AgentLabToolEvent to fetch.
+     */
+    where?: AgentLabToolEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AgentLabToolEvents to fetch.
+     */
+    orderBy?: AgentLabToolEventOrderByWithRelationInput | AgentLabToolEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AgentLabToolEvents.
+     */
+    cursor?: AgentLabToolEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AgentLabToolEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AgentLabToolEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AgentLabToolEvents.
+     */
+    distinct?: AgentLabToolEventScalarFieldEnum | AgentLabToolEventScalarFieldEnum[]
+  }
+
+  /**
+   * AgentLabToolEvent findFirstOrThrow
+   */
+  export type AgentLabToolEventFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentLabToolEvent
+     */
+    select?: AgentLabToolEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentLabToolEvent
+     */
+    omit?: AgentLabToolEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentLabToolEventInclude<ExtArgs> | null
+    /**
+     * Filter, which AgentLabToolEvent to fetch.
+     */
+    where?: AgentLabToolEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AgentLabToolEvents to fetch.
+     */
+    orderBy?: AgentLabToolEventOrderByWithRelationInput | AgentLabToolEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AgentLabToolEvents.
+     */
+    cursor?: AgentLabToolEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AgentLabToolEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AgentLabToolEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AgentLabToolEvents.
+     */
+    distinct?: AgentLabToolEventScalarFieldEnum | AgentLabToolEventScalarFieldEnum[]
+  }
+
+  /**
+   * AgentLabToolEvent findMany
+   */
+  export type AgentLabToolEventFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentLabToolEvent
+     */
+    select?: AgentLabToolEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentLabToolEvent
+     */
+    omit?: AgentLabToolEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentLabToolEventInclude<ExtArgs> | null
+    /**
+     * Filter, which AgentLabToolEvents to fetch.
+     */
+    where?: AgentLabToolEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AgentLabToolEvents to fetch.
+     */
+    orderBy?: AgentLabToolEventOrderByWithRelationInput | AgentLabToolEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AgentLabToolEvents.
+     */
+    cursor?: AgentLabToolEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AgentLabToolEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AgentLabToolEvents.
+     */
+    skip?: number
+    distinct?: AgentLabToolEventScalarFieldEnum | AgentLabToolEventScalarFieldEnum[]
+  }
+
+  /**
+   * AgentLabToolEvent create
+   */
+  export type AgentLabToolEventCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentLabToolEvent
+     */
+    select?: AgentLabToolEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentLabToolEvent
+     */
+    omit?: AgentLabToolEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentLabToolEventInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AgentLabToolEvent.
+     */
+    data: XOR<AgentLabToolEventCreateInput, AgentLabToolEventUncheckedCreateInput>
+  }
+
+  /**
+   * AgentLabToolEvent createMany
+   */
+  export type AgentLabToolEventCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AgentLabToolEvents.
+     */
+    data: AgentLabToolEventCreateManyInput | AgentLabToolEventCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AgentLabToolEvent createManyAndReturn
+   */
+  export type AgentLabToolEventCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentLabToolEvent
+     */
+    select?: AgentLabToolEventSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentLabToolEvent
+     */
+    omit?: AgentLabToolEventOmit<ExtArgs> | null
+    /**
+     * The data used to create many AgentLabToolEvents.
+     */
+    data: AgentLabToolEventCreateManyInput | AgentLabToolEventCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentLabToolEventIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AgentLabToolEvent update
+   */
+  export type AgentLabToolEventUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentLabToolEvent
+     */
+    select?: AgentLabToolEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentLabToolEvent
+     */
+    omit?: AgentLabToolEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentLabToolEventInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AgentLabToolEvent.
+     */
+    data: XOR<AgentLabToolEventUpdateInput, AgentLabToolEventUncheckedUpdateInput>
+    /**
+     * Choose, which AgentLabToolEvent to update.
+     */
+    where: AgentLabToolEventWhereUniqueInput
+  }
+
+  /**
+   * AgentLabToolEvent updateMany
+   */
+  export type AgentLabToolEventUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AgentLabToolEvents.
+     */
+    data: XOR<AgentLabToolEventUpdateManyMutationInput, AgentLabToolEventUncheckedUpdateManyInput>
+    /**
+     * Filter which AgentLabToolEvents to update
+     */
+    where?: AgentLabToolEventWhereInput
+    /**
+     * Limit how many AgentLabToolEvents to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AgentLabToolEvent updateManyAndReturn
+   */
+  export type AgentLabToolEventUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentLabToolEvent
+     */
+    select?: AgentLabToolEventSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentLabToolEvent
+     */
+    omit?: AgentLabToolEventOmit<ExtArgs> | null
+    /**
+     * The data used to update AgentLabToolEvents.
+     */
+    data: XOR<AgentLabToolEventUpdateManyMutationInput, AgentLabToolEventUncheckedUpdateManyInput>
+    /**
+     * Filter which AgentLabToolEvents to update
+     */
+    where?: AgentLabToolEventWhereInput
+    /**
+     * Limit how many AgentLabToolEvents to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentLabToolEventIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AgentLabToolEvent upsert
+   */
+  export type AgentLabToolEventUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentLabToolEvent
+     */
+    select?: AgentLabToolEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentLabToolEvent
+     */
+    omit?: AgentLabToolEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentLabToolEventInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AgentLabToolEvent to update in case it exists.
+     */
+    where: AgentLabToolEventWhereUniqueInput
+    /**
+     * In case the AgentLabToolEvent found by the `where` argument doesn't exist, create a new AgentLabToolEvent with this data.
+     */
+    create: XOR<AgentLabToolEventCreateInput, AgentLabToolEventUncheckedCreateInput>
+    /**
+     * In case the AgentLabToolEvent was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AgentLabToolEventUpdateInput, AgentLabToolEventUncheckedUpdateInput>
+  }
+
+  /**
+   * AgentLabToolEvent delete
+   */
+  export type AgentLabToolEventDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentLabToolEvent
+     */
+    select?: AgentLabToolEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentLabToolEvent
+     */
+    omit?: AgentLabToolEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentLabToolEventInclude<ExtArgs> | null
+    /**
+     * Filter which AgentLabToolEvent to delete.
+     */
+    where: AgentLabToolEventWhereUniqueInput
+  }
+
+  /**
+   * AgentLabToolEvent deleteMany
+   */
+  export type AgentLabToolEventDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AgentLabToolEvents to delete
+     */
+    where?: AgentLabToolEventWhereInput
+    /**
+     * Limit how many AgentLabToolEvents to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * AgentLabToolEvent without action
+   */
+  export type AgentLabToolEventDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentLabToolEvent
+     */
+    select?: AgentLabToolEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentLabToolEvent
+     */
+    omit?: AgentLabToolEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentLabToolEventInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -19911,6 +22560,39 @@ export namespace Prisma {
   };
 
   export type MessageScalarFieldEnum = (typeof MessageScalarFieldEnum)[keyof typeof MessageScalarFieldEnum]
+
+
+  export const AgentLabRunScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    sdk: 'sdk',
+    scenarioId: 'scenarioId',
+    conversationId: 'conversationId',
+    prompt: 'prompt',
+    response: 'response',
+    status: 'status',
+    latencyMs: 'latencyMs',
+    error: 'error',
+    rawTrace: 'rawTrace',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type AgentLabRunScalarFieldEnum = (typeof AgentLabRunScalarFieldEnum)[keyof typeof AgentLabRunScalarFieldEnum]
+
+
+  export const AgentLabToolEventScalarFieldEnum: {
+    id: 'id',
+    runId: 'runId',
+    position: 'position',
+    toolName: 'toolName',
+    state: 'state',
+    args: 'args',
+    result: 'result',
+    createdAt: 'createdAt'
+  };
+
+  export type AgentLabToolEventScalarFieldEnum = (typeof AgentLabToolEventScalarFieldEnum)[keyof typeof AgentLabToolEventScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -20160,6 +22842,62 @@ export namespace Prisma {
    */
   export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
+
+
+  /**
+   * Reference to a field of type 'AgentLabSdk'
+   */
+  export type EnumAgentLabSdkFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AgentLabSdk'>
+    
+
+
+  /**
+   * Reference to a field of type 'AgentLabSdk[]'
+   */
+  export type ListEnumAgentLabSdkFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AgentLabSdk[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'AgentLabScenario'
+   */
+  export type EnumAgentLabScenarioFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AgentLabScenario'>
+    
+
+
+  /**
+   * Reference to a field of type 'AgentLabScenario[]'
+   */
+  export type ListEnumAgentLabScenarioFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AgentLabScenario[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'AgentLabRunStatus'
+   */
+  export type EnumAgentLabRunStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AgentLabRunStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'AgentLabRunStatus[]'
+   */
+  export type ListEnumAgentLabRunStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AgentLabRunStatus[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'AgentLabToolEventState'
+   */
+  export type EnumAgentLabToolEventStateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AgentLabToolEventState'>
+    
+
+
+  /**
+   * Reference to a field of type 'AgentLabToolEventState[]'
+   */
+  export type ListEnumAgentLabToolEventStateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AgentLabToolEventState[]'>
+    
   /**
    * Deep Input Types
    */
@@ -20185,6 +22923,7 @@ export namespace Prisma {
     goals?: GoalListRelationFilter
     conversations?: ConversationListRelationFilter
     foodFavorites?: UserFoodFavoriteListRelationFilter
+    agentLabRuns?: AgentLabRunListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -20204,6 +22943,7 @@ export namespace Prisma {
     goals?: GoalOrderByRelationAggregateInput
     conversations?: ConversationOrderByRelationAggregateInput
     foodFavorites?: UserFoodFavoriteOrderByRelationAggregateInput
+    agentLabRuns?: AgentLabRunOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -20226,6 +22966,7 @@ export namespace Prisma {
     goals?: GoalListRelationFilter
     conversations?: ConversationListRelationFilter
     foodFavorites?: UserFoodFavoriteListRelationFilter
+    agentLabRuns?: AgentLabRunListRelationFilter
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -21337,6 +24078,178 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"Message"> | Date | string
   }
 
+  export type AgentLabRunWhereInput = {
+    AND?: AgentLabRunWhereInput | AgentLabRunWhereInput[]
+    OR?: AgentLabRunWhereInput[]
+    NOT?: AgentLabRunWhereInput | AgentLabRunWhereInput[]
+    id?: StringFilter<"AgentLabRun"> | string
+    userId?: StringFilter<"AgentLabRun"> | string
+    sdk?: EnumAgentLabSdkFilter<"AgentLabRun"> | $Enums.AgentLabSdk
+    scenarioId?: EnumAgentLabScenarioFilter<"AgentLabRun"> | $Enums.AgentLabScenario
+    conversationId?: StringNullableFilter<"AgentLabRun"> | string | null
+    prompt?: StringFilter<"AgentLabRun"> | string
+    response?: StringNullableFilter<"AgentLabRun"> | string | null
+    status?: EnumAgentLabRunStatusFilter<"AgentLabRun"> | $Enums.AgentLabRunStatus
+    latencyMs?: IntNullableFilter<"AgentLabRun"> | number | null
+    error?: StringNullableFilter<"AgentLabRun"> | string | null
+    rawTrace?: JsonNullableFilter<"AgentLabRun">
+    createdAt?: DateTimeFilter<"AgentLabRun"> | Date | string
+    updatedAt?: DateTimeFilter<"AgentLabRun"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    toolEvents?: AgentLabToolEventListRelationFilter
+  }
+
+  export type AgentLabRunOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    sdk?: SortOrder
+    scenarioId?: SortOrder
+    conversationId?: SortOrderInput | SortOrder
+    prompt?: SortOrder
+    response?: SortOrderInput | SortOrder
+    status?: SortOrder
+    latencyMs?: SortOrderInput | SortOrder
+    error?: SortOrderInput | SortOrder
+    rawTrace?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+    toolEvents?: AgentLabToolEventOrderByRelationAggregateInput
+  }
+
+  export type AgentLabRunWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: AgentLabRunWhereInput | AgentLabRunWhereInput[]
+    OR?: AgentLabRunWhereInput[]
+    NOT?: AgentLabRunWhereInput | AgentLabRunWhereInput[]
+    userId?: StringFilter<"AgentLabRun"> | string
+    sdk?: EnumAgentLabSdkFilter<"AgentLabRun"> | $Enums.AgentLabSdk
+    scenarioId?: EnumAgentLabScenarioFilter<"AgentLabRun"> | $Enums.AgentLabScenario
+    conversationId?: StringNullableFilter<"AgentLabRun"> | string | null
+    prompt?: StringFilter<"AgentLabRun"> | string
+    response?: StringNullableFilter<"AgentLabRun"> | string | null
+    status?: EnumAgentLabRunStatusFilter<"AgentLabRun"> | $Enums.AgentLabRunStatus
+    latencyMs?: IntNullableFilter<"AgentLabRun"> | number | null
+    error?: StringNullableFilter<"AgentLabRun"> | string | null
+    rawTrace?: JsonNullableFilter<"AgentLabRun">
+    createdAt?: DateTimeFilter<"AgentLabRun"> | Date | string
+    updatedAt?: DateTimeFilter<"AgentLabRun"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    toolEvents?: AgentLabToolEventListRelationFilter
+  }, "id">
+
+  export type AgentLabRunOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    sdk?: SortOrder
+    scenarioId?: SortOrder
+    conversationId?: SortOrderInput | SortOrder
+    prompt?: SortOrder
+    response?: SortOrderInput | SortOrder
+    status?: SortOrder
+    latencyMs?: SortOrderInput | SortOrder
+    error?: SortOrderInput | SortOrder
+    rawTrace?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: AgentLabRunCountOrderByAggregateInput
+    _avg?: AgentLabRunAvgOrderByAggregateInput
+    _max?: AgentLabRunMaxOrderByAggregateInput
+    _min?: AgentLabRunMinOrderByAggregateInput
+    _sum?: AgentLabRunSumOrderByAggregateInput
+  }
+
+  export type AgentLabRunScalarWhereWithAggregatesInput = {
+    AND?: AgentLabRunScalarWhereWithAggregatesInput | AgentLabRunScalarWhereWithAggregatesInput[]
+    OR?: AgentLabRunScalarWhereWithAggregatesInput[]
+    NOT?: AgentLabRunScalarWhereWithAggregatesInput | AgentLabRunScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"AgentLabRun"> | string
+    userId?: StringWithAggregatesFilter<"AgentLabRun"> | string
+    sdk?: EnumAgentLabSdkWithAggregatesFilter<"AgentLabRun"> | $Enums.AgentLabSdk
+    scenarioId?: EnumAgentLabScenarioWithAggregatesFilter<"AgentLabRun"> | $Enums.AgentLabScenario
+    conversationId?: StringNullableWithAggregatesFilter<"AgentLabRun"> | string | null
+    prompt?: StringWithAggregatesFilter<"AgentLabRun"> | string
+    response?: StringNullableWithAggregatesFilter<"AgentLabRun"> | string | null
+    status?: EnumAgentLabRunStatusWithAggregatesFilter<"AgentLabRun"> | $Enums.AgentLabRunStatus
+    latencyMs?: IntNullableWithAggregatesFilter<"AgentLabRun"> | number | null
+    error?: StringNullableWithAggregatesFilter<"AgentLabRun"> | string | null
+    rawTrace?: JsonNullableWithAggregatesFilter<"AgentLabRun">
+    createdAt?: DateTimeWithAggregatesFilter<"AgentLabRun"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"AgentLabRun"> | Date | string
+  }
+
+  export type AgentLabToolEventWhereInput = {
+    AND?: AgentLabToolEventWhereInput | AgentLabToolEventWhereInput[]
+    OR?: AgentLabToolEventWhereInput[]
+    NOT?: AgentLabToolEventWhereInput | AgentLabToolEventWhereInput[]
+    id?: StringFilter<"AgentLabToolEvent"> | string
+    runId?: StringFilter<"AgentLabToolEvent"> | string
+    position?: IntFilter<"AgentLabToolEvent"> | number
+    toolName?: StringFilter<"AgentLabToolEvent"> | string
+    state?: EnumAgentLabToolEventStateFilter<"AgentLabToolEvent"> | $Enums.AgentLabToolEventState
+    args?: JsonNullableFilter<"AgentLabToolEvent">
+    result?: JsonNullableFilter<"AgentLabToolEvent">
+    createdAt?: DateTimeFilter<"AgentLabToolEvent"> | Date | string
+    run?: XOR<AgentLabRunScalarRelationFilter, AgentLabRunWhereInput>
+  }
+
+  export type AgentLabToolEventOrderByWithRelationInput = {
+    id?: SortOrder
+    runId?: SortOrder
+    position?: SortOrder
+    toolName?: SortOrder
+    state?: SortOrder
+    args?: SortOrderInput | SortOrder
+    result?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    run?: AgentLabRunOrderByWithRelationInput
+  }
+
+  export type AgentLabToolEventWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: AgentLabToolEventWhereInput | AgentLabToolEventWhereInput[]
+    OR?: AgentLabToolEventWhereInput[]
+    NOT?: AgentLabToolEventWhereInput | AgentLabToolEventWhereInput[]
+    runId?: StringFilter<"AgentLabToolEvent"> | string
+    position?: IntFilter<"AgentLabToolEvent"> | number
+    toolName?: StringFilter<"AgentLabToolEvent"> | string
+    state?: EnumAgentLabToolEventStateFilter<"AgentLabToolEvent"> | $Enums.AgentLabToolEventState
+    args?: JsonNullableFilter<"AgentLabToolEvent">
+    result?: JsonNullableFilter<"AgentLabToolEvent">
+    createdAt?: DateTimeFilter<"AgentLabToolEvent"> | Date | string
+    run?: XOR<AgentLabRunScalarRelationFilter, AgentLabRunWhereInput>
+  }, "id">
+
+  export type AgentLabToolEventOrderByWithAggregationInput = {
+    id?: SortOrder
+    runId?: SortOrder
+    position?: SortOrder
+    toolName?: SortOrder
+    state?: SortOrder
+    args?: SortOrderInput | SortOrder
+    result?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: AgentLabToolEventCountOrderByAggregateInput
+    _avg?: AgentLabToolEventAvgOrderByAggregateInput
+    _max?: AgentLabToolEventMaxOrderByAggregateInput
+    _min?: AgentLabToolEventMinOrderByAggregateInput
+    _sum?: AgentLabToolEventSumOrderByAggregateInput
+  }
+
+  export type AgentLabToolEventScalarWhereWithAggregatesInput = {
+    AND?: AgentLabToolEventScalarWhereWithAggregatesInput | AgentLabToolEventScalarWhereWithAggregatesInput[]
+    OR?: AgentLabToolEventScalarWhereWithAggregatesInput[]
+    NOT?: AgentLabToolEventScalarWhereWithAggregatesInput | AgentLabToolEventScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"AgentLabToolEvent"> | string
+    runId?: StringWithAggregatesFilter<"AgentLabToolEvent"> | string
+    position?: IntWithAggregatesFilter<"AgentLabToolEvent"> | number
+    toolName?: StringWithAggregatesFilter<"AgentLabToolEvent"> | string
+    state?: EnumAgentLabToolEventStateWithAggregatesFilter<"AgentLabToolEvent"> | $Enums.AgentLabToolEventState
+    args?: JsonNullableWithAggregatesFilter<"AgentLabToolEvent">
+    result?: JsonNullableWithAggregatesFilter<"AgentLabToolEvent">
+    createdAt?: DateTimeWithAggregatesFilter<"AgentLabToolEvent"> | Date | string
+  }
+
   export type UserCreateInput = {
     id?: string
     name?: string | null
@@ -21354,6 +24267,7 @@ export namespace Prisma {
     goals?: GoalCreateNestedManyWithoutUserInput
     conversations?: ConversationCreateNestedManyWithoutUserInput
     foodFavorites?: UserFoodFavoriteCreateNestedManyWithoutUserInput
+    agentLabRuns?: AgentLabRunCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -21373,6 +24287,7 @@ export namespace Prisma {
     goals?: GoalUncheckedCreateNestedManyWithoutUserInput
     conversations?: ConversationUncheckedCreateNestedManyWithoutUserInput
     foodFavorites?: UserFoodFavoriteUncheckedCreateNestedManyWithoutUserInput
+    agentLabRuns?: AgentLabRunUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -21392,6 +24307,7 @@ export namespace Prisma {
     goals?: GoalUpdateManyWithoutUserNestedInput
     conversations?: ConversationUpdateManyWithoutUserNestedInput
     foodFavorites?: UserFoodFavoriteUpdateManyWithoutUserNestedInput
+    agentLabRuns?: AgentLabRunUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -21411,6 +24327,7 @@ export namespace Prisma {
     goals?: GoalUncheckedUpdateManyWithoutUserNestedInput
     conversations?: ConversationUncheckedUpdateManyWithoutUserNestedInput
     foodFavorites?: UserFoodFavoriteUncheckedUpdateManyWithoutUserNestedInput
+    agentLabRuns?: AgentLabRunUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -22628,6 +25545,197 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type AgentLabRunCreateInput = {
+    id?: string
+    sdk: $Enums.AgentLabSdk
+    scenarioId: $Enums.AgentLabScenario
+    conversationId?: string | null
+    prompt: string
+    response?: string | null
+    status?: $Enums.AgentLabRunStatus
+    latencyMs?: number | null
+    error?: string | null
+    rawTrace?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutAgentLabRunsInput
+    toolEvents?: AgentLabToolEventCreateNestedManyWithoutRunInput
+  }
+
+  export type AgentLabRunUncheckedCreateInput = {
+    id?: string
+    userId: string
+    sdk: $Enums.AgentLabSdk
+    scenarioId: $Enums.AgentLabScenario
+    conversationId?: string | null
+    prompt: string
+    response?: string | null
+    status?: $Enums.AgentLabRunStatus
+    latencyMs?: number | null
+    error?: string | null
+    rawTrace?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    toolEvents?: AgentLabToolEventUncheckedCreateNestedManyWithoutRunInput
+  }
+
+  export type AgentLabRunUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sdk?: EnumAgentLabSdkFieldUpdateOperationsInput | $Enums.AgentLabSdk
+    scenarioId?: EnumAgentLabScenarioFieldUpdateOperationsInput | $Enums.AgentLabScenario
+    conversationId?: NullableStringFieldUpdateOperationsInput | string | null
+    prompt?: StringFieldUpdateOperationsInput | string
+    response?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAgentLabRunStatusFieldUpdateOperationsInput | $Enums.AgentLabRunStatus
+    latencyMs?: NullableIntFieldUpdateOperationsInput | number | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    rawTrace?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutAgentLabRunsNestedInput
+    toolEvents?: AgentLabToolEventUpdateManyWithoutRunNestedInput
+  }
+
+  export type AgentLabRunUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    sdk?: EnumAgentLabSdkFieldUpdateOperationsInput | $Enums.AgentLabSdk
+    scenarioId?: EnumAgentLabScenarioFieldUpdateOperationsInput | $Enums.AgentLabScenario
+    conversationId?: NullableStringFieldUpdateOperationsInput | string | null
+    prompt?: StringFieldUpdateOperationsInput | string
+    response?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAgentLabRunStatusFieldUpdateOperationsInput | $Enums.AgentLabRunStatus
+    latencyMs?: NullableIntFieldUpdateOperationsInput | number | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    rawTrace?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    toolEvents?: AgentLabToolEventUncheckedUpdateManyWithoutRunNestedInput
+  }
+
+  export type AgentLabRunCreateManyInput = {
+    id?: string
+    userId: string
+    sdk: $Enums.AgentLabSdk
+    scenarioId: $Enums.AgentLabScenario
+    conversationId?: string | null
+    prompt: string
+    response?: string | null
+    status?: $Enums.AgentLabRunStatus
+    latencyMs?: number | null
+    error?: string | null
+    rawTrace?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AgentLabRunUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sdk?: EnumAgentLabSdkFieldUpdateOperationsInput | $Enums.AgentLabSdk
+    scenarioId?: EnumAgentLabScenarioFieldUpdateOperationsInput | $Enums.AgentLabScenario
+    conversationId?: NullableStringFieldUpdateOperationsInput | string | null
+    prompt?: StringFieldUpdateOperationsInput | string
+    response?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAgentLabRunStatusFieldUpdateOperationsInput | $Enums.AgentLabRunStatus
+    latencyMs?: NullableIntFieldUpdateOperationsInput | number | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    rawTrace?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AgentLabRunUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    sdk?: EnumAgentLabSdkFieldUpdateOperationsInput | $Enums.AgentLabSdk
+    scenarioId?: EnumAgentLabScenarioFieldUpdateOperationsInput | $Enums.AgentLabScenario
+    conversationId?: NullableStringFieldUpdateOperationsInput | string | null
+    prompt?: StringFieldUpdateOperationsInput | string
+    response?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAgentLabRunStatusFieldUpdateOperationsInput | $Enums.AgentLabRunStatus
+    latencyMs?: NullableIntFieldUpdateOperationsInput | number | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    rawTrace?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AgentLabToolEventCreateInput = {
+    id?: string
+    position: number
+    toolName: string
+    state: $Enums.AgentLabToolEventState
+    args?: NullableJsonNullValueInput | InputJsonValue
+    result?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    run: AgentLabRunCreateNestedOneWithoutToolEventsInput
+  }
+
+  export type AgentLabToolEventUncheckedCreateInput = {
+    id?: string
+    runId: string
+    position: number
+    toolName: string
+    state: $Enums.AgentLabToolEventState
+    args?: NullableJsonNullValueInput | InputJsonValue
+    result?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type AgentLabToolEventUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    position?: IntFieldUpdateOperationsInput | number
+    toolName?: StringFieldUpdateOperationsInput | string
+    state?: EnumAgentLabToolEventStateFieldUpdateOperationsInput | $Enums.AgentLabToolEventState
+    args?: NullableJsonNullValueInput | InputJsonValue
+    result?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    run?: AgentLabRunUpdateOneRequiredWithoutToolEventsNestedInput
+  }
+
+  export type AgentLabToolEventUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    runId?: StringFieldUpdateOperationsInput | string
+    position?: IntFieldUpdateOperationsInput | number
+    toolName?: StringFieldUpdateOperationsInput | string
+    state?: EnumAgentLabToolEventStateFieldUpdateOperationsInput | $Enums.AgentLabToolEventState
+    args?: NullableJsonNullValueInput | InputJsonValue
+    result?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AgentLabToolEventCreateManyInput = {
+    id?: string
+    runId: string
+    position: number
+    toolName: string
+    state: $Enums.AgentLabToolEventState
+    args?: NullableJsonNullValueInput | InputJsonValue
+    result?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type AgentLabToolEventUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    position?: IntFieldUpdateOperationsInput | number
+    toolName?: StringFieldUpdateOperationsInput | string
+    state?: EnumAgentLabToolEventStateFieldUpdateOperationsInput | $Enums.AgentLabToolEventState
+    args?: NullableJsonNullValueInput | InputJsonValue
+    result?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AgentLabToolEventUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    runId?: StringFieldUpdateOperationsInput | string
+    position?: IntFieldUpdateOperationsInput | number
+    toolName?: StringFieldUpdateOperationsInput | string
+    state?: EnumAgentLabToolEventStateFieldUpdateOperationsInput | $Enums.AgentLabToolEventState
+    args?: NullableJsonNullValueInput | InputJsonValue
+    result?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -22726,6 +25834,12 @@ export namespace Prisma {
     none?: UserFoodFavoriteWhereInput
   }
 
+  export type AgentLabRunListRelationFilter = {
+    every?: AgentLabRunWhereInput
+    some?: AgentLabRunWhereInput
+    none?: AgentLabRunWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -22756,6 +25870,10 @@ export namespace Prisma {
   }
 
   export type UserFoodFavoriteOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type AgentLabRunOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -23815,6 +26933,180 @@ export namespace Prisma {
     _max?: NestedJsonNullableFilter<$PrismaModel>
   }
 
+  export type EnumAgentLabSdkFilter<$PrismaModel = never> = {
+    equals?: $Enums.AgentLabSdk | EnumAgentLabSdkFieldRefInput<$PrismaModel>
+    in?: $Enums.AgentLabSdk[] | ListEnumAgentLabSdkFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AgentLabSdk[] | ListEnumAgentLabSdkFieldRefInput<$PrismaModel>
+    not?: NestedEnumAgentLabSdkFilter<$PrismaModel> | $Enums.AgentLabSdk
+  }
+
+  export type EnumAgentLabScenarioFilter<$PrismaModel = never> = {
+    equals?: $Enums.AgentLabScenario | EnumAgentLabScenarioFieldRefInput<$PrismaModel>
+    in?: $Enums.AgentLabScenario[] | ListEnumAgentLabScenarioFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AgentLabScenario[] | ListEnumAgentLabScenarioFieldRefInput<$PrismaModel>
+    not?: NestedEnumAgentLabScenarioFilter<$PrismaModel> | $Enums.AgentLabScenario
+  }
+
+  export type EnumAgentLabRunStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.AgentLabRunStatus | EnumAgentLabRunStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.AgentLabRunStatus[] | ListEnumAgentLabRunStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AgentLabRunStatus[] | ListEnumAgentLabRunStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumAgentLabRunStatusFilter<$PrismaModel> | $Enums.AgentLabRunStatus
+  }
+
+  export type AgentLabToolEventListRelationFilter = {
+    every?: AgentLabToolEventWhereInput
+    some?: AgentLabToolEventWhereInput
+    none?: AgentLabToolEventWhereInput
+  }
+
+  export type AgentLabToolEventOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type AgentLabRunCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    sdk?: SortOrder
+    scenarioId?: SortOrder
+    conversationId?: SortOrder
+    prompt?: SortOrder
+    response?: SortOrder
+    status?: SortOrder
+    latencyMs?: SortOrder
+    error?: SortOrder
+    rawTrace?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AgentLabRunAvgOrderByAggregateInput = {
+    latencyMs?: SortOrder
+  }
+
+  export type AgentLabRunMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    sdk?: SortOrder
+    scenarioId?: SortOrder
+    conversationId?: SortOrder
+    prompt?: SortOrder
+    response?: SortOrder
+    status?: SortOrder
+    latencyMs?: SortOrder
+    error?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AgentLabRunMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    sdk?: SortOrder
+    scenarioId?: SortOrder
+    conversationId?: SortOrder
+    prompt?: SortOrder
+    response?: SortOrder
+    status?: SortOrder
+    latencyMs?: SortOrder
+    error?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AgentLabRunSumOrderByAggregateInput = {
+    latencyMs?: SortOrder
+  }
+
+  export type EnumAgentLabSdkWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AgentLabSdk | EnumAgentLabSdkFieldRefInput<$PrismaModel>
+    in?: $Enums.AgentLabSdk[] | ListEnumAgentLabSdkFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AgentLabSdk[] | ListEnumAgentLabSdkFieldRefInput<$PrismaModel>
+    not?: NestedEnumAgentLabSdkWithAggregatesFilter<$PrismaModel> | $Enums.AgentLabSdk
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAgentLabSdkFilter<$PrismaModel>
+    _max?: NestedEnumAgentLabSdkFilter<$PrismaModel>
+  }
+
+  export type EnumAgentLabScenarioWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AgentLabScenario | EnumAgentLabScenarioFieldRefInput<$PrismaModel>
+    in?: $Enums.AgentLabScenario[] | ListEnumAgentLabScenarioFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AgentLabScenario[] | ListEnumAgentLabScenarioFieldRefInput<$PrismaModel>
+    not?: NestedEnumAgentLabScenarioWithAggregatesFilter<$PrismaModel> | $Enums.AgentLabScenario
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAgentLabScenarioFilter<$PrismaModel>
+    _max?: NestedEnumAgentLabScenarioFilter<$PrismaModel>
+  }
+
+  export type EnumAgentLabRunStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AgentLabRunStatus | EnumAgentLabRunStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.AgentLabRunStatus[] | ListEnumAgentLabRunStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AgentLabRunStatus[] | ListEnumAgentLabRunStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumAgentLabRunStatusWithAggregatesFilter<$PrismaModel> | $Enums.AgentLabRunStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAgentLabRunStatusFilter<$PrismaModel>
+    _max?: NestedEnumAgentLabRunStatusFilter<$PrismaModel>
+  }
+
+  export type EnumAgentLabToolEventStateFilter<$PrismaModel = never> = {
+    equals?: $Enums.AgentLabToolEventState | EnumAgentLabToolEventStateFieldRefInput<$PrismaModel>
+    in?: $Enums.AgentLabToolEventState[] | ListEnumAgentLabToolEventStateFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AgentLabToolEventState[] | ListEnumAgentLabToolEventStateFieldRefInput<$PrismaModel>
+    not?: NestedEnumAgentLabToolEventStateFilter<$PrismaModel> | $Enums.AgentLabToolEventState
+  }
+
+  export type AgentLabRunScalarRelationFilter = {
+    is?: AgentLabRunWhereInput
+    isNot?: AgentLabRunWhereInput
+  }
+
+  export type AgentLabToolEventCountOrderByAggregateInput = {
+    id?: SortOrder
+    runId?: SortOrder
+    position?: SortOrder
+    toolName?: SortOrder
+    state?: SortOrder
+    args?: SortOrder
+    result?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AgentLabToolEventAvgOrderByAggregateInput = {
+    position?: SortOrder
+  }
+
+  export type AgentLabToolEventMaxOrderByAggregateInput = {
+    id?: SortOrder
+    runId?: SortOrder
+    position?: SortOrder
+    toolName?: SortOrder
+    state?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AgentLabToolEventMinOrderByAggregateInput = {
+    id?: SortOrder
+    runId?: SortOrder
+    position?: SortOrder
+    toolName?: SortOrder
+    state?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AgentLabToolEventSumOrderByAggregateInput = {
+    position?: SortOrder
+  }
+
+  export type EnumAgentLabToolEventStateWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AgentLabToolEventState | EnumAgentLabToolEventStateFieldRefInput<$PrismaModel>
+    in?: $Enums.AgentLabToolEventState[] | ListEnumAgentLabToolEventStateFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AgentLabToolEventState[] | ListEnumAgentLabToolEventStateFieldRefInput<$PrismaModel>
+    not?: NestedEnumAgentLabToolEventStateWithAggregatesFilter<$PrismaModel> | $Enums.AgentLabToolEventState
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAgentLabToolEventStateFilter<$PrismaModel>
+    _max?: NestedEnumAgentLabToolEventStateFilter<$PrismaModel>
+  }
+
   export type SessionCreateNestedManyWithoutUserInput = {
     create?: XOR<SessionCreateWithoutUserInput, SessionUncheckedCreateWithoutUserInput> | SessionCreateWithoutUserInput[] | SessionUncheckedCreateWithoutUserInput[]
     connectOrCreate?: SessionCreateOrConnectWithoutUserInput | SessionCreateOrConnectWithoutUserInput[]
@@ -23876,6 +27168,13 @@ export namespace Prisma {
     connect?: UserFoodFavoriteWhereUniqueInput | UserFoodFavoriteWhereUniqueInput[]
   }
 
+  export type AgentLabRunCreateNestedManyWithoutUserInput = {
+    create?: XOR<AgentLabRunCreateWithoutUserInput, AgentLabRunUncheckedCreateWithoutUserInput> | AgentLabRunCreateWithoutUserInput[] | AgentLabRunUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: AgentLabRunCreateOrConnectWithoutUserInput | AgentLabRunCreateOrConnectWithoutUserInput[]
+    createMany?: AgentLabRunCreateManyUserInputEnvelope
+    connect?: AgentLabRunWhereUniqueInput | AgentLabRunWhereUniqueInput[]
+  }
+
   export type SessionUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<SessionCreateWithoutUserInput, SessionUncheckedCreateWithoutUserInput> | SessionCreateWithoutUserInput[] | SessionUncheckedCreateWithoutUserInput[]
     connectOrCreate?: SessionCreateOrConnectWithoutUserInput | SessionCreateOrConnectWithoutUserInput[]
@@ -23935,6 +27234,13 @@ export namespace Prisma {
     connectOrCreate?: UserFoodFavoriteCreateOrConnectWithoutUserInput | UserFoodFavoriteCreateOrConnectWithoutUserInput[]
     createMany?: UserFoodFavoriteCreateManyUserInputEnvelope
     connect?: UserFoodFavoriteWhereUniqueInput | UserFoodFavoriteWhereUniqueInput[]
+  }
+
+  export type AgentLabRunUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<AgentLabRunCreateWithoutUserInput, AgentLabRunUncheckedCreateWithoutUserInput> | AgentLabRunCreateWithoutUserInput[] | AgentLabRunUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: AgentLabRunCreateOrConnectWithoutUserInput | AgentLabRunCreateOrConnectWithoutUserInput[]
+    createMany?: AgentLabRunCreateManyUserInputEnvelope
+    connect?: AgentLabRunWhereUniqueInput | AgentLabRunWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -24071,6 +27377,20 @@ export namespace Prisma {
     deleteMany?: UserFoodFavoriteScalarWhereInput | UserFoodFavoriteScalarWhereInput[]
   }
 
+  export type AgentLabRunUpdateManyWithoutUserNestedInput = {
+    create?: XOR<AgentLabRunCreateWithoutUserInput, AgentLabRunUncheckedCreateWithoutUserInput> | AgentLabRunCreateWithoutUserInput[] | AgentLabRunUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: AgentLabRunCreateOrConnectWithoutUserInput | AgentLabRunCreateOrConnectWithoutUserInput[]
+    upsert?: AgentLabRunUpsertWithWhereUniqueWithoutUserInput | AgentLabRunUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: AgentLabRunCreateManyUserInputEnvelope
+    set?: AgentLabRunWhereUniqueInput | AgentLabRunWhereUniqueInput[]
+    disconnect?: AgentLabRunWhereUniqueInput | AgentLabRunWhereUniqueInput[]
+    delete?: AgentLabRunWhereUniqueInput | AgentLabRunWhereUniqueInput[]
+    connect?: AgentLabRunWhereUniqueInput | AgentLabRunWhereUniqueInput[]
+    update?: AgentLabRunUpdateWithWhereUniqueWithoutUserInput | AgentLabRunUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: AgentLabRunUpdateManyWithWhereWithoutUserInput | AgentLabRunUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: AgentLabRunScalarWhereInput | AgentLabRunScalarWhereInput[]
+  }
+
   export type SessionUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<SessionCreateWithoutUserInput, SessionUncheckedCreateWithoutUserInput> | SessionCreateWithoutUserInput[] | SessionUncheckedCreateWithoutUserInput[]
     connectOrCreate?: SessionCreateOrConnectWithoutUserInput | SessionCreateOrConnectWithoutUserInput[]
@@ -24187,6 +27507,20 @@ export namespace Prisma {
     update?: UserFoodFavoriteUpdateWithWhereUniqueWithoutUserInput | UserFoodFavoriteUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: UserFoodFavoriteUpdateManyWithWhereWithoutUserInput | UserFoodFavoriteUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: UserFoodFavoriteScalarWhereInput | UserFoodFavoriteScalarWhereInput[]
+  }
+
+  export type AgentLabRunUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<AgentLabRunCreateWithoutUserInput, AgentLabRunUncheckedCreateWithoutUserInput> | AgentLabRunCreateWithoutUserInput[] | AgentLabRunUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: AgentLabRunCreateOrConnectWithoutUserInput | AgentLabRunCreateOrConnectWithoutUserInput[]
+    upsert?: AgentLabRunUpsertWithWhereUniqueWithoutUserInput | AgentLabRunUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: AgentLabRunCreateManyUserInputEnvelope
+    set?: AgentLabRunWhereUniqueInput | AgentLabRunWhereUniqueInput[]
+    disconnect?: AgentLabRunWhereUniqueInput | AgentLabRunWhereUniqueInput[]
+    delete?: AgentLabRunWhereUniqueInput | AgentLabRunWhereUniqueInput[]
+    connect?: AgentLabRunWhereUniqueInput | AgentLabRunWhereUniqueInput[]
+    update?: AgentLabRunUpdateWithWhereUniqueWithoutUserInput | AgentLabRunUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: AgentLabRunUpdateManyWithWhereWithoutUserInput | AgentLabRunUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: AgentLabRunScalarWhereInput | AgentLabRunScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutSessionsInput = {
@@ -24723,6 +28057,92 @@ export namespace Prisma {
     update?: XOR<XOR<ConversationUpdateToOneWithWhereWithoutMessagesInput, ConversationUpdateWithoutMessagesInput>, ConversationUncheckedUpdateWithoutMessagesInput>
   }
 
+  export type UserCreateNestedOneWithoutAgentLabRunsInput = {
+    create?: XOR<UserCreateWithoutAgentLabRunsInput, UserUncheckedCreateWithoutAgentLabRunsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutAgentLabRunsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type AgentLabToolEventCreateNestedManyWithoutRunInput = {
+    create?: XOR<AgentLabToolEventCreateWithoutRunInput, AgentLabToolEventUncheckedCreateWithoutRunInput> | AgentLabToolEventCreateWithoutRunInput[] | AgentLabToolEventUncheckedCreateWithoutRunInput[]
+    connectOrCreate?: AgentLabToolEventCreateOrConnectWithoutRunInput | AgentLabToolEventCreateOrConnectWithoutRunInput[]
+    createMany?: AgentLabToolEventCreateManyRunInputEnvelope
+    connect?: AgentLabToolEventWhereUniqueInput | AgentLabToolEventWhereUniqueInput[]
+  }
+
+  export type AgentLabToolEventUncheckedCreateNestedManyWithoutRunInput = {
+    create?: XOR<AgentLabToolEventCreateWithoutRunInput, AgentLabToolEventUncheckedCreateWithoutRunInput> | AgentLabToolEventCreateWithoutRunInput[] | AgentLabToolEventUncheckedCreateWithoutRunInput[]
+    connectOrCreate?: AgentLabToolEventCreateOrConnectWithoutRunInput | AgentLabToolEventCreateOrConnectWithoutRunInput[]
+    createMany?: AgentLabToolEventCreateManyRunInputEnvelope
+    connect?: AgentLabToolEventWhereUniqueInput | AgentLabToolEventWhereUniqueInput[]
+  }
+
+  export type EnumAgentLabSdkFieldUpdateOperationsInput = {
+    set?: $Enums.AgentLabSdk
+  }
+
+  export type EnumAgentLabScenarioFieldUpdateOperationsInput = {
+    set?: $Enums.AgentLabScenario
+  }
+
+  export type EnumAgentLabRunStatusFieldUpdateOperationsInput = {
+    set?: $Enums.AgentLabRunStatus
+  }
+
+  export type UserUpdateOneRequiredWithoutAgentLabRunsNestedInput = {
+    create?: XOR<UserCreateWithoutAgentLabRunsInput, UserUncheckedCreateWithoutAgentLabRunsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutAgentLabRunsInput
+    upsert?: UserUpsertWithoutAgentLabRunsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutAgentLabRunsInput, UserUpdateWithoutAgentLabRunsInput>, UserUncheckedUpdateWithoutAgentLabRunsInput>
+  }
+
+  export type AgentLabToolEventUpdateManyWithoutRunNestedInput = {
+    create?: XOR<AgentLabToolEventCreateWithoutRunInput, AgentLabToolEventUncheckedCreateWithoutRunInput> | AgentLabToolEventCreateWithoutRunInput[] | AgentLabToolEventUncheckedCreateWithoutRunInput[]
+    connectOrCreate?: AgentLabToolEventCreateOrConnectWithoutRunInput | AgentLabToolEventCreateOrConnectWithoutRunInput[]
+    upsert?: AgentLabToolEventUpsertWithWhereUniqueWithoutRunInput | AgentLabToolEventUpsertWithWhereUniqueWithoutRunInput[]
+    createMany?: AgentLabToolEventCreateManyRunInputEnvelope
+    set?: AgentLabToolEventWhereUniqueInput | AgentLabToolEventWhereUniqueInput[]
+    disconnect?: AgentLabToolEventWhereUniqueInput | AgentLabToolEventWhereUniqueInput[]
+    delete?: AgentLabToolEventWhereUniqueInput | AgentLabToolEventWhereUniqueInput[]
+    connect?: AgentLabToolEventWhereUniqueInput | AgentLabToolEventWhereUniqueInput[]
+    update?: AgentLabToolEventUpdateWithWhereUniqueWithoutRunInput | AgentLabToolEventUpdateWithWhereUniqueWithoutRunInput[]
+    updateMany?: AgentLabToolEventUpdateManyWithWhereWithoutRunInput | AgentLabToolEventUpdateManyWithWhereWithoutRunInput[]
+    deleteMany?: AgentLabToolEventScalarWhereInput | AgentLabToolEventScalarWhereInput[]
+  }
+
+  export type AgentLabToolEventUncheckedUpdateManyWithoutRunNestedInput = {
+    create?: XOR<AgentLabToolEventCreateWithoutRunInput, AgentLabToolEventUncheckedCreateWithoutRunInput> | AgentLabToolEventCreateWithoutRunInput[] | AgentLabToolEventUncheckedCreateWithoutRunInput[]
+    connectOrCreate?: AgentLabToolEventCreateOrConnectWithoutRunInput | AgentLabToolEventCreateOrConnectWithoutRunInput[]
+    upsert?: AgentLabToolEventUpsertWithWhereUniqueWithoutRunInput | AgentLabToolEventUpsertWithWhereUniqueWithoutRunInput[]
+    createMany?: AgentLabToolEventCreateManyRunInputEnvelope
+    set?: AgentLabToolEventWhereUniqueInput | AgentLabToolEventWhereUniqueInput[]
+    disconnect?: AgentLabToolEventWhereUniqueInput | AgentLabToolEventWhereUniqueInput[]
+    delete?: AgentLabToolEventWhereUniqueInput | AgentLabToolEventWhereUniqueInput[]
+    connect?: AgentLabToolEventWhereUniqueInput | AgentLabToolEventWhereUniqueInput[]
+    update?: AgentLabToolEventUpdateWithWhereUniqueWithoutRunInput | AgentLabToolEventUpdateWithWhereUniqueWithoutRunInput[]
+    updateMany?: AgentLabToolEventUpdateManyWithWhereWithoutRunInput | AgentLabToolEventUpdateManyWithWhereWithoutRunInput[]
+    deleteMany?: AgentLabToolEventScalarWhereInput | AgentLabToolEventScalarWhereInput[]
+  }
+
+  export type AgentLabRunCreateNestedOneWithoutToolEventsInput = {
+    create?: XOR<AgentLabRunCreateWithoutToolEventsInput, AgentLabRunUncheckedCreateWithoutToolEventsInput>
+    connectOrCreate?: AgentLabRunCreateOrConnectWithoutToolEventsInput
+    connect?: AgentLabRunWhereUniqueInput
+  }
+
+  export type EnumAgentLabToolEventStateFieldUpdateOperationsInput = {
+    set?: $Enums.AgentLabToolEventState
+  }
+
+  export type AgentLabRunUpdateOneRequiredWithoutToolEventsNestedInput = {
+    create?: XOR<AgentLabRunCreateWithoutToolEventsInput, AgentLabRunUncheckedCreateWithoutToolEventsInput>
+    connectOrCreate?: AgentLabRunCreateOrConnectWithoutToolEventsInput
+    upsert?: AgentLabRunUpsertWithoutToolEventsInput
+    connect?: AgentLabRunWhereUniqueInput
+    update?: XOR<XOR<AgentLabRunUpdateToOneWithWhereWithoutToolEventsInput, AgentLabRunUpdateWithoutToolEventsInput>, AgentLabRunUncheckedUpdateWithoutToolEventsInput>
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -25132,6 +28552,74 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
+  export type NestedEnumAgentLabSdkFilter<$PrismaModel = never> = {
+    equals?: $Enums.AgentLabSdk | EnumAgentLabSdkFieldRefInput<$PrismaModel>
+    in?: $Enums.AgentLabSdk[] | ListEnumAgentLabSdkFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AgentLabSdk[] | ListEnumAgentLabSdkFieldRefInput<$PrismaModel>
+    not?: NestedEnumAgentLabSdkFilter<$PrismaModel> | $Enums.AgentLabSdk
+  }
+
+  export type NestedEnumAgentLabScenarioFilter<$PrismaModel = never> = {
+    equals?: $Enums.AgentLabScenario | EnumAgentLabScenarioFieldRefInput<$PrismaModel>
+    in?: $Enums.AgentLabScenario[] | ListEnumAgentLabScenarioFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AgentLabScenario[] | ListEnumAgentLabScenarioFieldRefInput<$PrismaModel>
+    not?: NestedEnumAgentLabScenarioFilter<$PrismaModel> | $Enums.AgentLabScenario
+  }
+
+  export type NestedEnumAgentLabRunStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.AgentLabRunStatus | EnumAgentLabRunStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.AgentLabRunStatus[] | ListEnumAgentLabRunStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AgentLabRunStatus[] | ListEnumAgentLabRunStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumAgentLabRunStatusFilter<$PrismaModel> | $Enums.AgentLabRunStatus
+  }
+
+  export type NestedEnumAgentLabSdkWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AgentLabSdk | EnumAgentLabSdkFieldRefInput<$PrismaModel>
+    in?: $Enums.AgentLabSdk[] | ListEnumAgentLabSdkFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AgentLabSdk[] | ListEnumAgentLabSdkFieldRefInput<$PrismaModel>
+    not?: NestedEnumAgentLabSdkWithAggregatesFilter<$PrismaModel> | $Enums.AgentLabSdk
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAgentLabSdkFilter<$PrismaModel>
+    _max?: NestedEnumAgentLabSdkFilter<$PrismaModel>
+  }
+
+  export type NestedEnumAgentLabScenarioWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AgentLabScenario | EnumAgentLabScenarioFieldRefInput<$PrismaModel>
+    in?: $Enums.AgentLabScenario[] | ListEnumAgentLabScenarioFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AgentLabScenario[] | ListEnumAgentLabScenarioFieldRefInput<$PrismaModel>
+    not?: NestedEnumAgentLabScenarioWithAggregatesFilter<$PrismaModel> | $Enums.AgentLabScenario
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAgentLabScenarioFilter<$PrismaModel>
+    _max?: NestedEnumAgentLabScenarioFilter<$PrismaModel>
+  }
+
+  export type NestedEnumAgentLabRunStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AgentLabRunStatus | EnumAgentLabRunStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.AgentLabRunStatus[] | ListEnumAgentLabRunStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AgentLabRunStatus[] | ListEnumAgentLabRunStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumAgentLabRunStatusWithAggregatesFilter<$PrismaModel> | $Enums.AgentLabRunStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAgentLabRunStatusFilter<$PrismaModel>
+    _max?: NestedEnumAgentLabRunStatusFilter<$PrismaModel>
+  }
+
+  export type NestedEnumAgentLabToolEventStateFilter<$PrismaModel = never> = {
+    equals?: $Enums.AgentLabToolEventState | EnumAgentLabToolEventStateFieldRefInput<$PrismaModel>
+    in?: $Enums.AgentLabToolEventState[] | ListEnumAgentLabToolEventStateFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AgentLabToolEventState[] | ListEnumAgentLabToolEventStateFieldRefInput<$PrismaModel>
+    not?: NestedEnumAgentLabToolEventStateFilter<$PrismaModel> | $Enums.AgentLabToolEventState
+  }
+
+  export type NestedEnumAgentLabToolEventStateWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AgentLabToolEventState | EnumAgentLabToolEventStateFieldRefInput<$PrismaModel>
+    in?: $Enums.AgentLabToolEventState[] | ListEnumAgentLabToolEventStateFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AgentLabToolEventState[] | ListEnumAgentLabToolEventStateFieldRefInput<$PrismaModel>
+    not?: NestedEnumAgentLabToolEventStateWithAggregatesFilter<$PrismaModel> | $Enums.AgentLabToolEventState
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAgentLabToolEventStateFilter<$PrismaModel>
+    _max?: NestedEnumAgentLabToolEventStateFilter<$PrismaModel>
+  }
+
   export type SessionCreateWithoutUserInput = {
     id?: string
     expiresAt: Date | string
@@ -25409,6 +28897,48 @@ export namespace Prisma {
 
   export type UserFoodFavoriteCreateManyUserInputEnvelope = {
     data: UserFoodFavoriteCreateManyUserInput | UserFoodFavoriteCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type AgentLabRunCreateWithoutUserInput = {
+    id?: string
+    sdk: $Enums.AgentLabSdk
+    scenarioId: $Enums.AgentLabScenario
+    conversationId?: string | null
+    prompt: string
+    response?: string | null
+    status?: $Enums.AgentLabRunStatus
+    latencyMs?: number | null
+    error?: string | null
+    rawTrace?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    toolEvents?: AgentLabToolEventCreateNestedManyWithoutRunInput
+  }
+
+  export type AgentLabRunUncheckedCreateWithoutUserInput = {
+    id?: string
+    sdk: $Enums.AgentLabSdk
+    scenarioId: $Enums.AgentLabScenario
+    conversationId?: string | null
+    prompt: string
+    response?: string | null
+    status?: $Enums.AgentLabRunStatus
+    latencyMs?: number | null
+    error?: string | null
+    rawTrace?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    toolEvents?: AgentLabToolEventUncheckedCreateNestedManyWithoutRunInput
+  }
+
+  export type AgentLabRunCreateOrConnectWithoutUserInput = {
+    where: AgentLabRunWhereUniqueInput
+    create: XOR<AgentLabRunCreateWithoutUserInput, AgentLabRunUncheckedCreateWithoutUserInput>
+  }
+
+  export type AgentLabRunCreateManyUserInputEnvelope = {
+    data: AgentLabRunCreateManyUserInput | AgentLabRunCreateManyUserInput[]
     skipDuplicates?: boolean
   }
 
@@ -25699,6 +29229,41 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"UserFoodFavorite"> | Date | string
   }
 
+  export type AgentLabRunUpsertWithWhereUniqueWithoutUserInput = {
+    where: AgentLabRunWhereUniqueInput
+    update: XOR<AgentLabRunUpdateWithoutUserInput, AgentLabRunUncheckedUpdateWithoutUserInput>
+    create: XOR<AgentLabRunCreateWithoutUserInput, AgentLabRunUncheckedCreateWithoutUserInput>
+  }
+
+  export type AgentLabRunUpdateWithWhereUniqueWithoutUserInput = {
+    where: AgentLabRunWhereUniqueInput
+    data: XOR<AgentLabRunUpdateWithoutUserInput, AgentLabRunUncheckedUpdateWithoutUserInput>
+  }
+
+  export type AgentLabRunUpdateManyWithWhereWithoutUserInput = {
+    where: AgentLabRunScalarWhereInput
+    data: XOR<AgentLabRunUpdateManyMutationInput, AgentLabRunUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type AgentLabRunScalarWhereInput = {
+    AND?: AgentLabRunScalarWhereInput | AgentLabRunScalarWhereInput[]
+    OR?: AgentLabRunScalarWhereInput[]
+    NOT?: AgentLabRunScalarWhereInput | AgentLabRunScalarWhereInput[]
+    id?: StringFilter<"AgentLabRun"> | string
+    userId?: StringFilter<"AgentLabRun"> | string
+    sdk?: EnumAgentLabSdkFilter<"AgentLabRun"> | $Enums.AgentLabSdk
+    scenarioId?: EnumAgentLabScenarioFilter<"AgentLabRun"> | $Enums.AgentLabScenario
+    conversationId?: StringNullableFilter<"AgentLabRun"> | string | null
+    prompt?: StringFilter<"AgentLabRun"> | string
+    response?: StringNullableFilter<"AgentLabRun"> | string | null
+    status?: EnumAgentLabRunStatusFilter<"AgentLabRun"> | $Enums.AgentLabRunStatus
+    latencyMs?: IntNullableFilter<"AgentLabRun"> | number | null
+    error?: StringNullableFilter<"AgentLabRun"> | string | null
+    rawTrace?: JsonNullableFilter<"AgentLabRun">
+    createdAt?: DateTimeFilter<"AgentLabRun"> | Date | string
+    updatedAt?: DateTimeFilter<"AgentLabRun"> | Date | string
+  }
+
   export type UserCreateWithoutSessionsInput = {
     id?: string
     name?: string | null
@@ -25715,6 +29280,7 @@ export namespace Prisma {
     goals?: GoalCreateNestedManyWithoutUserInput
     conversations?: ConversationCreateNestedManyWithoutUserInput
     foodFavorites?: UserFoodFavoriteCreateNestedManyWithoutUserInput
+    agentLabRuns?: AgentLabRunCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSessionsInput = {
@@ -25733,6 +29299,7 @@ export namespace Prisma {
     goals?: GoalUncheckedCreateNestedManyWithoutUserInput
     conversations?: ConversationUncheckedCreateNestedManyWithoutUserInput
     foodFavorites?: UserFoodFavoriteUncheckedCreateNestedManyWithoutUserInput
+    agentLabRuns?: AgentLabRunUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSessionsInput = {
@@ -25767,6 +29334,7 @@ export namespace Prisma {
     goals?: GoalUpdateManyWithoutUserNestedInput
     conversations?: ConversationUpdateManyWithoutUserNestedInput
     foodFavorites?: UserFoodFavoriteUpdateManyWithoutUserNestedInput
+    agentLabRuns?: AgentLabRunUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -25785,6 +29353,7 @@ export namespace Prisma {
     goals?: GoalUncheckedUpdateManyWithoutUserNestedInput
     conversations?: ConversationUncheckedUpdateManyWithoutUserNestedInput
     foodFavorites?: UserFoodFavoriteUncheckedUpdateManyWithoutUserNestedInput
+    agentLabRuns?: AgentLabRunUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutAccountsInput = {
@@ -25803,6 +29372,7 @@ export namespace Prisma {
     goals?: GoalCreateNestedManyWithoutUserInput
     conversations?: ConversationCreateNestedManyWithoutUserInput
     foodFavorites?: UserFoodFavoriteCreateNestedManyWithoutUserInput
+    agentLabRuns?: AgentLabRunCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutAccountsInput = {
@@ -25821,6 +29391,7 @@ export namespace Prisma {
     goals?: GoalUncheckedCreateNestedManyWithoutUserInput
     conversations?: ConversationUncheckedCreateNestedManyWithoutUserInput
     foodFavorites?: UserFoodFavoriteUncheckedCreateNestedManyWithoutUserInput
+    agentLabRuns?: AgentLabRunUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutAccountsInput = {
@@ -25855,6 +29426,7 @@ export namespace Prisma {
     goals?: GoalUpdateManyWithoutUserNestedInput
     conversations?: ConversationUpdateManyWithoutUserNestedInput
     foodFavorites?: UserFoodFavoriteUpdateManyWithoutUserNestedInput
+    agentLabRuns?: AgentLabRunUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -25873,6 +29445,7 @@ export namespace Prisma {
     goals?: GoalUncheckedUpdateManyWithoutUserNestedInput
     conversations?: ConversationUncheckedUpdateManyWithoutUserNestedInput
     foodFavorites?: UserFoodFavoriteUncheckedUpdateManyWithoutUserNestedInput
+    agentLabRuns?: AgentLabRunUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutProfileInput = {
@@ -25891,6 +29464,7 @@ export namespace Prisma {
     goals?: GoalCreateNestedManyWithoutUserInput
     conversations?: ConversationCreateNestedManyWithoutUserInput
     foodFavorites?: UserFoodFavoriteCreateNestedManyWithoutUserInput
+    agentLabRuns?: AgentLabRunCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutProfileInput = {
@@ -25909,6 +29483,7 @@ export namespace Prisma {
     goals?: GoalUncheckedCreateNestedManyWithoutUserInput
     conversations?: ConversationUncheckedCreateNestedManyWithoutUserInput
     foodFavorites?: UserFoodFavoriteUncheckedCreateNestedManyWithoutUserInput
+    agentLabRuns?: AgentLabRunUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutProfileInput = {
@@ -25943,6 +29518,7 @@ export namespace Prisma {
     goals?: GoalUpdateManyWithoutUserNestedInput
     conversations?: ConversationUpdateManyWithoutUserNestedInput
     foodFavorites?: UserFoodFavoriteUpdateManyWithoutUserNestedInput
+    agentLabRuns?: AgentLabRunUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutProfileInput = {
@@ -25961,6 +29537,7 @@ export namespace Prisma {
     goals?: GoalUncheckedUpdateManyWithoutUserNestedInput
     conversations?: ConversationUncheckedUpdateManyWithoutUserNestedInput
     foodFavorites?: UserFoodFavoriteUncheckedUpdateManyWithoutUserNestedInput
+    agentLabRuns?: AgentLabRunUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutSettingsInput = {
@@ -25979,6 +29556,7 @@ export namespace Prisma {
     goals?: GoalCreateNestedManyWithoutUserInput
     conversations?: ConversationCreateNestedManyWithoutUserInput
     foodFavorites?: UserFoodFavoriteCreateNestedManyWithoutUserInput
+    agentLabRuns?: AgentLabRunCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSettingsInput = {
@@ -25997,6 +29575,7 @@ export namespace Prisma {
     goals?: GoalUncheckedCreateNestedManyWithoutUserInput
     conversations?: ConversationUncheckedCreateNestedManyWithoutUserInput
     foodFavorites?: UserFoodFavoriteUncheckedCreateNestedManyWithoutUserInput
+    agentLabRuns?: AgentLabRunUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSettingsInput = {
@@ -26031,6 +29610,7 @@ export namespace Prisma {
     goals?: GoalUpdateManyWithoutUserNestedInput
     conversations?: ConversationUpdateManyWithoutUserNestedInput
     foodFavorites?: UserFoodFavoriteUpdateManyWithoutUserNestedInput
+    agentLabRuns?: AgentLabRunUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSettingsInput = {
@@ -26049,6 +29629,7 @@ export namespace Prisma {
     goals?: GoalUncheckedUpdateManyWithoutUserNestedInput
     conversations?: ConversationUncheckedUpdateManyWithoutUserNestedInput
     foodFavorites?: UserFoodFavoriteUncheckedUpdateManyWithoutUserNestedInput
+    agentLabRuns?: AgentLabRunUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type FoodLogItemCreateWithoutFoodInput = {
@@ -26231,6 +29812,7 @@ export namespace Prisma {
     mealPlans?: MealPlanCreateNestedManyWithoutUserInput
     goals?: GoalCreateNestedManyWithoutUserInput
     conversations?: ConversationCreateNestedManyWithoutUserInput
+    agentLabRuns?: AgentLabRunCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutFoodFavoritesInput = {
@@ -26249,6 +29831,7 @@ export namespace Prisma {
     mealPlans?: MealPlanUncheckedCreateNestedManyWithoutUserInput
     goals?: GoalUncheckedCreateNestedManyWithoutUserInput
     conversations?: ConversationUncheckedCreateNestedManyWithoutUserInput
+    agentLabRuns?: AgentLabRunUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutFoodFavoritesInput = {
@@ -26330,6 +29913,7 @@ export namespace Prisma {
     mealPlans?: MealPlanUpdateManyWithoutUserNestedInput
     goals?: GoalUpdateManyWithoutUserNestedInput
     conversations?: ConversationUpdateManyWithoutUserNestedInput
+    agentLabRuns?: AgentLabRunUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutFoodFavoritesInput = {
@@ -26348,6 +29932,7 @@ export namespace Prisma {
     mealPlans?: MealPlanUncheckedUpdateManyWithoutUserNestedInput
     goals?: GoalUncheckedUpdateManyWithoutUserNestedInput
     conversations?: ConversationUncheckedUpdateManyWithoutUserNestedInput
+    agentLabRuns?: AgentLabRunUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type FoodUpsertWithoutFavoritesInput = {
@@ -26419,6 +30004,7 @@ export namespace Prisma {
     goals?: GoalCreateNestedManyWithoutUserInput
     conversations?: ConversationCreateNestedManyWithoutUserInput
     foodFavorites?: UserFoodFavoriteCreateNestedManyWithoutUserInput
+    agentLabRuns?: AgentLabRunCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutFoodLogsInput = {
@@ -26437,6 +30023,7 @@ export namespace Prisma {
     goals?: GoalUncheckedCreateNestedManyWithoutUserInput
     conversations?: ConversationUncheckedCreateNestedManyWithoutUserInput
     foodFavorites?: UserFoodFavoriteUncheckedCreateNestedManyWithoutUserInput
+    agentLabRuns?: AgentLabRunUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutFoodLogsInput = {
@@ -26503,6 +30090,7 @@ export namespace Prisma {
     goals?: GoalUpdateManyWithoutUserNestedInput
     conversations?: ConversationUpdateManyWithoutUserNestedInput
     foodFavorites?: UserFoodFavoriteUpdateManyWithoutUserNestedInput
+    agentLabRuns?: AgentLabRunUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutFoodLogsInput = {
@@ -26521,6 +30109,7 @@ export namespace Prisma {
     goals?: GoalUncheckedUpdateManyWithoutUserNestedInput
     conversations?: ConversationUncheckedUpdateManyWithoutUserNestedInput
     foodFavorites?: UserFoodFavoriteUncheckedUpdateManyWithoutUserNestedInput
+    agentLabRuns?: AgentLabRunUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type FoodLogItemUpsertWithWhereUniqueWithoutFoodLogInput = {
@@ -26707,6 +30296,7 @@ export namespace Prisma {
     goals?: GoalCreateNestedManyWithoutUserInput
     conversations?: ConversationCreateNestedManyWithoutUserInput
     foodFavorites?: UserFoodFavoriteCreateNestedManyWithoutUserInput
+    agentLabRuns?: AgentLabRunCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutMealPlansInput = {
@@ -26725,6 +30315,7 @@ export namespace Prisma {
     goals?: GoalUncheckedCreateNestedManyWithoutUserInput
     conversations?: ConversationUncheckedCreateNestedManyWithoutUserInput
     foodFavorites?: UserFoodFavoriteUncheckedCreateNestedManyWithoutUserInput
+    agentLabRuns?: AgentLabRunUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutMealPlansInput = {
@@ -26791,6 +30382,7 @@ export namespace Prisma {
     goals?: GoalUpdateManyWithoutUserNestedInput
     conversations?: ConversationUpdateManyWithoutUserNestedInput
     foodFavorites?: UserFoodFavoriteUpdateManyWithoutUserNestedInput
+    agentLabRuns?: AgentLabRunUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutMealPlansInput = {
@@ -26809,6 +30401,7 @@ export namespace Prisma {
     goals?: GoalUncheckedUpdateManyWithoutUserNestedInput
     conversations?: ConversationUncheckedUpdateManyWithoutUserNestedInput
     foodFavorites?: UserFoodFavoriteUncheckedUpdateManyWithoutUserNestedInput
+    agentLabRuns?: AgentLabRunUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type MealPlanItemUpsertWithWhereUniqueWithoutMealPlanInput = {
@@ -27003,6 +30596,7 @@ export namespace Prisma {
     mealPlans?: MealPlanCreateNestedManyWithoutUserInput
     conversations?: ConversationCreateNestedManyWithoutUserInput
     foodFavorites?: UserFoodFavoriteCreateNestedManyWithoutUserInput
+    agentLabRuns?: AgentLabRunCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutGoalsInput = {
@@ -27021,6 +30615,7 @@ export namespace Prisma {
     mealPlans?: MealPlanUncheckedCreateNestedManyWithoutUserInput
     conversations?: ConversationUncheckedCreateNestedManyWithoutUserInput
     foodFavorites?: UserFoodFavoriteUncheckedCreateNestedManyWithoutUserInput
+    agentLabRuns?: AgentLabRunUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutGoalsInput = {
@@ -27055,6 +30650,7 @@ export namespace Prisma {
     mealPlans?: MealPlanUpdateManyWithoutUserNestedInput
     conversations?: ConversationUpdateManyWithoutUserNestedInput
     foodFavorites?: UserFoodFavoriteUpdateManyWithoutUserNestedInput
+    agentLabRuns?: AgentLabRunUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutGoalsInput = {
@@ -27073,6 +30669,7 @@ export namespace Prisma {
     mealPlans?: MealPlanUncheckedUpdateManyWithoutUserNestedInput
     conversations?: ConversationUncheckedUpdateManyWithoutUserNestedInput
     foodFavorites?: UserFoodFavoriteUncheckedUpdateManyWithoutUserNestedInput
+    agentLabRuns?: AgentLabRunUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutConversationsInput = {
@@ -27091,6 +30688,7 @@ export namespace Prisma {
     mealPlans?: MealPlanCreateNestedManyWithoutUserInput
     goals?: GoalCreateNestedManyWithoutUserInput
     foodFavorites?: UserFoodFavoriteCreateNestedManyWithoutUserInput
+    agentLabRuns?: AgentLabRunCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutConversationsInput = {
@@ -27109,6 +30707,7 @@ export namespace Prisma {
     mealPlans?: MealPlanUncheckedCreateNestedManyWithoutUserInput
     goals?: GoalUncheckedCreateNestedManyWithoutUserInput
     foodFavorites?: UserFoodFavoriteUncheckedCreateNestedManyWithoutUserInput
+    agentLabRuns?: AgentLabRunUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutConversationsInput = {
@@ -27171,6 +30770,7 @@ export namespace Prisma {
     mealPlans?: MealPlanUpdateManyWithoutUserNestedInput
     goals?: GoalUpdateManyWithoutUserNestedInput
     foodFavorites?: UserFoodFavoriteUpdateManyWithoutUserNestedInput
+    agentLabRuns?: AgentLabRunUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutConversationsInput = {
@@ -27189,6 +30789,7 @@ export namespace Prisma {
     mealPlans?: MealPlanUncheckedUpdateManyWithoutUserNestedInput
     goals?: GoalUncheckedUpdateManyWithoutUserNestedInput
     foodFavorites?: UserFoodFavoriteUncheckedUpdateManyWithoutUserNestedInput
+    agentLabRuns?: AgentLabRunUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type MessageUpsertWithWhereUniqueWithoutConversationInput = {
@@ -27268,6 +30869,238 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type UserCreateWithoutAgentLabRunsInput = {
+    id?: string
+    name?: string | null
+    email: string
+    emailVerified?: boolean
+    image?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    accounts?: AccountCreateNestedManyWithoutUserInput
+    profile?: UserProfileCreateNestedOneWithoutUserInput
+    settings?: UserSettingsCreateNestedOneWithoutUserInput
+    foodLogs?: FoodLogCreateNestedManyWithoutUserInput
+    mealPlans?: MealPlanCreateNestedManyWithoutUserInput
+    goals?: GoalCreateNestedManyWithoutUserInput
+    conversations?: ConversationCreateNestedManyWithoutUserInput
+    foodFavorites?: UserFoodFavoriteCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutAgentLabRunsInput = {
+    id?: string
+    name?: string | null
+    email: string
+    emailVerified?: boolean
+    image?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
+    profile?: UserProfileUncheckedCreateNestedOneWithoutUserInput
+    settings?: UserSettingsUncheckedCreateNestedOneWithoutUserInput
+    foodLogs?: FoodLogUncheckedCreateNestedManyWithoutUserInput
+    mealPlans?: MealPlanUncheckedCreateNestedManyWithoutUserInput
+    goals?: GoalUncheckedCreateNestedManyWithoutUserInput
+    conversations?: ConversationUncheckedCreateNestedManyWithoutUserInput
+    foodFavorites?: UserFoodFavoriteUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutAgentLabRunsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutAgentLabRunsInput, UserUncheckedCreateWithoutAgentLabRunsInput>
+  }
+
+  export type AgentLabToolEventCreateWithoutRunInput = {
+    id?: string
+    position: number
+    toolName: string
+    state: $Enums.AgentLabToolEventState
+    args?: NullableJsonNullValueInput | InputJsonValue
+    result?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type AgentLabToolEventUncheckedCreateWithoutRunInput = {
+    id?: string
+    position: number
+    toolName: string
+    state: $Enums.AgentLabToolEventState
+    args?: NullableJsonNullValueInput | InputJsonValue
+    result?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type AgentLabToolEventCreateOrConnectWithoutRunInput = {
+    where: AgentLabToolEventWhereUniqueInput
+    create: XOR<AgentLabToolEventCreateWithoutRunInput, AgentLabToolEventUncheckedCreateWithoutRunInput>
+  }
+
+  export type AgentLabToolEventCreateManyRunInputEnvelope = {
+    data: AgentLabToolEventCreateManyRunInput | AgentLabToolEventCreateManyRunInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type UserUpsertWithoutAgentLabRunsInput = {
+    update: XOR<UserUpdateWithoutAgentLabRunsInput, UserUncheckedUpdateWithoutAgentLabRunsInput>
+    create: XOR<UserCreateWithoutAgentLabRunsInput, UserUncheckedCreateWithoutAgentLabRunsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutAgentLabRunsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutAgentLabRunsInput, UserUncheckedUpdateWithoutAgentLabRunsInput>
+  }
+
+  export type UserUpdateWithoutAgentLabRunsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    accounts?: AccountUpdateManyWithoutUserNestedInput
+    profile?: UserProfileUpdateOneWithoutUserNestedInput
+    settings?: UserSettingsUpdateOneWithoutUserNestedInput
+    foodLogs?: FoodLogUpdateManyWithoutUserNestedInput
+    mealPlans?: MealPlanUpdateManyWithoutUserNestedInput
+    goals?: GoalUpdateManyWithoutUserNestedInput
+    conversations?: ConversationUpdateManyWithoutUserNestedInput
+    foodFavorites?: UserFoodFavoriteUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutAgentLabRunsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
+    profile?: UserProfileUncheckedUpdateOneWithoutUserNestedInput
+    settings?: UserSettingsUncheckedUpdateOneWithoutUserNestedInput
+    foodLogs?: FoodLogUncheckedUpdateManyWithoutUserNestedInput
+    mealPlans?: MealPlanUncheckedUpdateManyWithoutUserNestedInput
+    goals?: GoalUncheckedUpdateManyWithoutUserNestedInput
+    conversations?: ConversationUncheckedUpdateManyWithoutUserNestedInput
+    foodFavorites?: UserFoodFavoriteUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type AgentLabToolEventUpsertWithWhereUniqueWithoutRunInput = {
+    where: AgentLabToolEventWhereUniqueInput
+    update: XOR<AgentLabToolEventUpdateWithoutRunInput, AgentLabToolEventUncheckedUpdateWithoutRunInput>
+    create: XOR<AgentLabToolEventCreateWithoutRunInput, AgentLabToolEventUncheckedCreateWithoutRunInput>
+  }
+
+  export type AgentLabToolEventUpdateWithWhereUniqueWithoutRunInput = {
+    where: AgentLabToolEventWhereUniqueInput
+    data: XOR<AgentLabToolEventUpdateWithoutRunInput, AgentLabToolEventUncheckedUpdateWithoutRunInput>
+  }
+
+  export type AgentLabToolEventUpdateManyWithWhereWithoutRunInput = {
+    where: AgentLabToolEventScalarWhereInput
+    data: XOR<AgentLabToolEventUpdateManyMutationInput, AgentLabToolEventUncheckedUpdateManyWithoutRunInput>
+  }
+
+  export type AgentLabToolEventScalarWhereInput = {
+    AND?: AgentLabToolEventScalarWhereInput | AgentLabToolEventScalarWhereInput[]
+    OR?: AgentLabToolEventScalarWhereInput[]
+    NOT?: AgentLabToolEventScalarWhereInput | AgentLabToolEventScalarWhereInput[]
+    id?: StringFilter<"AgentLabToolEvent"> | string
+    runId?: StringFilter<"AgentLabToolEvent"> | string
+    position?: IntFilter<"AgentLabToolEvent"> | number
+    toolName?: StringFilter<"AgentLabToolEvent"> | string
+    state?: EnumAgentLabToolEventStateFilter<"AgentLabToolEvent"> | $Enums.AgentLabToolEventState
+    args?: JsonNullableFilter<"AgentLabToolEvent">
+    result?: JsonNullableFilter<"AgentLabToolEvent">
+    createdAt?: DateTimeFilter<"AgentLabToolEvent"> | Date | string
+  }
+
+  export type AgentLabRunCreateWithoutToolEventsInput = {
+    id?: string
+    sdk: $Enums.AgentLabSdk
+    scenarioId: $Enums.AgentLabScenario
+    conversationId?: string | null
+    prompt: string
+    response?: string | null
+    status?: $Enums.AgentLabRunStatus
+    latencyMs?: number | null
+    error?: string | null
+    rawTrace?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutAgentLabRunsInput
+  }
+
+  export type AgentLabRunUncheckedCreateWithoutToolEventsInput = {
+    id?: string
+    userId: string
+    sdk: $Enums.AgentLabSdk
+    scenarioId: $Enums.AgentLabScenario
+    conversationId?: string | null
+    prompt: string
+    response?: string | null
+    status?: $Enums.AgentLabRunStatus
+    latencyMs?: number | null
+    error?: string | null
+    rawTrace?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AgentLabRunCreateOrConnectWithoutToolEventsInput = {
+    where: AgentLabRunWhereUniqueInput
+    create: XOR<AgentLabRunCreateWithoutToolEventsInput, AgentLabRunUncheckedCreateWithoutToolEventsInput>
+  }
+
+  export type AgentLabRunUpsertWithoutToolEventsInput = {
+    update: XOR<AgentLabRunUpdateWithoutToolEventsInput, AgentLabRunUncheckedUpdateWithoutToolEventsInput>
+    create: XOR<AgentLabRunCreateWithoutToolEventsInput, AgentLabRunUncheckedCreateWithoutToolEventsInput>
+    where?: AgentLabRunWhereInput
+  }
+
+  export type AgentLabRunUpdateToOneWithWhereWithoutToolEventsInput = {
+    where?: AgentLabRunWhereInput
+    data: XOR<AgentLabRunUpdateWithoutToolEventsInput, AgentLabRunUncheckedUpdateWithoutToolEventsInput>
+  }
+
+  export type AgentLabRunUpdateWithoutToolEventsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sdk?: EnumAgentLabSdkFieldUpdateOperationsInput | $Enums.AgentLabSdk
+    scenarioId?: EnumAgentLabScenarioFieldUpdateOperationsInput | $Enums.AgentLabScenario
+    conversationId?: NullableStringFieldUpdateOperationsInput | string | null
+    prompt?: StringFieldUpdateOperationsInput | string
+    response?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAgentLabRunStatusFieldUpdateOperationsInput | $Enums.AgentLabRunStatus
+    latencyMs?: NullableIntFieldUpdateOperationsInput | number | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    rawTrace?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutAgentLabRunsNestedInput
+  }
+
+  export type AgentLabRunUncheckedUpdateWithoutToolEventsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    sdk?: EnumAgentLabSdkFieldUpdateOperationsInput | $Enums.AgentLabSdk
+    scenarioId?: EnumAgentLabScenarioFieldUpdateOperationsInput | $Enums.AgentLabScenario
+    conversationId?: NullableStringFieldUpdateOperationsInput | string | null
+    prompt?: StringFieldUpdateOperationsInput | string
+    response?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAgentLabRunStatusFieldUpdateOperationsInput | $Enums.AgentLabRunStatus
+    latencyMs?: NullableIntFieldUpdateOperationsInput | number | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    rawTrace?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type SessionCreateManyUserInput = {
     id?: string
     expiresAt: Date | string
@@ -27335,6 +31168,21 @@ export namespace Prisma {
     id?: string
     foodId: string
     createdAt?: Date | string
+  }
+
+  export type AgentLabRunCreateManyUserInput = {
+    id?: string
+    sdk: $Enums.AgentLabSdk
+    scenarioId: $Enums.AgentLabScenario
+    conversationId?: string | null
+    prompt: string
+    response?: string | null
+    status?: $Enums.AgentLabRunStatus
+    latencyMs?: number | null
+    error?: string | null
+    rawTrace?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type SessionUpdateWithoutUserInput = {
@@ -27548,6 +31396,53 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     foodId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AgentLabRunUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sdk?: EnumAgentLabSdkFieldUpdateOperationsInput | $Enums.AgentLabSdk
+    scenarioId?: EnumAgentLabScenarioFieldUpdateOperationsInput | $Enums.AgentLabScenario
+    conversationId?: NullableStringFieldUpdateOperationsInput | string | null
+    prompt?: StringFieldUpdateOperationsInput | string
+    response?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAgentLabRunStatusFieldUpdateOperationsInput | $Enums.AgentLabRunStatus
+    latencyMs?: NullableIntFieldUpdateOperationsInput | number | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    rawTrace?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    toolEvents?: AgentLabToolEventUpdateManyWithoutRunNestedInput
+  }
+
+  export type AgentLabRunUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sdk?: EnumAgentLabSdkFieldUpdateOperationsInput | $Enums.AgentLabSdk
+    scenarioId?: EnumAgentLabScenarioFieldUpdateOperationsInput | $Enums.AgentLabScenario
+    conversationId?: NullableStringFieldUpdateOperationsInput | string | null
+    prompt?: StringFieldUpdateOperationsInput | string
+    response?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAgentLabRunStatusFieldUpdateOperationsInput | $Enums.AgentLabRunStatus
+    latencyMs?: NullableIntFieldUpdateOperationsInput | number | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    rawTrace?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    toolEvents?: AgentLabToolEventUncheckedUpdateManyWithoutRunNestedInput
+  }
+
+  export type AgentLabRunUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sdk?: EnumAgentLabSdkFieldUpdateOperationsInput | $Enums.AgentLabSdk
+    scenarioId?: EnumAgentLabScenarioFieldUpdateOperationsInput | $Enums.AgentLabScenario
+    conversationId?: NullableStringFieldUpdateOperationsInput | string | null
+    prompt?: StringFieldUpdateOperationsInput | string
+    response?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAgentLabRunStatusFieldUpdateOperationsInput | $Enums.AgentLabRunStatus
+    latencyMs?: NullableIntFieldUpdateOperationsInput | number | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    rawTrace?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type FoodLogItemCreateManyFoodInput = {
@@ -27783,6 +31678,46 @@ export namespace Prisma {
     content?: StringFieldUpdateOperationsInput | string
     toolCalls?: NullableJsonNullValueInput | InputJsonValue
     toolResults?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AgentLabToolEventCreateManyRunInput = {
+    id?: string
+    position: number
+    toolName: string
+    state: $Enums.AgentLabToolEventState
+    args?: NullableJsonNullValueInput | InputJsonValue
+    result?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type AgentLabToolEventUpdateWithoutRunInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    position?: IntFieldUpdateOperationsInput | number
+    toolName?: StringFieldUpdateOperationsInput | string
+    state?: EnumAgentLabToolEventStateFieldUpdateOperationsInput | $Enums.AgentLabToolEventState
+    args?: NullableJsonNullValueInput | InputJsonValue
+    result?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AgentLabToolEventUncheckedUpdateWithoutRunInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    position?: IntFieldUpdateOperationsInput | number
+    toolName?: StringFieldUpdateOperationsInput | string
+    state?: EnumAgentLabToolEventStateFieldUpdateOperationsInput | $Enums.AgentLabToolEventState
+    args?: NullableJsonNullValueInput | InputJsonValue
+    result?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AgentLabToolEventUncheckedUpdateManyWithoutRunInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    position?: IntFieldUpdateOperationsInput | number
+    toolName?: StringFieldUpdateOperationsInput | string
+    state?: EnumAgentLabToolEventStateFieldUpdateOperationsInput | $Enums.AgentLabToolEventState
+    args?: NullableJsonNullValueInput | InputJsonValue
+    result?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 

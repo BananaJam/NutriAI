@@ -7,6 +7,7 @@ import { Chat } from "@/components/features/chat";
 import { PageHeader } from "@/components/features/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { isAgentLabEnabledClient } from "@/lib/feature-flags";
 
 const timeOfDayStarters = () => {
   const hour = new Date().getHours();
@@ -46,6 +47,7 @@ function AssistantPageInner() {
   const seedPrompt = searchParams.get("prompt") ?? "";
   const [activePrompt, setActivePrompt] = useState(seedPrompt);
   const starters = timeOfDayStarters();
+  const isLabEnabled = isAgentLabEnabledClient();
 
   return (
     <div className="space-y-6">
@@ -54,11 +56,20 @@ function AssistantPageInner() {
         title="Nutrition Assistant"
         description="Ask questions, get meal suggestions, analyze your nutrition, and navigate your goals — all from one place."
         actions={
-          <Link href="/log">
-            <Button variant="outline" className="rounded-xl">
-              View today's log
-            </Button>
-          </Link>
+          <>
+            {isLabEnabled ? (
+              <Link href="/assistant/lab">
+                <Button variant="outline" className="rounded-xl">
+                  Open SDK Lab
+                </Button>
+              </Link>
+            ) : null}
+            <Link href="/log">
+              <Button variant="outline" className="rounded-xl">
+                View today's log
+              </Button>
+            </Link>
+          </>
         }
       />
 

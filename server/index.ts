@@ -2,6 +2,7 @@ import { swagger } from "@elysiajs/swagger";
 import { Elysia } from "elysia";
 import { auth } from "./lib/auth";
 import { chatRoutes } from "./routes/chat";
+import { chatLabRoutes } from "./routes/chat-lab";
 import { foodLogsRoutes } from "./routes/food-logs";
 import { foodsRoutes } from "./routes/foods";
 import { goalsRoutes } from "./routes/goals";
@@ -43,6 +44,7 @@ export const api = new Elysia({ prefix: "/api" })
   .use(foodLogsRoutes)
   .use(mealPlansRoutes)
   .use(goalsRoutes)
+  .use(chatLabRoutes)
   .use(chatRoutes)
   .use(profileRoutes)
   .use(settingsRoutes);

@@ -51,6 +51,11 @@ export function AppSidebar() {
   const { user } = useSessionUser();
   const [isPending, startTransition] = useTransition();
 
+  const isActivePath = (href: string) =>
+    href === "/"
+      ? pathname === href
+      : pathname === href || pathname?.startsWith(`${href}/`);
+
   const handleSignOut = () => {
     startTransition(async () => {
       await authClient.signOut();
@@ -86,7 +91,7 @@ export function AppSidebar() {
                 <SidebarMenuItem key={item.href}>
                   <SidebarMenuButton
                     asChild
-                    isActive={pathname === item.href}
+                    isActive={isActivePath(item.href)}
                     className="h-10 rounded-xl px-3 text-sm data-[active=true]:bg-sidebar-primary data-[active=true]:text-sidebar-primary-foreground data-[active=true]:shadow-sm"
                   >
                     <Link href={item.href}>
@@ -108,7 +113,7 @@ export function AppSidebar() {
                 <SidebarMenuItem key={item.href}>
                   <SidebarMenuButton
                     asChild
-                    isActive={pathname === item.href}
+                    isActive={isActivePath(item.href)}
                     className="h-10 rounded-xl px-3 text-sm data-[active=true]:bg-sidebar-primary data-[active=true]:text-sidebar-primary-foreground data-[active=true]:shadow-sm"
                   >
                     <Link href={item.href}>

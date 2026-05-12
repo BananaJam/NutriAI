@@ -566,14 +566,24 @@ async function seedLogs(userId: string, today: Date) {
     {
       offset: 0,
       items: [
-        { foodId: "oatmeal", mealType: "BREAKFAST", servings: 1, notes: "Pre-work breakfast" },
+        {
+          foodId: "oatmeal",
+          mealType: "BREAKFAST",
+          servings: 1,
+          notes: "Pre-work breakfast",
+        },
         { foodId: "banana", mealType: "BREAKFAST", servings: 1 },
         { foodId: "greek-yogurt", mealType: "SNACK", servings: 1 },
         { foodId: "chicken-breast", mealType: "LUNCH", servings: 1.8 },
         { foodId: "brown-rice", mealType: "LUNCH", servings: 1.4 },
         { foodId: "broccoli", mealType: "LUNCH", servings: 1.2 },
         { foodId: "cottage-cheese", mealType: "SNACK", servings: 1 },
-        { foodId: "salmon-fillet", mealType: "DINNER", servings: 1.3, notes: "Dinner after training" },
+        {
+          foodId: "salmon-fillet",
+          mealType: "DINNER",
+          servings: 1.3,
+          notes: "Dinner after training",
+        },
         { foodId: "sweet-potato", mealType: "DINNER", servings: 1.1 },
       ],
     },
@@ -594,8 +604,10 @@ async function seedLogs(userId: string, today: Date) {
         foodId: item.foodId,
         mealType: item.mealType,
         servings: item.servings,
-        notes: item.notes ?? null,
-        loggedAt: new Date(`${toDateKey(date)}T${String(7 + index).padStart(2, "0")}:00:00.000Z`),
+        notes: "notes" in item ? (item.notes ?? null) : null,
+        loggedAt: new Date(
+          `${toDateKey(date)}T${String(7 + index).padStart(2, "0")}:00:00.000Z`,
+        ),
       })),
     });
   }

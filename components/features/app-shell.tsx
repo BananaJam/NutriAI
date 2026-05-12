@@ -28,6 +28,11 @@ const pageContent = {
     description:
       "Log meals, ask nutrition questions, and generate recommendations.",
   },
+  "/assistant/lab": {
+    title: "Agent SDK Lab",
+    description:
+      "Compare multiple agent SDK implementations against the same nutrition tasks.",
+  },
   "/log": {
     title: "Food Log",
     description: "Review meals, nutrition totals, and daily history.",

@@ -29,6 +29,7 @@ model User {
   goals         Goal[]
   conversations Conversation[]
   foodFavorites UserFoodFavorite[]
+  agentLabRuns  AgentLabRun[]
 
   @@map("users")
 }
@@ -315,4 +316,67 @@ enum MessageRole {
   ASSISTANT
   SYSTEM
   TOOL
+}
+
+model AgentLabRun {
+  id             String            @id @default(cuid())
+  userId         String
+  user           User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sdk            AgentLabSdk
+  scenarioId     AgentLabScenario
+  conversationId String?
+  prompt         String
+  response       String?
+  status         AgentLabRunStatus @default(PENDING)
+  latencyMs      Int?
+  error          String?
+  rawTrace       Json?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  toolEvents     AgentLabToolEvent[]
+
+  @@index([userId, createdAt])
+  @@index([userId, sdk, scenarioId])
+  @@map("agent_lab_runs")
+}
+
+model AgentLabToolEvent {
+  id        String                @id @default(cuid())
+  runId     String
+  run       AgentLabRun           @relation(fields: [runId], references: [id], onDelete: Cascade)
+  position  Int
+  toolName  String
+  state     AgentLabToolEventState
+  args      Json?
+  result    Json?
+  createdAt DateTime              @default(now())
+
+  @@index([runId, position])
+  @@map("agent_lab_tool_events")
+}
+
+enum AgentLabSdk {
+  VERCEL_AI
+  OPENAI_AGENTS
+  LANGGRAPH
+}
+
+enum AgentLabScenario {
+  HIGH_PROTEIN_BREAKFAST
+  LOG_RECENT_LUNCH
+  WEEKLY_NUTRITION_REVIEW
+  CALCULATE_MACROS
+}
+
+enum AgentLabRunStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+}
+
+enum AgentLabToolEventState {
+  CALL
+  RESULT
+  ERROR
 }

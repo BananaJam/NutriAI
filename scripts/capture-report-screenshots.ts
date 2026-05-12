@@ -69,7 +69,7 @@ async function waitForHealth(timeoutMs = 120_000) {
 function spawnCommand(
   command: string,
   args: string[],
-  env?: NodeJS.ProcessEnv,
+  env?: Record<string, string | undefined>,
 ) {
   return spawn(command, args, {
     cwd: process.cwd(),
