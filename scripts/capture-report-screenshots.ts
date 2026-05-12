@@ -8,6 +8,7 @@ const outputDir = join(process.cwd(), "report", "assets", "screenshots");
 const chromePath =
   process.env.REPORT_CHROME_PATH ||
   "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+const appPort = String(new URL(baseUrl).port || "3000");
 
 const demoCredentials = {
   email: "demo.report@example.com",
@@ -42,6 +43,17 @@ const pages = [
   {
     path: "/assistant",
     file: "assistant.png",
+  },
+  {
+    path: "/assistant/lab",
+    file: "assistant-lab.png",
+    waitFor: async (page: Page) => {
+      await page.waitForSelector("text=Agent SDK Lab", { timeout: 15_000 });
+      await page.waitForSelector("text=High-Protein Breakfast", {
+        timeout: 15_000,
+      });
+      await page.waitForSelector("text=Vercel AI SDK", { timeout: 15_000 });
+    },
   },
 ];
 
@@ -85,6 +97,8 @@ async function prepareDemoData() {
   console.log("[report] Seeding demo data...");
   await new Promise<void>((resolve, reject) => {
     const processHandle = spawnCommand("bun", ["run", "report:seed"], {
+      ENABLE_AGENT_SDK_LAB: "true",
+      NEXT_PUBLIC_ENABLE_AGENT_SDK_LAB: "true",
       NEXT_PUBLIC_APP_URL: baseUrl,
     });
 
@@ -107,7 +121,10 @@ async function startServerIfNeeded() {
   } catch {
     console.log("[report] Starting local dev server...");
     const server = spawnCommand("bun", ["run", "dev"], {
+      ENABLE_AGENT_SDK_LAB: "true",
+      NEXT_PUBLIC_ENABLE_AGENT_SDK_LAB: "true",
       NEXT_PUBLIC_APP_URL: baseUrl,
+      PORT: appPort,
     });
     await waitForHealth();
     console.log("[report] Local dev server is ready.");
@@ -115,14 +132,17 @@ async function startServerIfNeeded() {
   }
 }
 
-async function signIn(context: BrowserContext, page: Page) {
-  console.log("[report] Creating auth session...");
+async function signInWithApi(context: BrowserContext) {
   const response = await fetch(`${baseUrl}/api/auth/sign-in/email`, {
     method: "POST",
     headers: {
       "content-type": "application/json",
+      origin: baseUrl,
     },
-    body: JSON.stringify(demoCredentials),
+    body: JSON.stringify({
+      ...demoCredentials,
+      callbackURL: "/",
+    }),
   });
 
   if (!response.ok) {
@@ -148,10 +168,37 @@ async function signIn(context: BrowserContext, page: Page) {
       sameSite: "Lax",
     },
   ]);
+}
 
-  await page.goto(baseUrl, { waitUntil: "domcontentloaded" });
+async function signInWithUi(page: Page) {
+  await page.goto(`${baseUrl}/sign-in`, {
+    waitUntil: "domcontentloaded",
+  });
+  await page.locator("#email").fill(demoCredentials.email);
+  await page.locator("#password").fill(demoCredentials.password);
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await page.waitForURL((url) => !url.pathname.endsWith("/sign-in"), {
+    timeout: 20_000,
+  });
+}
+
+async function signIn(context: BrowserContext, page: Page) {
+  console.log("[report] Creating auth session...");
+
+  try {
+    await signInWithApi(context);
+    await page.goto(baseUrl, { waitUntil: "domcontentloaded" });
+  } catch (error) {
+    console.warn(
+      `[report] API sign-in failed, falling back to UI flow: ${
+        error instanceof Error ? error.message : "unknown error"
+      }`,
+    );
+    await signInWithUi(page);
+  }
+
   await delay(2_000);
-  console.log(`[report] Session cookie installed, current URL: ${page.url()}`);
+  console.log(`[report] Signed in, current URL: ${page.url()}`);
 }
 
 async function capturePages(page: Page) {
@@ -163,6 +210,9 @@ async function capturePages(page: Page) {
     await page.goto(`${baseUrl}${item.path}`, {
       waitUntil: "domcontentloaded",
     });
+    if ("waitFor" in item && item.waitFor) {
+      await item.waitFor(page);
+    }
     await page.evaluate(() => {
       window.scrollTo(0, 0);
     });

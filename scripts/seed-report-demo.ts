@@ -11,6 +11,27 @@ const demoUser = {
 
 const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://127.0.0.1:3000";
 
+async function assertAgentLabSchema() {
+  const [runsTable, toolEventsTable] = await Promise.all([
+    prisma.$queryRaw<Array<{ exists: number }>>`
+      SELECT COUNT(*)::int AS exists
+      FROM information_schema.tables
+      WHERE table_schema = 'public' AND table_name = 'agent_lab_runs'
+    `,
+    prisma.$queryRaw<Array<{ exists: number }>>`
+      SELECT COUNT(*)::int AS exists
+      FROM information_schema.tables
+      WHERE table_schema = 'public' AND table_name = 'agent_lab_tool_events'
+    `,
+  ]);
+
+  if (!runsTable[0]?.exists || !toolEventsTable[0]?.exists) {
+    throw new Error(
+      "The agent lab tables are missing from the current database. Run `bun run db:push` or your Prisma migration flow before `bun run report:seed`.",
+    );
+  }
+}
+
 const foods = [
   {
     id: "chicken-breast",
@@ -701,8 +722,615 @@ async function seedConversation(userId: string, today: Date) {
   });
 }
 
+async function seedAgentLabRuns(userId: string) {
+  const runs = [
+    {
+      sdk: "VERCEL_AI",
+      scenarioId: "HIGH_PROTEIN_BREAKFAST",
+      prompt: "Find a high-protein breakfast from my saved foods.",
+      response:
+        "The best high-protein breakfast from your saved foods is Greek Yogurt with a banana. It gives you 17 g of protein with moderate calories, and you can add eggs on heavier training days to push breakfast protein higher.",
+      rawTrace: {
+        source: "report-fixture",
+        note: "Saved comparison run for the report dataset.",
+      },
+      toolEvents: [
+        {
+          position: 1,
+          toolName: "searchFoods",
+          state: "CALL",
+          args: { query: "saved favorite breakfast protein foods", limit: 5 },
+        },
+        {
+          position: 2,
+          toolName: "searchFoods",
+          state: "RESULT",
+          result: [
+            { id: "greek-yogurt", name: "Greek Yogurt", protein: 17 },
+            { id: "egg", name: "Egg", protein: 6 },
+            { id: "oatmeal", name: "Oatmeal", protein: 5 },
+          ],
+        },
+        {
+          position: 3,
+          toolName: "getUserProfile",
+          state: "CALL",
+          args: {},
+        },
+        {
+          position: 4,
+          toolName: "getUserProfile",
+          state: "RESULT",
+          result: {
+            targetCalories: 2500,
+            targetProtein: 180,
+            targetCarbs: 250,
+            targetFat: 75,
+          },
+        },
+        {
+          position: 5,
+          toolName: "getActiveGoals",
+          state: "CALL",
+          args: {},
+        },
+        {
+          position: 6,
+          toolName: "getActiveGoals",
+          state: "RESULT",
+          result: [
+            { type: "PROTEIN_TARGET", targetValue: 180, currentValue: 162 },
+          ],
+        },
+      ],
+    },
+    {
+      sdk: "OPENAI_AGENTS",
+      scenarioId: "HIGH_PROTEIN_BREAKFAST",
+      prompt: "Find a high-protein breakfast from my saved foods.",
+      response:
+        "From your favorites, Greek Yogurt is the strongest breakfast base and eggs are the easiest way to raise protein further. A yogurt plus banana breakfast is the cleanest default, while eggs with spinach are better when you want a more filling option.",
+      rawTrace: {
+        source: "report-fixture",
+        note: "Saved comparison run for the report dataset.",
+      },
+      toolEvents: [
+        {
+          position: 1,
+          toolName: "getUserProfile",
+          state: "CALL",
+          args: {},
+        },
+        {
+          position: 2,
+          toolName: "getUserProfile",
+          state: "RESULT",
+          result: {
+            targetCalories: 2500,
+            targetProtein: 180,
+          },
+        },
+        {
+          position: 3,
+          toolName: "searchFoods",
+          state: "CALL",
+          args: { query: "favorite high protein breakfast foods", limit: 5 },
+        },
+        {
+          position: 4,
+          toolName: "searchFoods",
+          state: "RESULT",
+          result: [
+            { id: "greek-yogurt", name: "Greek Yogurt", protein: 17 },
+            { id: "egg", name: "Egg", protein: 6 },
+            { id: "cottage-cheese", name: "Cottage Cheese", protein: 11 },
+          ],
+        },
+        {
+          position: 5,
+          toolName: "getActiveGoals",
+          state: "CALL",
+          args: {},
+        },
+        {
+          position: 6,
+          toolName: "getActiveGoals",
+          state: "RESULT",
+          result: [
+            { type: "PROTEIN_TARGET", targetValue: 180, currentValue: 162 },
+          ],
+        },
+      ],
+    },
+    {
+      sdk: "LANGGRAPH",
+      scenarioId: "HIGH_PROTEIN_BREAKFAST",
+      prompt: "Find a high-protein breakfast from my saved foods.",
+      response:
+        "A practical high-protein breakfast from your saved foods is Greek Yogurt with banana, and the most protein-dense upgrade is adding eggs. This keeps breakfast simple while closing the gap to your 180 g daily protein goal.",
+      rawTrace: {
+        source: "report-fixture",
+        note: "Saved comparison run for the report dataset.",
+      },
+      toolEvents: [
+        {
+          position: 1,
+          toolName: "searchFoods",
+          state: "CALL",
+          args: { query: "protein breakfast favorites", limit: 5 },
+        },
+        {
+          position: 2,
+          toolName: "searchFoods",
+          state: "RESULT",
+          result: [
+            { id: "greek-yogurt", name: "Greek Yogurt", protein: 17 },
+            { id: "egg", name: "Egg", protein: 6 },
+          ],
+        },
+        {
+          position: 3,
+          toolName: "getActiveGoals",
+          state: "CALL",
+          args: {},
+        },
+        {
+          position: 4,
+          toolName: "getActiveGoals",
+          state: "RESULT",
+          result: [
+            { type: "PROTEIN_TARGET", targetValue: 180, currentValue: 162 },
+          ],
+        },
+      ],
+    },
+    {
+      sdk: "VERCEL_AI",
+      scenarioId: "LOG_RECENT_LUNCH",
+      prompt: "Add one of my recent lunches to today.",
+      response:
+        "I added a recent lunch pattern to today: chicken breast, brown rice, and broccoli. That keeps the meal aligned with your existing high-protein routine.",
+      rawTrace: {
+        source: "report-fixture",
+        note: "Saved comparison run for the report dataset.",
+      },
+      toolEvents: [
+        {
+          position: 1,
+          toolName: "getDailyLog",
+          state: "CALL",
+          args: {},
+        },
+        {
+          position: 2,
+          toolName: "getDailyLog",
+          state: "RESULT",
+          result: { items: 9, calories: 2297 },
+        },
+        {
+          position: 3,
+          toolName: "searchFoods",
+          state: "CALL",
+          args: { query: "recent lunch chicken rice broccoli", limit: 6 },
+        },
+        {
+          position: 4,
+          toolName: "searchFoods",
+          state: "RESULT",
+          result: [
+            { id: "chicken-breast", name: "Chicken Breast" },
+            { id: "brown-rice", name: "Brown Rice" },
+            { id: "broccoli", name: "Broccoli" },
+          ],
+        },
+        {
+          position: 5,
+          toolName: "logFood",
+          state: "CALL",
+          args: {
+            mealType: "LUNCH",
+            items: [
+              { foodId: "chicken-breast", servings: 1.8 },
+              { foodId: "brown-rice", servings: 1.4 },
+              { foodId: "broccoli", servings: 1.2 },
+            ],
+          },
+        },
+        {
+          position: 6,
+          toolName: "logFood",
+          state: "RESULT",
+          result: { createdItems: 3, totalCalories: 489 },
+        },
+      ],
+    },
+    {
+      sdk: "OPENAI_AGENTS",
+      scenarioId: "LOG_RECENT_LUNCH",
+      prompt: "Add one of my recent lunches to today.",
+      response:
+        "Logged one of your recent lunches for today using the familiar chicken, brown rice, and broccoli combination.",
+      rawTrace: {
+        source: "report-fixture",
+        note: "Saved comparison run for the report dataset.",
+      },
+      toolEvents: [
+        {
+          position: 1,
+          toolName: "searchFoods",
+          state: "CALL",
+          args: { query: "recent high protein lunch foods", limit: 6 },
+        },
+        {
+          position: 2,
+          toolName: "searchFoods",
+          state: "RESULT",
+          result: [
+            { id: "chicken-breast", name: "Chicken Breast" },
+            { id: "brown-rice", name: "Brown Rice" },
+            { id: "broccoli", name: "Broccoli" },
+          ],
+        },
+        {
+          position: 3,
+          toolName: "logFood",
+          state: "CALL",
+          args: {
+            mealType: "LUNCH",
+            items: [
+              { foodId: "chicken-breast", servings: 1.8 },
+              { foodId: "brown-rice", servings: 1.4 },
+              { foodId: "broccoli", servings: 1.2 },
+            ],
+          },
+        },
+        {
+          position: 4,
+          toolName: "logFood",
+          state: "RESULT",
+          result: { createdItems: 3, totalProtein: 62.5 },
+        },
+      ],
+    },
+    {
+      sdk: "LANGGRAPH",
+      scenarioId: "LOG_RECENT_LUNCH",
+      prompt: "Add one of my recent lunches to today.",
+      response:
+        "I reused your recent lunch pattern and logged chicken breast, brown rice, and broccoli to today's lunch.",
+      rawTrace: {
+        source: "report-fixture",
+        note: "Saved comparison run for the report dataset.",
+      },
+      toolEvents: [
+        {
+          position: 1,
+          toolName: "getDailyLog",
+          state: "CALL",
+          args: {},
+        },
+        {
+          position: 2,
+          toolName: "getDailyLog",
+          state: "RESULT",
+          result: { items: 9, calories: 2297 },
+        },
+        {
+          position: 3,
+          toolName: "logFood",
+          state: "CALL",
+          args: {
+            mealType: "LUNCH",
+            items: [
+              { foodId: "chicken-breast", servings: 1.8 },
+              { foodId: "brown-rice", servings: 1.4 },
+              { foodId: "broccoli", servings: 1.2 },
+            ],
+          },
+        },
+        {
+          position: 4,
+          toolName: "logFood",
+          state: "RESULT",
+          result: { createdItems: 3, totalCalories: 489 },
+        },
+      ],
+    },
+    {
+      sdk: "VERCEL_AI",
+      scenarioId: "WEEKLY_NUTRITION_REVIEW",
+      prompt: "Summarize my nutrition this week against my goals.",
+      response:
+        "Across the last week you averaged about 2368 kcal and 162 g protein per day. Calories are close to target, but protein still sits below the 180 g goal, so adding one stronger protein block to breakfast or lunch would close most of the gap.",
+      rawTrace: {
+        source: "report-fixture",
+        note: "Saved comparison run for the report dataset.",
+      },
+      toolEvents: [
+        {
+          position: 1,
+          toolName: "getUserStats",
+          state: "CALL",
+          args: { range: "last-7-days" },
+        },
+        {
+          position: 2,
+          toolName: "getUserStats",
+          state: "RESULT",
+          result: {
+            averages: { calories: 2368, protein: 162, carbs: 201, fat: 71 },
+            daysLogged: 7,
+          },
+        },
+        {
+          position: 3,
+          toolName: "getActiveGoals",
+          state: "CALL",
+          args: {},
+        },
+        {
+          position: 4,
+          toolName: "getActiveGoals",
+          state: "RESULT",
+          result: [
+            { type: "CALORIE_TARGET", targetValue: 2500, currentValue: 2360 },
+            { type: "PROTEIN_TARGET", targetValue: 180, currentValue: 162 },
+          ],
+        },
+      ],
+    },
+    {
+      sdk: "OPENAI_AGENTS",
+      scenarioId: "WEEKLY_NUTRITION_REVIEW",
+      prompt: "Summarize my nutrition this week against my goals.",
+      response:
+        "Your weekly calorie intake stayed close to plan, while protein was consistently a little low relative to the 180 g target. The main adjustment should be reinforcing breakfast or lunch with one more lean protein serving.",
+      rawTrace: {
+        source: "report-fixture",
+        note: "Saved comparison run for the report dataset.",
+      },
+      toolEvents: [
+        {
+          position: 1,
+          toolName: "getUserProfile",
+          state: "CALL",
+          args: {},
+        },
+        {
+          position: 2,
+          toolName: "getUserProfile",
+          state: "RESULT",
+          result: { targetCalories: 2500, targetProtein: 180 },
+        },
+        {
+          position: 3,
+          toolName: "getUserStats",
+          state: "CALL",
+          args: { range: "last-7-days" },
+        },
+        {
+          position: 4,
+          toolName: "getUserStats",
+          state: "RESULT",
+          result: {
+            averages: { calories: 2368, protein: 162 },
+            streak: { current: 7, longest: 7 },
+          },
+        },
+      ],
+    },
+    {
+      sdk: "LANGGRAPH",
+      scenarioId: "WEEKLY_NUTRITION_REVIEW",
+      prompt: "Summarize my nutrition this week against my goals.",
+      response:
+        "The weekly pattern is stable: calories remain near target, but protein stays modestly under goal. A repeatable fix would be increasing protein at the first meal of the day instead of relying on dinner recovery.",
+      rawTrace: {
+        source: "report-fixture",
+        note: "Saved comparison run for the report dataset.",
+      },
+      toolEvents: [
+        {
+          position: 1,
+          toolName: "getUserStats",
+          state: "CALL",
+          args: { range: "last-7-days" },
+        },
+        {
+          position: 2,
+          toolName: "getUserStats",
+          state: "RESULT",
+          result: {
+            averages: { calories: 2368, protein: 162, carbs: 201, fat: 71 },
+          },
+        },
+        {
+          position: 3,
+          toolName: "getActiveGoals",
+          state: "CALL",
+          args: {},
+        },
+        {
+          position: 4,
+          toolName: "getActiveGoals",
+          state: "RESULT",
+          result: [
+            { type: "PROTEIN_TARGET", targetValue: 180, currentValue: 162 },
+          ],
+        },
+      ],
+    },
+    {
+      sdk: "VERCEL_AI",
+      scenarioId: "CALCULATE_MACROS",
+      prompt: "Calculate recommended macros from my current profile data.",
+      response:
+        "Based on your current profile, the working recommendation is 2500 kcal with roughly 180 g protein, 250 g carbs, and 75 g fat. That matches the active targets already stored in your profile.",
+      rawTrace: {
+        source: "report-fixture",
+        note: "Saved comparison run for the report dataset.",
+      },
+      toolEvents: [
+        {
+          position: 1,
+          toolName: "getUserProfile",
+          state: "CALL",
+          args: {},
+        },
+        {
+          position: 2,
+          toolName: "getUserProfile",
+          state: "RESULT",
+          result: {
+            gender: "MALE",
+            height: 182,
+            weight: 79,
+            activityLevel: "MODERATE",
+          },
+        },
+        {
+          position: 3,
+          toolName: "calculateMacros",
+          state: "CALL",
+          args: { goal: "maintain-cutting-bias" },
+        },
+        {
+          position: 4,
+          toolName: "calculateMacros",
+          state: "RESULT",
+          result: {
+            targetCalories: 2500,
+            targetProtein: 180,
+            targetCarbs: 250,
+            targetFat: 75,
+          },
+        },
+      ],
+    },
+    {
+      sdk: "OPENAI_AGENTS",
+      scenarioId: "CALCULATE_MACROS",
+      prompt: "Calculate recommended macros from my current profile data.",
+      response:
+        "Your profile supports a recommendation around 2500 kcal with protein anchored near 180 g, then carbs at 250 g and fat at 75 g. The result is consistent with the current application targets.",
+      rawTrace: {
+        source: "report-fixture",
+        note: "Saved comparison run for the report dataset.",
+      },
+      toolEvents: [
+        {
+          position: 1,
+          toolName: "getUserProfile",
+          state: "CALL",
+          args: {},
+        },
+        {
+          position: 2,
+          toolName: "getUserProfile",
+          state: "RESULT",
+          result: {
+            gender: "MALE",
+            height: 182,
+            weight: 79,
+            activityLevel: "MODERATE",
+          },
+        },
+        {
+          position: 3,
+          toolName: "calculateMacros",
+          state: "CALL",
+          args: { goal: "maintenance" },
+        },
+        {
+          position: 4,
+          toolName: "calculateMacros",
+          state: "RESULT",
+          result: {
+            targetCalories: 2500,
+            targetProtein: 180,
+            targetCarbs: 250,
+            targetFat: 75,
+          },
+        },
+      ],
+    },
+    {
+      sdk: "LANGGRAPH",
+      scenarioId: "CALCULATE_MACROS",
+      prompt: "Calculate recommended macros from my current profile data.",
+      response:
+        "The macro calculation resolves to the same target structure already used in the profile: 2500 kcal, 180 g protein, 250 g carbs, and 75 g fat.",
+      rawTrace: {
+        source: "report-fixture",
+        note: "Saved comparison run for the report dataset.",
+      },
+      toolEvents: [
+        {
+          position: 1,
+          toolName: "getUserProfile",
+          state: "CALL",
+          args: {},
+        },
+        {
+          position: 2,
+          toolName: "getUserProfile",
+          state: "RESULT",
+          result: {
+            gender: "MALE",
+            height: 182,
+            weight: 79,
+            activityLevel: "MODERATE",
+          },
+        },
+        {
+          position: 3,
+          toolName: "calculateMacros",
+          state: "CALL",
+          args: { goal: "keep current target" },
+        },
+        {
+          position: 4,
+          toolName: "calculateMacros",
+          state: "RESULT",
+          result: {
+            targetCalories: 2500,
+            targetProtein: 180,
+            targetCarbs: 250,
+            targetFat: 75,
+          },
+        },
+      ],
+    },
+  ] as const;
+
+  for (const run of runs) {
+    await prisma.agentLabRun.create({
+      data: {
+        userId,
+        sdk: run.sdk,
+        scenarioId: run.scenarioId,
+        conversationId: `report-${run.sdk.toLowerCase()}-${run.scenarioId.toLowerCase()}`,
+        prompt: run.prompt,
+        response: run.response,
+        status: "COMPLETED",
+        rawTrace: run.rawTrace,
+        toolEvents: {
+          create: run.toolEvents.map((event) => ({
+            position: event.position,
+            toolName: event.toolName,
+            state: event.state,
+            args: "args" in event ? event.args : undefined,
+            result: "result" in event ? event.result : undefined,
+          })),
+        },
+      },
+    });
+  }
+}
+
 async function main() {
   console.log("Seeding report demo dataset...");
+  await assertAgentLabSchema();
 
   await seedFoods();
 
@@ -712,6 +1340,10 @@ async function main() {
   const user = await ensureDemoUser();
 
   await prisma.$transaction(async (tx) => {
+    await tx.agentLabToolEvent.deleteMany({
+      where: { run: { userId: user.id } },
+    });
+    await tx.agentLabRun.deleteMany({ where: { userId: user.id } });
     await tx.userFoodFavorite.deleteMany({ where: { userId: user.id } });
     await tx.goal.deleteMany({ where: { userId: user.id } });
     await tx.message.deleteMany({
@@ -734,6 +1366,7 @@ async function main() {
   await seedMealPlan(user.id, today);
   await seedLogs(user.id, today);
   await seedConversation(user.id, today);
+  await seedAgentLabRuns(user.id);
 
   console.log(`Demo report user: ${demoUser.email}`);
   console.log(`Demo report password: ${demoUser.password}`);

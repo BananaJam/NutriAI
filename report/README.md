@@ -4,9 +4,9 @@
 
 ## Зміст директорії
 
-- [report.typ](/Users/vvybyranyi/Desktop/year4/kursach/bachelor-report/report.typ) — основний документ Typst
-- [template.typ](/Users/vvybyranyi/Desktop/year4/kursach/bachelor-report/template.typ) — стилі, титульні сторінки та службові макроси
-- [references.yml](/Users/vvybyranyi/Desktop/year4/kursach/bachelor-report/references.yml) — бібліографія
+- [report.typ](/Users/vvybyranyi/Desktop/year4/kursach/report/report.typ) — основний документ Typst
+- [template.typ](/Users/vvybyranyi/Desktop/year4/kursach/report/template.typ) — стилі, титульні сторінки та службові макроси
+- [references.yml](/Users/vvybyranyi/Desktop/year4/kursach/report/references.yml) — бібліографія
 - `assets/screenshots/` — автогенеровані скріншоти інтерфейсу
 
 ## Команди
@@ -30,3 +30,5 @@ bun run report:build
 2. За потреби запускає локальний dev server.
 3. Виконує вхід під demo-користувачем.
 4. Знімає ключові сторінки інтерфейсу в `assets/screenshots/`.
+
+До переліку входить і маршрут `/assistant/lab`, якщо ввімкнений feature flag лабораторії агентних SDK.
