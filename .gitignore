@@ -40,5 +40,5 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# compiled report artifacts
+# compiled pdf artifacts
 **/*.pdf
