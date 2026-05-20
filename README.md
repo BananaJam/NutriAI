@@ -1,144 +1,173 @@
-# NutriAI
+# 📘 NutriAI
 
-NutriAI is a nutrition workspace built with Next.js 16, Bun, Prisma, Better Auth, Elysia, and React Query. It combines food logging, meal planning, goal tracking, profile-driven nutrition targets, and an AI assistant that can search foods, review progress, and log meals.
+> Персоналізований AI-асистент для планування харчування та моніторингу споживання калорій.
 
-## Feature Surface
+---
 
-- Dashboard with range-based trends, streaks, adherence summaries, recent activity, and setup-driven quick actions
-- Food database management for custom foods and macro data
-- Daily food log with grouped meals, edit/delete flows, recent-food shortcuts, and macro targets
-- Meal plans with per-day planning and one-click application into the food log
-- Goals with derived progress for calorie, protein, and weight-oriented tracking
-- AI assistant with persistent conversations, rename/delete actions, and nutrition-aware context
-- Profile and settings pages for body metrics, targets, theme, and dashboard preferences
+## 👤 Автор
 
-## Stack
+- **ПІБ**: Вибираний Владислав
+- **Група**: ФЕІ-42
+- **Керівник**: доц. Стахіра Р. Й.
+- **Дата виконання**: 20.05.2026
 
-- `Next.js 16` with the App Router
-- `Bun` for package management and scripts
-- `Prisma` with PostgreSQL
-- `Better Auth` for email/password authentication
-- `Elysia` + `Eden Treaty` for the API layer
-- `React Query` for client data fetching and cache invalidation
-- `Biome` for linting and formatting
+---
 
-## Environment Variables
+## 📌 Загальна інформація
 
-Create a local `.env` with the values your environment needs:
+- **Тип проєкту**: Веб-застосунок (Full-stack)
+- **Мова програмування**: TypeScript (Node.js/Bun + Next.js)
+- **Фреймворки / Бібліотеки**: Next.js 16, Prisma, PostgreSQL, Better Auth, Elysia, React Query, Bun, Tailwind CSS
 
-```env
-DATABASE_URL="postgresql://..."
-NEXT_PUBLIC_APP_URL="http://localhost:3000"
-AI_PROVIDER="openai"
+---
 
-# If AI_PROVIDER=openai
-OPENAI_API_KEY="..."
+## 🧠 Опис функціоналу
 
-# If AI_PROVIDER=anthropic
-ANTHROPIC_API_KEY="..."
+- 📊 **Панель приладів**: Візуалізація трендів, виконання цілей та останньої активності.
+- 🥗 **Журнал харчування**: Зручне логування прийомів їжі з групуванням та розрахунком макронутрієнтів.
+- 📅 **Плани харчування**: Створення тижневих планів та швидке перенесення страв у щоденний журнал.
+- 🎯 **Система цілей**: Відстеження калорій, білків та ваги з динамічним розрахунком прогресу.
+- 🤖 **AI-асистент**: Розумний помічник, що вміє шукати продукти, аналізувати статистику та допомагати з логуванням через Tool Calling.
+- 👤 **Профіль та налаштування**: Гнучке налаштування антропометричних даних, цілей та інтерфейсу.
+
+---
+
+## 🧱 Опис основних класів / файлів
+
+| Клас / Файл     | Призначення |
+|----------------|-------------|
+| `server/index.ts` | Точка входу backend API (Elysia) |
+| `prisma/schema.prisma` | Опис моделі даних та зв'язків у БД |
+| `app/page.tsx` | Головна сторінка Dashboard (frontend) |
+| `lib/api.ts` | Клієнт для типізованої взаємодії з API |
+| `server/routes/chat.ts` | Логіка обробки AI-запитів та AI-агента |
+| `components/features/food-log.tsx` | Компонент щоденного журналу харчування |
+
+---
+
+## ▶️ Як запустити проєкт "з нуля"
+
+### 1. Встановлення інструментів
+
+- **Bun** (рекомендовано) або Node.js v20+
+- **PostgreSQL** (локально або хмарний сервіс)
+
+### 2. Клонування репозиторію
+
+```bash
+git clone https://github.com/vvybyranyi/nutri-ai.git
+cd nutri-ai
 ```
 
-Notes:
-
-- `DATABASE_URL` is required for Prisma, auth, and all app data.
-- `NEXT_PUBLIC_APP_URL` is used by the API client and Better Auth trusted origins.
-- `AI_PROVIDER` defaults to `openai` when omitted.
-
-## Local Setup
-
-1. Install dependencies:
+### 3. Встановлення залежностей
 
 ```bash
 bun install
 ```
 
-2. Generate the Prisma client:
+### 4. Створення `.env` файлу
 
-```bash
-bun run db:generate
+Створіть файл `.env` у корені проєкту:
+
+```env
+DATABASE_URL="postgresql://user:password@localhost:5432/nutriai"
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+AI_PROVIDER="openai" # або "anthropic"
+OPENAI_API_KEY="your_api_key"
 ```
 
-3. Push the schema or run migrations:
+### 5. Налаштування бази даних
 
 ```bash
 bun run db:push
-# or
-bun run db:migrate
-```
-
-4. Seed starter data if needed:
-
-```bash
+bun run db:generate
 bun run db:seed
 ```
 
-5. Start the dev server:
+### 6. Запуск
 
 ```bash
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Відкрийте [http://localhost:3000](http://localhost:3000)
 
-## Main Scripts
+---
 
-- `bun dev` starts the Next.js dev server with Turbopack
-- `bun run build` generates Prisma and runs a production webpack build
-- `bun start` runs the production server
-- `bun run lint` runs Biome checks
-- `bun run lint:fix` applies safe Biome fixes
-- `bun run format` formats the repo
-- `bun test` runs Bun unit tests
-- `bun run db:generate` regenerates Prisma client output
-- `bun run db:push` syncs the schema to the database
-- `bun run db:migrate` creates and applies a development migration
-- `bun run db:seed` seeds the database
+## 🔌 API приклади
 
-## Route Overview
+### 📊 Статистика профілю
 
-- `/` dashboard with trend cards, adherence summaries, and quick actions
-- `/assistant` persistent AI chat for nutrition tasks
-- `/log` daily food log with editable entries and macro progress
-- `/plans` weekly meal plans and apply-to-log flow
-- `/goals` active and historical goals
-- `/foods` food library management
-- `/profile` body metrics and nutrition targets
-- `/settings` theme and workspace preferences
+**GET /api/profile/stats**
 
-## API Overview
+Отримати дані для графіків, дотримання плану та активних стріків.
 
-The Elysia API is mounted under `/api`, with route groups in [`server/routes`](/Users/vvybyranyi/Desktop/year4/kursach/server/routes).
+---
 
-Important endpoints:
+### 🥗 Журнал харчування
 
-- `GET /api/profile/stats` returns chart-ready daily totals, streaks, adherence, and range summaries
-- `PATCH /api/food-logs/items/:itemId` edits logged servings, meal type, and notes
-- `POST /api/meal-plans/:id/apply` copies planned meals into a selected log date
-- `PATCH /api/chat/conversations/:id` renames an AI conversation
-- `DELETE /api/chat/conversations/:id` deletes an AI conversation
-- `GET /api/docs` serves Swagger docs for the Elysia API
+**POST /api/food-logs**
 
-## Prisma Workflow
-
-- Schema lives in [`prisma/schema.prisma`](/Users/vvybyranyi/Desktop/year4/kursach/prisma/schema.prisma)
-- Seed logic lives in [`prisma/seed.ts`](/Users/vvybyranyi/Desktop/year4/kursach/prisma/seed.ts)
-- Generated Prisma output is committed under [`generated/prisma`](/Users/vvybyranyi/Desktop/year4/kursach/generated/prisma) and should not be edited manually
-
-For schema updates:
-
-1. Edit the Prisma schema
-2. Run `bun run db:migrate` or `bun run db:push`
-3. Run `bun run db:generate`
-4. Verify with `bun run lint`, `bun test`, and `bun run build`
-
-## Verification Baseline
-
-Before opening a PR, run:
-
-```bash
-bun run lint
-bun test
-bun run build
+```json
+{
+  "foodId": "uuid",
+  "servingSize": 100,
+  "mealType": "breakfast",
+  "loggedAt": "2026-05-20T08:00:00Z"
+}
 ```
 
-For database changes, also run the relevant Prisma command locally and review the resulting migration carefully.
+---
+
+### 🤖 AI Асистент
+
+**POST /api/chat/conversations/:id/messages**
+
+Надсилання повідомлення до AI-агента з доступом до інструментів.
+
+---
+
+## 🖱️ Інструкція для користувача
+
+1. **Початок роботи** — Зареєструйтесь та заповніть дані профілю (вага, зріст, активність) для розрахунку норм.
+2. **Dashboard** — Слідкуйте за залишком калорій на день та трендом макронутрієнтів.
+3. **Журнал (Log)** — Додавайте страви, які ви спожили. Використовуйте пошук або додавайте свої продукти.
+4. **Плани (Plans)** — Сплануйте свій раціон наперед та застосуйте план до конкретного дня в один клік.
+5. **AI Асистент** — Запитуйте "Скільки білка я з'їв вчора?" або "Знайди продукти з низьким вмістом жиру".
+
+---
+
+## 📷 Приклади / скриншоти
+
+- **Dashboard**: `report/assets/screenshots/dashboard.png`
+- **Food Log**: `report/assets/screenshots/food-log.png`
+- **AI Assistant**: `report/assets/screenshots/assistant.png`
+- **Meal Plans**: `report/assets/screenshots/meal-plans.png`
+- **Goals**: `report/assets/screenshots/goals.png`
+
+(Більше скриншотів доступно у папці `report/assets/screenshots/`)
+
+---
+
+## 🧪 Проблеми і рішення
+
+| Проблема              | Рішення                            |
+|----------------------|------------------------------------|
+| Database Connection Error | Перевірити правильність `DATABASE_URL` у `.env` |
+| AI не відповідає     | Перевірити `OPENAI_API_KEY` та статус сервісу |
+| Prisma Type Errors   | Виконати `bun run db:generate` для оновлення клієнта |
+| Auth errors          | Переконайтесь, що `NEXT_PUBLIC_APP_URL` відповідає вашому домену |
+
+---
+
+## 🧾 Використані джерела / література
+
+- [Next.js Documentation](https://nextjs.org/docs)
+- [ElysiaJS - Fast Bun Web Framework](https://elysiajs.com/)
+- [Prisma ORM Guide](https://www.prisma.io/docs)
+- [Better Auth Documentation](https://www.better-auth.com/)
+- [Vercel AI SDK](https://sdk.vercel.ai/docs)
+- [WHO: Healthy Diet](https://www.who.int/news-room/fact-sheets/detail/healthy-diet)
+
+---
+## Screenshots
