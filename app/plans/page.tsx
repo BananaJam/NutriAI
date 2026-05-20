@@ -89,6 +89,7 @@ export default function MealPlansPage() {
   });
   const [editingItem, setEditingItem] = useState<MealPlanItem | null>(null);
   const [duplicateDay, setDuplicateDay] = useState<number | null>(null);
+  const [selectedMobileDay, setSelectedMobileDay] = useState("1");
 
   const mealPlansQuery = useQuery({
     queryKey: ["mealPlans"],
@@ -411,6 +412,22 @@ export default function MealPlansPage() {
     );
   }, [planItems]);
 
+  const dayStats = useMemo(() => {
+    return dayNames.map((_dayName, dayOfWeek) => {
+      const dayItems = mealOrder.flatMap(
+        (mealType) => itemsByDayAndMeal[dayOfWeek]?.[mealType] ?? [],
+      );
+
+      return {
+        mealCount: dayItems.length,
+        calories: dayItems.reduce(
+          (total, item) => total + item.food.calories * item.servings,
+          0,
+        ),
+      };
+    });
+  }, [itemsByDayAndMeal]);
+
   const shoppingListText = useMemo(
     () => buildShoppingListText(shoppingList),
     [shoppingList],
@@ -493,83 +510,157 @@ export default function MealPlansPage() {
         </Card>
       ) : (
         <>
-          <Card className="app-surface">
-            <CardHeader className="gap-4 lg:flex-row lg:items-end lg:justify-between">
-              <div className="space-y-4">
-                <div className="space-y-1">
-                  <CardTitle className="text-2xl">
-                    {planData?.name ?? "Select a meal plan"}
-                  </CardTitle>
-                  <CardDescription>
-                    {planData
-                      ? `${format(new Date(planData.startDate), "MMM d")} - ${format(new Date(planData.endDate), "MMM d, yyyy")}`
-                      : "Choose a plan to open your weekly workspace."}
-                  </CardDescription>
-                </div>
-                <div className="flex flex-wrap items-center gap-2">
-                  {planData ? (
+          <Card className="app-surface overflow-hidden">
+            <CardContent className="grid gap-6 p-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)] lg:p-8">
+              <div className="space-y-6">
+                <div className="space-y-3">
+                  <div className="flex flex-wrap items-center gap-2">
+                    {planData ? (
+                      <Badge
+                        variant={planData.isActive ? "default" : "secondary"}
+                        className="rounded-full px-3 py-1"
+                      >
+                        {planData.isActive ? "Active plan" : "Inactive plan"}
+                      </Badge>
+                    ) : null}
                     <Badge
-                      variant={planData.isActive ? "default" : "secondary"}
+                      variant="secondary"
+                      className="rounded-full px-3 py-1"
                     >
-                      {planData.isActive ? "Active plan" : "Inactive plan"}
+                      {planStats.totalMeals} planned meals
                     </Badge>
-                  ) : null}
-                  <Badge variant="secondary">
-                    {planStats.totalMeals} planned meals
-                  </Badge>
-                  <Badge variant="secondary">
-                    {Math.round(planStats.calories)} kcal scheduled
-                  </Badge>
-                  <Badge variant="secondary">
-                    {Math.round(planStats.protein)}g protein
-                  </Badge>
+                    <Badge
+                      variant="secondary"
+                      className="rounded-full px-3 py-1"
+                    >
+                      {Math.round(planStats.calories)} kcal scheduled
+                    </Badge>
+                    <Badge
+                      variant="secondary"
+                      className="rounded-full px-3 py-1"
+                    >
+                      {Math.round(planStats.protein)}g protein
+                    </Badge>
+                  </div>
+                  <div className="space-y-2">
+                    <CardTitle className="text-3xl tracking-tight">
+                      {planData?.name ?? "Select a meal plan"}
+                    </CardTitle>
+                    <CardDescription className="max-w-2xl text-sm leading-6">
+                      {planData
+                        ? `${format(new Date(planData.startDate), "MMM d")} - ${format(new Date(planData.endDate), "MMM d, yyyy")} · Weekly structure, quick apply actions, and a synced shopping list in one workspace.`
+                        : "Choose a plan to open your weekly workspace."}
+                    </CardDescription>
+                  </div>
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                  <StatChip
+                    label="Planned meals"
+                    value={planStats.totalMeals}
+                    icon={CalendarDays}
+                  />
+                  <StatChip
+                    label="Scheduled calories"
+                    value={`${Math.round(planStats.calories)} kcal`}
+                    icon={Sparkles}
+                  />
+                  <StatChip
+                    label="Scheduled protein"
+                    value={`${Math.round(planStats.protein)} g`}
+                    icon={Target}
+                  />
+                  <StatChip
+                    label="Days covered"
+                    value={
+                      planData
+                        ? `${
+                            Math.round(
+                              (new Date(planData.endDate).getTime() -
+                                new Date(planData.startDate).getTime()) /
+                                (1000 * 60 * 60 * 24),
+                            ) + 1
+                          } days`
+                        : "0 days"
+                    }
+                    icon={ShoppingBasket}
+                  />
                 </div>
               </div>
 
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
-                <label className="space-y-1 text-sm">
-                  <span className="text-muted-foreground">Current plan</span>
-                  <select
-                    className="flex h-10 min-w-[240px] rounded-xl border border-input bg-background px-3 text-sm"
-                    value={selectedPlanId ?? ""}
-                    onChange={(event) => setSelectedPlanId(event.target.value)}
-                  >
-                    {mealPlansQuery.data.plans.map((plan) => (
-                      <option key={plan.id} value={plan.id}>
-                        {plan.name}
-                        {plan.isActive ? " (Active)" : ""}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+              <div className="rounded-[28px] border border-border/70 bg-background/70 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+                <div className="flex h-full flex-col gap-5">
+                  <div className="space-y-1">
+                    <p className="text-xs font-semibold tracking-[0.18em] text-muted-foreground uppercase">
+                      Plan controls
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Switch plans, set the target log date, and manage this
+                      schedule from one place.
+                    </p>
+                  </div>
 
-                <label htmlFor="plan-apply-date" className="space-y-1 text-sm">
-                  <span className="text-muted-foreground">Apply to date</span>
-                  <Input
-                    id="plan-apply-date"
-                    type="date"
-                    className="min-w-[180px]"
-                    value={applyDate}
-                    onChange={(event) => setApplyDate(event.target.value)}
-                  />
-                </label>
+                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+                    <label className="space-y-2 text-sm">
+                      <span className="text-muted-foreground">
+                        Current plan
+                      </span>
+                      <select
+                        className="flex h-12 w-full rounded-2xl border border-input bg-background px-4 text-sm shadow-sm transition outline-none focus:border-primary"
+                        value={selectedPlanId ?? ""}
+                        onChange={(event) =>
+                          setSelectedPlanId(event.target.value)
+                        }
+                      >
+                        {mealPlansQuery.data.plans.map((plan) => (
+                          <option key={plan.id} value={plan.id}>
+                            {plan.name}
+                            {plan.isActive ? " (Active)" : ""}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
 
-                {planData ? (
-                  <Button
-                    variant="outline"
-                    className="rounded-xl text-destructive hover:text-destructive"
-                    onClick={() => setIsDeleteOpen(true)}
-                  >
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Delete
-                  </Button>
-                ) : null}
+                    <label
+                      htmlFor="plan-apply-date"
+                      className="space-y-2 text-sm"
+                    >
+                      <span className="text-muted-foreground">
+                        Apply to date
+                      </span>
+                      <Input
+                        id="plan-apply-date"
+                        type="date"
+                        className="h-12 rounded-2xl"
+                        value={applyDate}
+                        onChange={(event) => setApplyDate(event.target.value)}
+                      />
+                    </label>
+                  </div>
+
+                  <div className="mt-auto flex flex-wrap items-center gap-3">
+                    {planData ? (
+                      <Button
+                        variant="outline"
+                        className="rounded-xl text-destructive hover:text-destructive"
+                        onClick={() => setIsDeleteOpen(true)}
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete plan
+                      </Button>
+                    ) : null}
+                    <p className="text-xs leading-5 text-muted-foreground">
+                      Applying a day or meal writes items into the food log for{" "}
+                      {format(new Date(applyDate), "MMM d, yyyy")}.
+                    </p>
+                  </div>
+                </div>
               </div>
-            </CardHeader>
+            </CardContent>
           </Card>
 
           <Tabs defaultValue="planner" className="space-y-4">
-            <TabsList className="grid w-full max-w-md grid-cols-2">
+            <TabsList className="grid h-12 w-full max-w-md grid-cols-2 rounded-2xl bg-muted/70 p-1">
               <TabsTrigger value="planner">Planner</TabsTrigger>
               <TabsTrigger value="shopping">Shopping list</TabsTrigger>
             </TabsList>
@@ -578,196 +669,258 @@ export default function MealPlansPage() {
               {planDetailQuery.isLoading ? (
                 <Skeleton className="h-[840px] rounded-3xl" />
               ) : (
-                <div className="grid gap-4 xl:grid-cols-7">
-                  {dayNames.map((dayName, dayOfWeek) => {
-                    const dayItems =
-                      itemsByDayAndMeal[dayOfWeek] ??
-                      ({} as Record<MealType, MealPlanItem[]>);
-                    const dayMealCount = mealOrder.reduce(
-                      (count, mealType) =>
-                        count + (dayItems[mealType]?.length ?? 0),
-                      0,
-                    );
-
-                    return (
-                      <Card key={dayName} className="app-surface flex flex-col">
-                        <CardHeader className="space-y-3">
-                          <div className="flex items-start justify-between gap-2">
-                            <div>
-                              <CardTitle className="text-lg">
-                                {dayName}
-                              </CardTitle>
-                              <CardDescription>
-                                {dayMealCount} planned meal
-                                {dayMealCount === 1 ? "" : "s"}
-                              </CardDescription>
-                            </div>
-                            <div className="flex gap-1">
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8"
-                                onClick={() => setDuplicateDay(dayOfWeek)}
-                              >
-                                <Copy className="h-4 w-4" />
-                                <span className="sr-only">Duplicate day</span>
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8"
-                                disabled={applyPlanMutation.isPending}
-                                onClick={() =>
-                                  planData &&
-                                  applyPlanMutation.mutate({
-                                    planId: planData.id,
-                                    dayOfWeek,
-                                  })
-                                }
-                              >
-                                <Sparkles className="h-4 w-4" />
-                                <span className="sr-only">Apply full day</span>
-                              </Button>
-                            </div>
+                <div className="space-y-4">
+                  <Card className="app-surface overflow-hidden">
+                    <CardHeader className="border-b border-border/70 pb-5">
+                      <div className="flex flex-col gap-3 xl:flex-row xl:items-end xl:justify-between">
+                        <div className="space-y-1">
+                          <CardTitle>Weekly meal calendar</CardTitle>
+                          <CardDescription>
+                            Plan the week by day and meal slot, then apply a
+                            full day or a single meal into the food log.
+                          </CardDescription>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                          <Badge variant="secondary" className="rounded-full">
+                            7-day calendar
+                          </Badge>
+                          <Badge variant="secondary" className="rounded-full">
+                            Meal rows
+                          </Badge>
+                          <Badge variant="secondary" className="rounded-full">
+                            Mobile day tabs
+                          </Badge>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                      <div className="hidden overflow-x-auto lg:block">
+                        <div className="grid min-w-[1120px] grid-cols-[116px_repeat(7,minmax(0,1fr))]">
+                          <div className="sticky left-0 z-10 border-border/70 border-r border-b bg-card/95 p-4">
+                            <p className="text-xs font-semibold tracking-[0.18em] text-muted-foreground uppercase">
+                              Meals
+                            </p>
                           </div>
-                        </CardHeader>
+                          {dayNames.map((dayName, dayOfWeek) => {
+                            const stats = dayStats[dayOfWeek];
 
-                        <CardContent className="flex-1 space-y-4">
-                          {mealOrder.map((mealType) => {
-                            const items = dayItems[mealType] ?? [];
                             return (
-                              <div key={mealType} className="space-y-2">
-                                <div className="flex items-center justify-between gap-2">
-                                  <Badge variant="secondary">
-                                    {mealLabels[mealType]}
-                                  </Badge>
-                                  <div className="flex items-center gap-1">
+                              <div
+                                key={dayName}
+                                className="border-border/70 border-r border-b bg-card/95 p-3 last:border-r-0"
+                              >
+                                <div className="space-y-2">
+                                  <div className="min-w-0">
+                                    <h3 className="truncate font-semibold text-sm">
+                                      {dayName}
+                                    </h3>
+                                    <p className="mt-1 text-xs text-muted-foreground">
+                                      {stats.mealCount} meals ·{" "}
+                                      {Math.round(stats.calories)} kcal
+                                    </p>
+                                  </div>
+                                  <div className="flex gap-1">
                                     <Button
                                       variant="ghost"
-                                      size="sm"
-                                      className="h-7 px-2 text-xs"
-                                      disabled={
-                                        !items.length ||
-                                        applyPlanMutation.isPending
-                                      }
+                                      size="icon"
+                                      className="h-7 w-7 rounded-xl"
+                                      onClick={() => setDuplicateDay(dayOfWeek)}
+                                    >
+                                      <Copy className="h-4 w-4" />
+                                      <span className="sr-only">
+                                        Duplicate {dayName}
+                                      </span>
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-7 w-7 rounded-xl"
+                                      disabled={applyPlanMutation.isPending}
                                       onClick={() =>
                                         planData &&
                                         applyPlanMutation.mutate({
                                           planId: planData.id,
                                           dayOfWeek,
-                                          mealType,
                                         })
                                       }
                                     >
-                                      Apply
-                                    </Button>
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      className="h-7 px-2 text-xs"
-                                      onClick={() =>
-                                        setAddItemState({
-                                          open: true,
-                                          dayOfWeek,
-                                          mealType,
-                                        })
-                                      }
-                                    >
-                                      <Plus className="mr-1 h-3.5 w-3.5" />
-                                      Add
+                                      <Sparkles className="h-4 w-4" />
+                                      <span className="sr-only">
+                                        Apply {dayName}
+                                      </span>
                                     </Button>
                                   </div>
                                 </div>
-
-                                {items.length ? (
-                                  <div className="space-y-2">
-                                    {items.map((item) => (
-                                      <div
-                                        key={item.id}
-                                        className="rounded-2xl border border-border/70 bg-background/70 p-3"
-                                      >
-                                        <div className="flex items-start justify-between gap-3">
-                                          <div className="space-y-1">
-                                            <p className="text-sm font-medium">
-                                              {item.food.name}
-                                            </p>
-                                            <p className="text-xs text-muted-foreground">
-                                              {item.servings} x{" "}
-                                              {item.food.servingSize}
-                                              {item.food.servingUnit}
-                                              {" · "}
-                                              {Math.round(
-                                                item.food.calories *
-                                                  item.servings,
-                                              )}{" "}
-                                              kcal
-                                            </p>
-                                            {item.notes ? (
-                                              <p className="text-xs text-muted-foreground">
-                                                {item.notes}
-                                              </p>
-                                            ) : null}
-                                          </div>
-                                          <div className="flex gap-1">
-                                            <Button
-                                              variant="ghost"
-                                              size="icon"
-                                              className="h-8 w-8"
-                                              onClick={() =>
-                                                setEditingItem(item)
-                                              }
-                                            >
-                                              <Pencil className="h-4 w-4" />
-                                              <span className="sr-only">
-                                                Edit
-                                              </span>
-                                            </Button>
-                                            <Button
-                                              variant="ghost"
-                                              size="icon"
-                                              className="h-8 w-8 text-destructive hover:text-destructive"
-                                              disabled={
-                                                deleteItemMutation.isPending
-                                              }
-                                              onClick={() =>
-                                                deleteItemMutation.mutate(
-                                                  item.id,
-                                                )
-                                              }
-                                            >
-                                              <Trash2 className="h-4 w-4" />
-                                              <span className="sr-only">
-                                                Delete
-                                              </span>
-                                            </Button>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    ))}
-                                  </div>
-                                ) : (
-                                  <button
-                                    type="button"
-                                    className="w-full rounded-2xl border border-dashed border-border/80 px-3 py-4 text-left text-sm text-muted-foreground transition hover:border-primary/40 hover:bg-accent/30"
-                                    onClick={() =>
-                                      setAddItemState({
-                                        open: true,
-                                        dayOfWeek,
-                                        mealType,
-                                      })
-                                    }
-                                  >
-                                    Add a {mealLabels[mealType].toLowerCase()}{" "}
-                                    food
-                                  </button>
-                                )}
                               </div>
                             );
                           })}
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
+
+                          {mealOrder.map((mealType) => (
+                            <div key={mealType} className="contents">
+                              <div className="sticky left-0 z-10 border-border/70 border-r border-b bg-card/95 p-4">
+                                <Badge
+                                  variant="secondary"
+                                  className="rounded-full px-2.5 py-1"
+                                >
+                                  {mealLabels[mealType]}
+                                </Badge>
+                              </div>
+                              {dayNames.map((dayName, dayOfWeek) => (
+                                <MealCalendarCell
+                                  key={`${dayName}-${mealType}`}
+                                  mealType={mealType}
+                                  items={
+                                    itemsByDayAndMeal[dayOfWeek]?.[mealType] ??
+                                    []
+                                  }
+                                  planId={planData?.id}
+                                  isApplying={applyPlanMutation.isPending}
+                                  isDeleting={deleteItemMutation.isPending}
+                                  onAdd={() =>
+                                    setAddItemState({
+                                      open: true,
+                                      dayOfWeek,
+                                      mealType,
+                                    })
+                                  }
+                                  onApply={() =>
+                                    planData &&
+                                    applyPlanMutation.mutate({
+                                      planId: planData.id,
+                                      dayOfWeek,
+                                      mealType,
+                                    })
+                                  }
+                                  onEdit={setEditingItem}
+                                  onDelete={(itemId) =>
+                                    deleteItemMutation.mutate(itemId)
+                                  }
+                                />
+                              ))}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="p-4 lg:hidden">
+                        <Tabs
+                          value={selectedMobileDay}
+                          onValueChange={setSelectedMobileDay}
+                          className="space-y-4"
+                        >
+                          <TabsList className="grid h-auto w-full grid-cols-4 gap-1 rounded-2xl bg-muted/70 p-1 sm:grid-cols-7">
+                            {dayNames.map((dayName, dayOfWeek) => (
+                              <TabsTrigger
+                                key={dayName}
+                                value={String(dayOfWeek)}
+                                className="rounded-xl px-2 py-2 text-xs"
+                              >
+                                {dayName.slice(0, 3)}
+                              </TabsTrigger>
+                            ))}
+                          </TabsList>
+
+                          {dayNames.map((dayName, dayOfWeek) => {
+                            const stats = dayStats[dayOfWeek];
+
+                            return (
+                              <TabsContent
+                                key={dayName}
+                                value={String(dayOfWeek)}
+                                className="mt-0"
+                              >
+                                <section className="overflow-hidden rounded-[28px] border border-border/70 bg-card/90">
+                                  <div className="flex items-start justify-between gap-3 border-border/70 border-b p-4">
+                                    <div>
+                                      <h3 className="text-xl font-semibold tracking-tight">
+                                        {dayName}
+                                      </h3>
+                                      <p className="mt-1 text-sm text-muted-foreground">
+                                        {stats.mealCount} meals ·{" "}
+                                        {Math.round(stats.calories)} kcal
+                                      </p>
+                                    </div>
+                                    <div className="flex shrink-0 gap-1">
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-9 w-9 rounded-xl"
+                                        onClick={() =>
+                                          setDuplicateDay(dayOfWeek)
+                                        }
+                                      >
+                                        <Copy className="h-4 w-4" />
+                                        <span className="sr-only">
+                                          Duplicate {dayName}
+                                        </span>
+                                      </Button>
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-9 w-9 rounded-xl"
+                                        disabled={applyPlanMutation.isPending}
+                                        onClick={() =>
+                                          planData &&
+                                          applyPlanMutation.mutate({
+                                            planId: planData.id,
+                                            dayOfWeek,
+                                          })
+                                        }
+                                      >
+                                        <Sparkles className="h-4 w-4" />
+                                        <span className="sr-only">
+                                          Apply {dayName}
+                                        </span>
+                                      </Button>
+                                    </div>
+                                  </div>
+
+                                  <div className="space-y-3 p-4">
+                                    {mealOrder.map((mealType) => (
+                                      <MealCalendarCell
+                                        key={`${dayName}-${mealType}-mobile`}
+                                        mealType={mealType}
+                                        items={
+                                          itemsByDayAndMeal[dayOfWeek]?.[
+                                            mealType
+                                          ] ?? []
+                                        }
+                                        planId={planData?.id}
+                                        isApplying={applyPlanMutation.isPending}
+                                        isDeleting={
+                                          deleteItemMutation.isPending
+                                        }
+                                        mobile
+                                        onAdd={() =>
+                                          setAddItemState({
+                                            open: true,
+                                            dayOfWeek,
+                                            mealType,
+                                          })
+                                        }
+                                        onApply={() =>
+                                          planData &&
+                                          applyPlanMutation.mutate({
+                                            planId: planData.id,
+                                            dayOfWeek,
+                                            mealType,
+                                          })
+                                        }
+                                        onEdit={setEditingItem}
+                                        onDelete={(itemId) =>
+                                          deleteItemMutation.mutate(itemId)
+                                        }
+                                      />
+                                    ))}
+                                  </div>
+                                </section>
+                              </TabsContent>
+                            );
+                          })}
+                        </Tabs>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </div>
               )}
             </TabsContent>
@@ -776,10 +929,10 @@ export default function MealPlansPage() {
               {shoppingListQuery.isLoading ? (
                 <Skeleton className="h-[520px] rounded-3xl" />
               ) : shoppingList ? (
-                <div className="grid gap-4 xl:grid-cols-[0.7fr_1.3fr]">
+                <div className="grid gap-4 2xl:grid-cols-[420px_minmax(0,1fr)]">
                   <Card className="app-surface">
                     <CardHeader>
-                      <div className="flex items-center justify-between gap-3">
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <div>
                           <CardTitle className="flex items-center gap-2">
                             <ShoppingBasket className="h-5 w-5" />
@@ -799,7 +952,7 @@ export default function MealPlansPage() {
                         </Button>
                       </div>
                     </CardHeader>
-                    <CardContent className="space-y-4 text-sm">
+                    <CardContent className="space-y-5 text-sm">
                       <div className="grid gap-3 sm:grid-cols-2">
                         <StatChip
                           label="Planned meals"
@@ -828,7 +981,7 @@ export default function MealPlansPage() {
                         {shoppingList.byMealType.map((entry) => (
                           <div
                             key={entry.mealType}
-                            className="flex items-center justify-between rounded-xl border px-3 py-2"
+                            className="flex items-center justify-between rounded-2xl border px-3 py-3"
                           >
                             <span>{mealLabels[entry.mealType]}</span>
                             <span className="text-muted-foreground">
@@ -860,7 +1013,7 @@ export default function MealPlansPage() {
                       {shoppingList.items.map((item) => (
                         <div
                           key={item.foodId}
-                          className="rounded-2xl border border-border/70 bg-background/80 p-4"
+                          className="rounded-[24px] border border-border/70 bg-background/85 p-5"
                         >
                           <div className="flex flex-wrap items-start justify-between gap-3">
                             <div>
@@ -1019,6 +1172,173 @@ function StatChip({
       </div>
       <p className="mt-2 text-lg font-semibold">{value}</p>
     </div>
+  );
+}
+
+function MealCalendarCell({
+  mealType,
+  items,
+  planId,
+  isApplying,
+  isDeleting,
+  mobile = false,
+  onAdd,
+  onApply,
+  onEdit,
+  onDelete,
+}: {
+  mealType: MealType;
+  items: MealPlanItem[];
+  planId?: string;
+  isApplying: boolean;
+  isDeleting: boolean;
+  mobile?: boolean;
+  onAdd: () => void;
+  onApply: () => void;
+  onEdit: (item: MealPlanItem) => void;
+  onDelete: (itemId: string) => void;
+}) {
+  const isCompact = !mobile;
+
+  return (
+    <section
+      className={
+        mobile
+          ? "space-y-3 rounded-[24px] border border-border/70 bg-background/60 p-3"
+          : "min-h-[210px] space-y-3 border-border/70 border-r border-b bg-background/45 p-3 last:border-r-0"
+      }
+    >
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0 space-y-1">
+          {mobile ? (
+            <Badge variant="secondary" className="rounded-full px-2.5 py-1">
+              {mealLabels[mealType]}
+            </Badge>
+          ) : null}
+          <p className="text-xs text-muted-foreground">
+            {items.length
+              ? `${items.length} item${items.length === 1 ? "" : "s"}`
+              : "Empty slot"}
+          </p>
+        </div>
+        <div className="flex shrink-0 items-center gap-1">
+          <Button
+            variant="ghost"
+            size={isCompact ? "icon" : "sm"}
+            className={
+              isCompact ? "h-7 w-7 rounded-xl" : "h-8 rounded-xl px-2 text-xs"
+            }
+            disabled={!planId || !items.length || isApplying}
+            onClick={onApply}
+          >
+            {isCompact ? (
+              <>
+                <Sparkles className="h-3.5 w-3.5" />
+                <span className="sr-only">Apply {mealLabels[mealType]}</span>
+              </>
+            ) : (
+              "Apply"
+            )}
+          </Button>
+          <Button
+            variant="outline"
+            size={isCompact ? "icon" : "sm"}
+            className={
+              isCompact ? "h-7 w-7 rounded-xl" : "h-8 rounded-xl px-2 text-xs"
+            }
+            onClick={onAdd}
+          >
+            <Plus className={isCompact ? "h-3.5 w-3.5" : "mr-1 h-3.5 w-3.5"} />
+            {isCompact ? (
+              <span className="sr-only">Add {mealLabels[mealType]}</span>
+            ) : (
+              "Add"
+            )}
+          </Button>
+        </div>
+      </div>
+
+      {items.length ? (
+        <div className="space-y-2">
+          {items.map((item) => (
+            <div
+              key={item.id}
+              className={
+                isCompact
+                  ? "rounded-2xl border border-border/60 bg-card/95 p-2 shadow-sm"
+                  : "rounded-[18px] border border-border/60 bg-card/95 p-3 shadow-sm"
+              }
+            >
+              <div
+                className={
+                  isCompact
+                    ? "space-y-2"
+                    : "flex items-start justify-between gap-2"
+                }
+              >
+                <div className="min-w-0 space-y-1">
+                  <p className="truncate text-sm font-medium">
+                    {item.food.name}
+                  </p>
+                  <p className="truncate text-xs text-muted-foreground">
+                    {item.servings} x {item.food.servingSize}
+                    {item.food.servingUnit} ·{" "}
+                    {Math.round(item.food.calories * item.servings)} kcal
+                  </p>
+                  {item.notes && !isCompact ? (
+                    <p className="line-clamp-2 text-xs leading-5 text-muted-foreground">
+                      {item.notes}
+                    </p>
+                  ) : null}
+                </div>
+                <div
+                  className={
+                    isCompact ? "flex justify-end gap-1" : "flex shrink-0 gap-1"
+                  }
+                >
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 rounded-xl"
+                    onClick={() => onEdit(item)}
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                    <span className="sr-only">Edit</span>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 rounded-xl text-destructive hover:text-destructive"
+                    disabled={isDeleting}
+                    onClick={() => onDelete(item.id)}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                    <span className="sr-only">Delete</span>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <button
+          type="button"
+          className={
+            isCompact
+              ? "flex min-h-20 w-full flex-col justify-center rounded-[18px] border border-dashed border-border/80 px-3 py-3 text-left transition hover:border-primary/40 hover:bg-accent/30"
+              : "flex min-h-24 w-full flex-col justify-center rounded-[18px] border border-dashed border-border/80 px-3 py-4 text-left transition hover:border-primary/40 hover:bg-accent/30"
+          }
+          onClick={onAdd}
+        >
+          <span className="text-sm font-medium text-foreground">Add food</span>
+          {isCompact ? null : (
+            <span className="mt-1 text-xs leading-5 text-muted-foreground">
+              Fill this calendar slot.
+            </span>
+          )}
+        </button>
+      )}
+    </section>
   );
 }
 

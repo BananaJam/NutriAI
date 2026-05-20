@@ -76,6 +76,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       ? pageContent[pathname as keyof typeof pageContent]
       : undefined) ?? pageContent["/"];
   const compactMode = settingsData?.settings.compactMode ?? false;
+  const isWidePage = pathname === "/plans";
 
   useEffect(() => {
     if (!isPending && !user && !isAuthRoute) {
@@ -125,6 +126,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <main
           className={cn(
             "page-shell flex-1 overflow-auto",
+            isWidePage && "page-shell--wide",
             compactMode ? "px-4 py-5 sm:px-5" : "px-4 py-6 sm:px-6 sm:py-8",
           )}
         >

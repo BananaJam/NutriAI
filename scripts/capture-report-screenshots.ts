@@ -19,6 +19,13 @@ const pages = [
   {
     path: "/",
     file: "dashboard.png",
+    waitFor: async (page: Page) => {
+      await page.waitForSelector("text=Calories today", { timeout: 20_000 });
+      await page.waitForSelector("text=Range trends", { timeout: 20_000 });
+      await page.waitForSelector("text=Recent calorie trend", {
+        timeout: 20_000,
+      });
+    },
   },
   {
     path: "/log",
@@ -59,6 +66,28 @@ const pages = [
 
 function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function waitForPageReady(page: Page) {
+  await page.waitForLoadState("networkidle", { timeout: 20_000 }).catch(() => {
+    // Some pages keep lightweight background requests open in dev mode.
+  });
+
+  await page
+    .waitForFunction(
+      () => {
+        const loadingElements = document.querySelectorAll(
+          '[data-slot="skeleton"], .animate-pulse',
+        );
+        return loadingElements.length === 0;
+      },
+      { timeout: 20_000 },
+    )
+    .catch(() => {
+      // Route-specific waits below still guard the important screenshot state.
+    });
+
+  await delay(1_000);
 }
 
 async function waitForHealth(timeoutMs = 120_000) {
@@ -210,13 +239,15 @@ async function capturePages(page: Page) {
     await page.goto(`${baseUrl}${item.path}`, {
       waitUntil: "domcontentloaded",
     });
+    await waitForPageReady(page);
     if ("waitFor" in item && item.waitFor) {
       await item.waitFor(page);
     }
+    await waitForPageReady(page);
     await page.evaluate(() => {
       window.scrollTo(0, 0);
     });
-    await delay(3_500);
+    await delay(1_500);
 
     await page.screenshot({
       path: join(outputDir, item.file),

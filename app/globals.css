@@ -725,6 +725,10 @@
     @apply mx-auto w-full max-w-7xl;
   }
 
+  .page-shell--wide {
+    max-width: 1680px;
+  }
+
   .page-header {
     @apply flex flex-col gap-4 border-b border-border/70 pb-6 lg:flex-row lg:items-end lg:justify-between;
   }
