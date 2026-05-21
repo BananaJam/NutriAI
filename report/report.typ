@@ -951,124 +951,167 @@
   #bibliography("references.yml", title: none, style: "ieee")
 
   #pagebreak()
-  = Додаток А. Опис репозиторію та команд відтворення
+  = Додаток А. Інструкція запуску проєкту
 
   #no-indent[
-    Структура репозиторію NutriAI:
+    Додаток відповідає змісту файлу `README.md` і містить стислу інструкцію для локального запуску NutriAI.
   ]
 
-  + `app/` — сторінки та маршрути Next.js App Router;
-  + `app/api/[[...slugs]]/route.ts` — вхідна точка API у Next.js;
-  + `components/ui/` — базові UI-примітиви;
-  + `components/features/` — функціональні компоненти застосунку;
-  + `lib/` — клієнтські helper-модулі, API-клієнт і доменна аналітика;
-  + `server/` — серверний Elysia API;
-  + `server/routes/` — маршрути для продуктів, журналу, планів, цілей, профілю, налаштувань, чату та agent lab;
-  + `server/lib/` — серверні інтеграції для auth, session, Prisma та agent lab;
-  + `prisma/` — Prisma-схема і seed-логіка;
-  + `generated/prisma/` — згенерований Prisma Client;
-  + `scripts/` — сценарії demo-даних, скріншотів і benchmark-перевірок;
-  + `report/` — Typst-звіт, джерела, вимоги та демонстраційні матеріали;
-  + `report/assets/screenshots/` — скріншоти інтерфейсу;
-  + `public/` — статичні файли застосунку.
+  *Передумови запуску*:
 
-  #no-indent[
-    Основні команди для відтворення матеріалів пояснювальної записки:
-  ]
+  + встановлений Bun;
+  + доступний PostgreSQL;
+  + створений файл `.env` на основі `.env.example`;
+  + для AI-функцій — ключ провайдера моделі, наприклад `OPENAI_API_KEY`.
+
+  *Приклад локального `.env`*:
+
+  ```env
+  DATABASE_URL="postgresql://user:password@localhost:5432/nutriai"
+  NEXT_PUBLIC_APP_URL="http://localhost:3000"
+  AI_PROVIDER="openai"
+  OPENAI_API_KEY="your_api_key"
+  ```
+
+  *Команди запуску*:
 
   + `bun install` — встановлює залежності;
   + `bun run db:push` і `bun run db:generate` — синхронізують Prisma-схему та генерують клієнт;
+  + `bun run db:seed` — наповнює базу початковими даними;
   + `bun dev` — запускає застосунок локально;
+  + `bun run lint` — виконує перевірку Biome;
+  + `bun run build` — генерує Prisma Client і збирає production-версію;
   + `bun run report:seed` — формує demo-дані для бакалаврського звіту;
-  + `bun run report:screenshots` — запускає локальний застосунок, виконує вхід під demo-користувачем і створює скріншоти в `report/assets/screenshots/`, включно з маршрутом лабораторії агентних SDK;
-  + `bun run report:build` — компілює Typst-документ у `report/report.pdf`;
-  + `bun run lint` і `bun run build` — мінімальні перевірки якості коду проєкту.
+  + `bun run report:screenshots` — створює демонстраційні скріншоти;
+  + `bun run report:build` — компілює пояснювальну записку.
 
   #no-indent[
-    API-документація доступна після запуску застосунку за маршрутом `/api/docs`. Основні демонстраційні матеріали зберігаються в `report/assets/screenshots/`, а інструкції запуску і опис структури також продубльовано в `README.md`.
+    Після запуску застосунок доступний за адресою `http://localhost:3000`, а Swagger-документація API — за маршрутом `/api/docs`.
   ]
 
   #pagebreak()
-  = Додаток Б. Примітки щодо подальшого розвитку
+  = Додаток Б. Структура проєкту та модулів
 
-  + додати кількісні метрики до вже реалізованої лабораторії порівняння агентних SDK;
-  + додати автоматичну валідацію відповідей AI на контрольному наборі nutrition tasks;
-  + інтегрувати зовнішні каталоги продуктів або barcode lookup;
-  + посилити безпеку AI-дій за допомогою окремих шарів policy validation.
+  #no-indent[
+    Основні каталоги репозиторію та їх призначення:
+  ]
 
-  #pagebreak()
-  = Додаток В. Тестові випадки та результати перевірки
-
-  Основні тестові випадки та перевірки якості проєкту наведено у @tab-test-cases[таблиці].
+  + `app/` — маршрути Next.js App Router і сторінки застосунку;
+  + `app/api/[[...slugs]]/route.ts` — прокидання HTTP-запитів до Elysia API;
+  + `components/ui/` — базові UI-примітиви;
+  + `components/features/` — функціональні компоненти NutriAI;
+  + `lib/` — клієнтські helper-модулі, API-клієнт, аналітика, логіка цілей і планів;
+  + `server/index.ts` — композиція серверного API;
+  + `server/routes/` — групи API-маршрутів;
+  + `server/lib/` — серверні інтеграції для auth, session, Prisma та agent lab;
+  + `prisma/` — Prisma-схема і seed-логіка;
+  + `generated/prisma/` — згенерований Prisma Client;
+  + `scripts/` — сценарії для demo-даних, скріншотів і benchmark-перевірок;
+  + `report/` — Typst-звіт, список джерел, вимоги й демонстраційні матеріали;
+  + `public/` — статичні файли.
 
   #simple-table(
-    4,
+    3,
     (
-      [*Перевірка*],
-      [*Мета*],
-      [*Очікуваний результат*],
-      [*Стан*],
-      [`lib/nutrition-analytics.test.ts`],
-      [Перевірити агрегування калорій, макронутрієнтів і денних підсумків],
-      [Функції повертають коректні значення для контрольних наборів записів],
-      [Реалізовано],
-      [`lib/goals.test.ts`],
-      [Перевірити розрахунок прогресу цілей і статусів виконання],
-      [Цільові значення, відсотки та статуси не регресують після змін],
-      [Реалізовано],
-      [`lib/meal-plan.test.ts`],
-      [Перевірити тижневе планування, групування елементів і повторне використання планів],
-      [План коректно формується за днями тижня і типами прийому їжі],
-      [Реалізовано],
-      [`lib/food-catalog.test.ts`],
-      [Перевірити пошук, фільтрацію та обробку елементів каталогу продуктів],
-      [Каталог повертає очікувані продукти та підтримує стабільні фільтри],
-      [Реалізовано],
-      [`bun run lint`],
-      [Перевірити форматування, імпорти й базові правила якості коду],
-      [Biome завершується без помилок перед поданням],
-      [Команда для фінальної перевірки],
-      [`bun run build`],
-      [Перевірити генерацію Prisma Client і production-збірку Next.js],
-      [Застосунок збирається без TypeScript і build-помилок],
-      [Команда для фінальної перевірки],
+      [*Модуль*],
+      [*Ключові файли*],
+      [*Відповідальність*],
+      [Інтерфейс],
+      [`app/`, `components/features/`, `components/ui/`],
+      [Сторінки, форми, таблиці, діалоги, dashboard і чат],
+      [API],
+      [`server/index.ts`, `server/routes/*`],
+      [Маршрути Elysia, авторизація, валідація, CRUD-операції],
+      [Дані],
+      [`prisma/schema.prisma`, `server/lib/prisma.ts`],
+      [Опис доменної моделі та доступ до PostgreSQL],
+      [Аналітика],
+      [`lib/nutrition-analytics.ts`, `lib/goals.ts`, `lib/meal-plan.ts`],
+      [Підсумки калорій, статистика, прогрес цілей, планування],
+      [AI],
+      [`server/routes/chat.ts`, `server/lib/agent-lab.ts`],
+      [Tool calling, AI-чат, порівняння агентних SDK],
+      [Документація],
+      [`README.md`, `report/report.typ`, `report/references.yml`],
+      [Запуск, пояснювальна записка, джерела],
     ),
-    [Перелік основних тестових випадків і перевірок якості проєкту.],
-    ref-label: "tab-test-cases",
+    [Структура основних модулів проєкту NutriAI.],
+    ref-label: "tab-appendix-modules",
   )
 
-  #no-indent[
-    Для відтворення тестування достатньо встановити залежності через Bun, підготувати локальні змінні середовища та виконати `bun test`, `bun run lint` і `bun run build`. Для перевірки демонстраційних матеріалів використовується `bun run report:screenshots`, який створює контрольні знімки інтерфейсу після наповнення demo-даними.
-  ]
-
   #pagebreak()
-  = Додаток Г. Графічні та демонстраційні матеріали
+  = Додаток В. Фрагменти програмного коду
 
   #no-indent[
-    До складу демонстраційних матеріалів входять знімки ключових сторінок застосунку, ER-діаграма доменної моделі, схема загальної архітектури та схема обробки AI-запиту. Усі зображення, використані в роботі, зберігаються в каталозі `report/assets/screenshots/`, а діаграми генеруються безпосередньо з Typst-джерела за допомогою текстового опису.
+    У додатку наведено скорочені фрагменти коду, які демонструють ключові технічні рішення. Повні файли доступні у репозиторії.
   ]
 
-  + `dashboard.png` — головна панель щоденного прогресу;
-  + `food-log.png` — журнал фактичного харчування;
-  + `meal-plans.png` — тижневе планування раціону;
-  + `foods.png` — каталог продуктів;
-  + `goals.png` — сторінка цілей;
-  + `profile.png` — профіль користувача;
-  + `assistant.png` — AI-асистент;
-  + `assistant-lab.png` — лабораторія порівняння агентних SDK.
+  *Фрагмент В.1 — підсумовування харчових показників у `lib/nutrition-analytics.ts`:*
 
-  #pagebreak()
-  = Додаток Д. Декларація академічної доброчесності та використання AI
+  ```ts
+  export function sumNutritionTotals(items: NutritionItem[]) {
+    return items.reduce(
+      (totals, item) => {
+        const servings = item.servings ?? 1;
+        totals.calories += item.food.calories * servings;
+        totals.protein += item.food.protein * servings;
+        totals.carbs += item.food.carbs * servings;
+        totals.fat += item.food.fat * servings;
+        return totals;
+      },
+      { calories: 0, protein: 0, carbs: 0, fat: 0 },
+    );
+  }
+  ```
 
-  #no-indent[
-    Під час підготовки кваліфікаційної роботи використано зовнішні джерела, перелічені у списку використаних джерел, а також документацію технологій, на яких побудовано застосунок. Запозичені ідеї, архітектурні підходи, алгоритми, стандарти та документаційні матеріали позначено посиланнями в тексті роботи.
-  ]
+  *Фрагмент В.2 — захист API-маршруту через сесію в `server/routes/food-logs.ts`:*
 
-  #no-indent[
-    AI-інструменти могли використовуватися як допоміжний засіб для редагування формулювань, перевірки структури пояснювальної записки, генерації чернеток окремих описових фрагментів і пошуку слабких місць у викладі. Остаточні архітектурні рішення, програмна реалізація, тестові сценарії, зміст висновків і відповідальність за достовірність матеріалів належать автору роботи.
-  ]
+  ```ts
+  .post("/:date/items", async ({ params, request, body, set }) => {
+    const session = await requireRequestSession(request, set);
+    if (!session) return { message: "Unauthorized" };
 
-  #no-indent[
-    Використання AI не замінює цитування першоджерел. Усі твердження, що спираються на документацію, стандарти, статті або зовнішні програмні продукти, мають супроводжуватися посиланнями. У разі фінального подання роботи цю декларацію потрібно узгодити з кафедральною формою, якщо така форма буде надана окремо.
-  ]
+    const log = await prisma.foodLog.upsert({
+      where: { userId_date: { userId: session.user.id, date: new Date(params.date) } },
+      create: { userId: session.user.id, date: new Date(params.date) },
+      update: {},
+    });
+
+    const item = await prisma.foodLogItem.create({
+      data: { foodLogId: log.id, foodId: body.foodId, mealType: body.mealType },
+    });
+    return { item };
+  })
+  ```
+
+  *Фрагмент В.3 — опис інструменту AI-асистента у `server/routes/chat.ts`:*
+
+  ```ts
+  searchFoods: tool({
+    description: "Search foods in the user's catalog",
+    parameters: jsonSchema(searchFoodsSchema),
+    execute: async ({ query, limit }) => {
+      const foods = await prisma.food.findMany({
+        where: buildFoodCatalogWhere({ search: query }),
+        take: limit ?? 5,
+      });
+      return { foods };
+    },
+  })
+  ```
+
+  *Фрагмент В.4 — API-композиція у `server/index.ts`:*
+
+  ```ts
+  export const api = new Elysia({ prefix: "/api" })
+    .use(swagger({ path: "/docs" }))
+    .get("/health", () => ({ status: "healthy" }))
+    .all("/auth/*", async ({ request }) => auth.handler(request))
+    .use(foodsRoutes)
+    .use(foodLogsRoutes)
+    .use(mealPlansRoutes)
+    .use(goalsRoutes)
+    .use(chatRoutes);
+  ```
+
 ]

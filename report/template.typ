@@ -1,4 +1,6 @@
 #import "@preview/pintorita:0.1.4"
+#import "@preview/codly:1.3.0": *
+#import "@preview/codly-languages:0.1.10": *
 
 #let student-name = "Вибираний Владислав"
 #let student-group = "ФеІ – 42"
@@ -21,7 +23,14 @@
     lang: "uk",
   )
 
-  show raw: set text(font: "Times New Roman", size: 14pt)
+  show raw.where(block: true): set text(size: 9pt)
+  show raw.where(block: false): set text(font: "Times New Roman", size: 14pt)
+
+  show: codly-init.with()
+
+  codly(
+    languages: codly-languages,
+  )
 
   set page(
     paper: "a4",
