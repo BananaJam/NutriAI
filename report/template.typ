@@ -1,12 +1,12 @@
 #import "@preview/pintorita:0.1.4"
 
 #let student-name = "Вибираний Владислав"
-#let student-group = "ФЕІ-42"
+#let student-group = "ФеІ – 42"
 #let supervisor-name = "доц. Стахіра Р. Й."
 #let reviewer-name = ""
 #let department-head-name = "доц. Шувар Р. Я."
 #let specialty-code = "F3"
-#let specialty-name = "Компʼютерні науки"
+#let specialty-name = "Комп’ютерні науки"
 #let university-name = "Львівський національний університет імені Івана Франка"
 #let faculty-name = "Факультет електроніки та комп'ютерних технологій"
 #let department-name = "Кафедра системного проектування"
@@ -161,35 +161,36 @@
 ]
 
 #let title-page() = [
+  #set par(first-line-indent: 0pt, justify: false)
+
   #align(center)[
-    *МІНІСТЕРСТВО ОСВІТИ І НАУКИ УКРАЇНИ* #linebreak()
-    *#university-name* #linebreak()
-    *#faculty-name* #linebreak()
+    Міністерство освіти і науки України #linebreak()
+    #university-name #linebreak()
+    #faculty-name #linebreak()
     #department-name
   ]
 
-  #v(88pt)
+  #v(160pt)
 
   #align(center)[
-    #text(size: 20pt)[*Бакалаврська робота*] #linebreak()
-    «#topic» #linebreak()
+    #text(weight: "bold")[Бакалаврська робота] #linebreak()
+    «#topic»
   ]
 
   #v(72pt)
 
   #align(right)[
-    *Виконав:* #linebreak()
+    Виконав: #linebreak()
     студент групи #student-group #linebreak()
     спеціальності #specialty-code #specialty-name #linebreak()
-    #sign-row(width: 3cm) #student-name #linebreak()
-    #v(0.8em)
-    *Науковий керівник:* #linebreak()
-    #supervisor-name #sign-row() #linebreak()
-    «...» ............ #defense-year р. #linebreak()
+    #underline(2cm) #student-name #linebreak()
+    Науковий керівник: #linebreak()
+    #underline(2cm) #supervisor-name #linebreak()
+    «#underline(1cm)» #underline(3.2cm) #defense-year р.
   ]
 
   #align(center + bottom)[
-    #city #defense-year
+    #text(weight: "bold")[#city #defense-year]
   ]
 ]
 
