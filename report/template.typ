@@ -5,7 +5,7 @@
 #let supervisor-name = "доц. Стахіра Р. Й."
 #let reviewer-name = ""
 #let department-head-name = "доц. Шувар Р. Я."
-#let specialty-code = "122"
+#let specialty-code = "F3"
 #let specialty-name = "Компʼютерні науки"
 #let university-name = "Львівський національний університет імені Івана Франка"
 #let faculty-name = "Факультет електроніки та комп'ютерних технологій"
@@ -27,6 +27,7 @@
   set page(
     paper: "a4",
     margin: (top: 20mm, bottom: 20mm, left: 20mm, right: 10mm),
+    numbering: none,
   )
 
   set par(
@@ -80,9 +81,21 @@
   #body
 ]
 
-#let screenshot(path, caption) = figure(
-  image(path, width: 100%),
-  caption: [#caption],
+#let with-label(element, ref-label) = {
+  if ref-label == none {
+    element
+  } else {
+    [#element #label(ref-label)]
+  }
+}
+
+#let screenshot(path, caption, ref-label: none) = with-label(
+  figure(
+    image(path, width: 100%),
+    caption: [#caption],
+    supplement: [Рисунок],
+  ),
+  ref-label,
 )
 
 #let to-string(it) = {
@@ -101,25 +114,33 @@
   }
 }
 
-#let diagram(source, caption) = figure(
-  pintorita.render(
-    to-string(source),
-    style: "default",
-    font: "Times New Roman",
-    width: 100%,
+#let diagram(source, caption, ref-label: none) = with-label(
+  figure(
+    pintorita.render(
+      to-string(source),
+      style: "default",
+      font: "Times New Roman",
+      width: 100%,
+    ),
+    caption: [#caption],
+    supplement: [Рисунок],
   ),
-  caption: [#caption],
+  ref-label,
 )
 
-#let simple-table(columns, rows, caption) = figure(
-  table(
-    columns: columns,
-    inset: 6pt,
-    stroke: 0.6pt + rgb("#777777"),
-    align: left + horizon,
-    ..rows,
+#let simple-table(columns, rows, caption, ref-label: none) = with-label(
+  figure(
+    table(
+      columns: columns,
+      inset: 6pt,
+      stroke: 0.6pt + rgb("#777777"),
+      align: left + horizon,
+      ..rows,
+    ),
+    caption: [#caption],
+    supplement: [Таблиця],
   ),
-  caption: [#caption],
+  ref-label,
 )
 
 #let underline(width) = box(
@@ -147,39 +168,24 @@
     #department-name
   ]
 
-  #v(34pt)
-
-  #align(right)[
-    Допустити до захисту #linebreak()
-    Завідувач кафедри #linebreak()
-    #department-head-name #sign-row() #linebreak()
-    «...» ............ #defense-year р.
-  ]
-
-  #v(82pt)
+  #v(88pt)
 
   #align(center)[
-    #text(size: 20pt)[*Кваліфікаційна робота*] #linebreak()
-    #text(size: 16pt)[*Бакалавр*] #linebreak()
-    #topic #linebreak()
+    #text(size: 20pt)[*Бакалаврська робота*] #linebreak()
+    «#topic» #linebreak()
   ]
 
-  #v(38pt)
+  #v(72pt)
 
   #align(right)[
     *Виконав:* #linebreak()
     студент групи #student-group #linebreak()
-    спеціальності #linebreak()
-    #specialty-code #specialty-name #linebreak()
-    #student-name #linebreak()
+    спеціальності #specialty-code #specialty-name #linebreak()
+    #sign-row(width: 3cm) #student-name #linebreak()
     #v(0.8em)
     *Науковий керівник:* #linebreak()
     #supervisor-name #sign-row() #linebreak()
     «...» ............ #defense-year р. #linebreak()
-    #v(0.8em)
-    *Рецензент:* #linebreak()
-    #reviewer-name #sign-row() #linebreak()
-    #reviewer-name
   ]
 
   #align(center + bottom)[
@@ -218,7 +224,7 @@
     керівник роботи #supervisor-name, #linebreak()
     затверджена Вченою радою факультету від «...» ............ 20.. року № #approval-order. #linebreak()
     2. Строк подання студентом роботи #submission-date. #linebreak()
-    3. Вихідні дані до роботи: репозиторій NutriAI, вимоги до кваліфікаційних робіт спеціальності 121 «Інженерія програмного забезпечення», сучасні підходи до побудови AI-асистентів, фреймворки для веб-розробки та доменна модель систем планування харчування. #linebreak()
+    3. Вихідні дані до роботи: репозиторій NutriAI, вимоги до кваліфікаційних робіт спеціальності #specialty-code «#specialty-name», сучасні підходи до побудови AI-асистентів, фреймворки для веб-розробки та доменна модель систем планування харчування. #linebreak()
     4. Зміст розрахунково-пояснювальної записки: аналіз предметної області персоналізованого харчування; моделювання структури даних для профілю, продуктів, планів харчування, журналу споживання та цілей; опис математичного забезпечення обчислення калорійності, макронутрієнтів та аналітики; розробка архітектури веб-застосунку NutriAI; реалізація AI-модуля з викликом інструментів; підготовка сценарію відтворюваних скріншотів і документування результатів. #linebreak()
     5. Перелік графічного матеріалу: архітектурна схема застосунку; схема обробки AI-запиту; схема моделі даних; скріншоти ключових сторінок інтерфейсу; таблиці порівняння агентних підходів.
   ]

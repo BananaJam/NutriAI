@@ -110,3 +110,203 @@ software-architecture:
     - "Neal Ford"
   date: 2020
   publisher: O'Reilly Media
+
+react-docs:
+  type: web
+  title: "React Documentation"
+  author: Meta
+  url:
+    value: https://react.dev/
+    date: 2026-04-18
+
+typescript-docs:
+  type: web
+  title: "TypeScript Documentation"
+  author: Microsoft
+  url:
+    value: https://www.typescriptlang.org/docs/
+    date: 2026-04-18
+
+tailwind-docs:
+  type: web
+  title: "Tailwind CSS Documentation"
+  author: Tailwind Labs
+  url:
+    value: https://tailwindcss.com/docs
+    date: 2026-04-18
+
+react-hook-form-docs:
+  type: web
+  title: "React Hook Form Documentation"
+  author: React Hook Form
+  url:
+    value: https://react-hook-form.com/
+    date: 2026-04-18
+
+zod-docs:
+  type: web
+  title: "Zod Documentation"
+  author: Zod
+  url:
+    value: https://zod.dev/
+    date: 2026-04-18
+
+postgres-docs:
+  type: web
+  title: "PostgreSQL Documentation"
+  author: PostgreSQL Global Development Group
+  url:
+    value: https://www.postgresql.org/docs/
+    date: 2026-04-18
+
+openapi-spec:
+  type: web
+  title: "OpenAPI Specification"
+  author: OpenAPI Initiative
+  url:
+    value: https://spec.openapis.org/oas/latest.html
+    date: 2026-04-18
+
+owasp-llm-top10:
+  type: web
+  title: "OWASP Top 10 for Large Language Model Applications"
+  author: OWASP Foundation
+  url:
+    value: https://owasp.org/www-project-top-10-for-large-language-model-applications/
+    date: 2026-04-18
+
+owasp-asvs:
+  type: web
+  title: "Application Security Verification Standard"
+  author: OWASP Foundation
+  url:
+    value: https://owasp.org/www-project-application-security-verification-standard/
+    date: 2026-04-18
+
+gdpr:
+  type: web
+  title: "Regulation (EU) 2016/679"
+  author: European Parliament and Council of the European Union
+  url:
+    value: https://eur-lex.europa.eu/eli/reg/2016/679/oj
+    date: 2026-04-18
+
+ukraine-personal-data-law:
+  type: web
+  title: "Закон України Про захист персональних даних"
+  author: Верховна Рада України
+  url:
+    value: https://zakon.rada.gov.ua/laws/show/2297-17
+    date: 2026-04-18
+
+mifflin-st-jeor:
+  type: web
+  title: "A new predictive equation for resting energy expenditure in healthy individuals"
+  author:
+    - "M. D. Mifflin"
+    - "S. T. St Jeor"
+    - "L. A. Hill"
+    - "B. J. Scott"
+    - "S. A. Daugherty"
+    - "Y. O. Koh"
+  date: 1990
+  url:
+    value: https://pubmed.ncbi.nlm.nih.gov/2305711/
+    date: 2026-04-18
+
+harris-benedict:
+  type: web
+  title: "A Biometric Study of Human Basal Metabolism"
+  author:
+    - "J. A. Harris"
+    - "F. G. Benedict"
+  date: 1919
+  url:
+    value: https://archive.org/details/biometricstudyof00harruoft
+    date: 2026-04-18
+
+clean-architecture:
+  type: book
+  title: "Clean Architecture"
+  author: "Robert C. Martin"
+  date: 2017
+  publisher: Prentice Hall
+
+domain-driven-design:
+  type: book
+  title: "Domain-Driven Design"
+  author: "Eric Evans"
+  date: 2003
+  publisher: Addison-Wesley
+
+iso-25010:
+  type: web
+  title: "ISO/IEC 25010: Systems and software Quality Requirements and Evaluation"
+  author: ISO
+  url:
+    value: https://iso25000.com/index.php/en/iso-25000-standards/iso-25010
+    date: 2026-04-18
+
+myfitnesspal:
+  type: web
+  title: "MyFitnessPal"
+  author: MyFitnessPal
+  url:
+    value: https://www.myfitnesspal.com/
+    date: 2026-04-18
+
+cronometer:
+  type: web
+  title: "Cronometer"
+  author: Cronometer
+  url:
+    value: https://cronometer.com/
+    date: 2026-04-18
+
+yazio:
+  type: web
+  title: "YAZIO"
+  author: YAZIO
+  url:
+    value: https://www.yazio.com/
+    date: 2026-04-18
+
+lifesum:
+  type: web
+  title: "Lifesum"
+  author: Lifesum
+  url:
+    value: https://lifesum.com/
+    date: 2026-04-18
+
+bun-test-docs:
+  type: web
+  title: "Bun Test Runner"
+  author: Oven
+  url:
+    value: https://bun.sh/docs/cli/test
+    date: 2026-04-18
+
+biome-docs:
+  type: web
+  title: "Biome Documentation"
+  author: Biome
+  url:
+    value: https://biomejs.dev/guides/getting-started/
+    date: 2026-04-18
+
+playwright-docs:
+  type: web
+  title: "Playwright Documentation"
+  author: Microsoft
+  url:
+    value: https://playwright.dev/docs/intro
+    date: 2026-04-18
+
+vercel-ai-sdk-docs:
+  type: web
+  title: "Vercel AI SDK Documentation"
+  author: Vercel
+  url:
+    value: https://sdk.vercel.ai/docs
+    date: 2026-04-18
