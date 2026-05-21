@@ -13,9 +13,6 @@
 #let topic = "Розробка моделі планування харчування та моніторингу споживання калорій для AI-асистента"
 #let city = "Львів"
 #let defense-year = "2026"
-#let approval-order = "____________"
-#let approval-date = "____________"
-#let submission-date = "____________"
 
 #let report-template(body) = {
   set text(
@@ -145,7 +142,7 @@
 
 #let underline(width) = box(
   width: width,
-  height: 1.1em,
+  height: 0.5em,
   inset: 0pt,
   stroke: (bottom: 0.7pt + black),
 )[]
@@ -170,7 +167,7 @@
     #department-name
   ]
 
-  #v(160pt)
+  #v(200pt)
 
   #align(center)[
     #text(weight: "bold")[Бакалаврська робота] #linebreak()
@@ -192,6 +189,13 @@
   #align(center + bottom)[
     #text(weight: "bold")[#city #defense-year]
   ]
+]
+
+#let annotation-page(title, body) = [
+  #block-title([#title])
+  #v(1em)
+  #no-indent[#body]
+  #v(1em)
 ]
 
 #let abbreviations-page() = [
