@@ -32,16 +32,26 @@
 
 ---
 
-## 🧱 Опис основних класів / файлів
+## 🧱 Структура репозиторію
 
-| Клас / Файл     | Призначення |
+| Каталог / файл | Призначення |
 |----------------|-------------|
-| `server/index.ts` | Точка входу backend API (Elysia) |
-| `prisma/schema.prisma` | Опис моделі даних та зв'язків у БД |
-| `app/page.tsx` | Головна сторінка Dashboard (frontend) |
-| `lib/api.ts` | Клієнт для типізованої взаємодії з API |
-| `server/routes/chat.ts` | Логіка обробки AI-запитів та AI-агента |
-| `components/features/food-log.tsx` | Компонент щоденного журналу харчування |
+| `app/` | Маршрути Next.js App Router: Dashboard, Food Log, Plans, Goals, Profile, Assistant, Settings та auth-сторінки |
+| `app/api/[[...slugs]]/route.ts` | Вхідна точка Next.js API route, яка прокидує запити до Elysia API |
+| `components/ui/` | Базові UI-примітиви: кнопки, діалоги, картки, tabs, sidebar, tooltip тощо |
+| `components/features/` | Функціональні компоненти продукту: форми, журнал харчування, meal plans, assistant lab, auth UI |
+| `lib/` | Клієнтські helper-модулі, типізований API-клієнт, аналітика харчування, логіка цілей, meal plans і settings |
+| `server/` | Серверна частина застосунку на Elysia |
+| `server/routes/` | API-маршрути для foods, food logs, meal plans, goals, profile, settings, chat і assistant lab |
+| `server/lib/` | Серверні інтеграції: auth, session, Prisma client, agent lab execution |
+| `prisma/` | Основна Prisma-схема та seed-скрипт |
+| `generated/prisma/` | Згенерований Prisma Client; не редагується вручну |
+| `scripts/` | Допоміжні сценарії: demo seed, screenshots для звіту, agent benchmark |
+| `report/` | Typst-звіт, bibliography, вимоги та демонстраційні матеріали |
+| `report/assets/screenshots/` | Скріншоти інтерфейсу для пояснювальної записки |
+| `public/` | Статичні assets Next.js |
+
+Основні файли входу: `app/page.tsx` для Dashboard, `server/index.ts` для Elysia API, `prisma/schema.prisma` для моделі даних, `lib/api.ts` для типізованого клієнта та `server/routes/chat.ts` для AI-асистента.
 
 ---
 
@@ -96,6 +106,22 @@ bun dev
 
 ## 🔌 API приклади
 
+Документація API доступна після запуску застосунку за адресою:
+
+- Swagger UI: [http://localhost:3000/api/docs](http://localhost:3000/api/docs)
+- Health check: `GET /api/health`
+
+Основні групи API-маршрутів:
+
+- `GET/POST /api/foods`, `PUT/DELETE /api/foods/:id` — каталог продуктів;
+- `GET /api/food-logs`, `GET /api/food-logs/:date`, `POST /api/food-logs/:date/items`, `PATCH/DELETE /api/food-logs/items/:itemId` — журнал харчування;
+- `GET/POST /api/meal-plans`, `PUT/DELETE /api/meal-plans/:id` — плани харчування;
+- `GET/POST /api/goals`, `PUT/DELETE /api/goals/:id` — цілі користувача;
+- `GET/PUT /api/profile`, `GET /api/profile/stats` — профіль і статистика;
+- `GET/PUT /api/settings` — налаштування;
+- `GET/POST /api/chat/conversations` і `POST /api/chat/conversations/:id/messages` — AI-чат;
+- `GET/POST /api/chat-lab/runs` — лабораторія агентних SDK.
+
 ### 📊 Статистика профілю
 
 **GET /api/profile/stats**
@@ -106,14 +132,14 @@ bun dev
 
 ### 🥗 Журнал харчування
 
-**POST /api/food-logs**
+**POST /api/food-logs/:date/items**
 
 ```json
 {
   "foodId": "uuid",
-  "servingSize": 100,
-  "mealType": "breakfast",
-  "loggedAt": "2026-05-20T08:00:00Z"
+  "mealType": "BREAKFAST",
+  "servings": 1,
+  "notes": "Logged from README example"
 }
 ```
 
@@ -170,4 +196,3 @@ bun dev
 - [WHO: Healthy Diet](https://www.who.int/news-room/fact-sheets/detail/healthy-diet)
 
 ---
-## Screenshots
