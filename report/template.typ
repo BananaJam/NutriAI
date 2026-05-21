@@ -21,6 +21,8 @@
     lang: "uk",
   )
 
+  show raw: set text(font: "Times New Roman", size: 14pt)
+
   set page(
     paper: "a4",
     margin: (top: 20mm, bottom: 20mm, left: 20mm, right: 10mm),
