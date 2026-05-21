@@ -545,7 +545,7 @@
         RQ [label="React Query + форми"]
         API [label="Elysia API / server routes"]
         AUTH [label="Better Auth"]
-        TOOLS [label="AI-інструменти\n+ аналітика харчування"]
+        TOOLS [label="AI-інструменти + аналітика харчування"]
         DB [label="Prisma ORM"]
         PG [label="PostgreSQL"]
         PAGES [label="Головна панель / Продукти / Журнал / Плани / Цілі / Профіль / Асистент"]
@@ -685,14 +685,14 @@
 
         USER [label="Запит користувача"]
         CHAT [label="Інтерфейс чату"]
-        ROUTE [label="Маршрут\n/api/chat"]
-        CTX [label="Системний контекст\nпрофіль + цілі + історія"]
+        ROUTE [label="Маршрут /api/chat"]
+        CTX [label="Системний контекст профіль + цілі + історія"]
         LLM [label="LLM"]
         DECISION [label="Потрібен інструмент?", shape="diamond", style="filled", fillcolor="#FFF4D6", color="#8A6B22"]
         TOOLS [label="Реєстр інструментів"]
-        DATA [label="Prisma\n+ аналітика харчування"]
+        DATA [label="Prisma + аналітика харчування"]
         RESULT [label="Результат інструменту"]
-        SAVE [label="Збереження повідомлень\n+ активності інструментів"]
+        SAVE [label="Збереження повідомлень + активності інструментів"]
         UI [label="Відповідь в UI"]
 
         USER -> CHAT
