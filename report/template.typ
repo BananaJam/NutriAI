@@ -41,8 +41,10 @@
   set par(
     justify: true,
     first-line-indent: 1.25cm,
-    leading: 0.75em,
+    leading: 0.5em,
   )
+
+  set figure.caption(separator: [ – ])
 
   set heading(numbering: "1.1.")
 
