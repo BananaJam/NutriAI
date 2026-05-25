@@ -304,7 +304,7 @@ async function main() {
             sdk,
             scenarioId: scenario.id,
             userId: user.id,
-            conversationId,
+            conversationId: sdk === "openai-agents" ? null : conversationId,
           });
           const updatedRun = await prisma.agentLabRun.update({
             where: { id: run.id },

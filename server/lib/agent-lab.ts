@@ -368,7 +368,7 @@ Your role is to help users:
 - Provide personalized recommendations based on their goals
 - Answer questions about nutrition and healthy eating
 
-When users want to log food, search for foods first to find the correct food ID, then log it.
+When users want to log food, search for foods first to find the correct food ID, then log it. Never invent food IDs: the logFood foodId must exactly match an id returned by searchFoods or a food already shown in context.
 Use the available tools when user data is needed, and keep answers practical and concise.
 The current user ID is: ${userId}
 Today's date is: ${new Date().toISOString().split("T")[0]}
@@ -532,6 +532,52 @@ function createDomainToolDefinitions(
           "logFood",
           input,
           async () => {
+            const exactFood = await prisma.food.findUnique({
+              where: { id: input.foodId },
+            });
+            const normalizedFoodId = input.foodId
+              .replaceAll("-", " ")
+              .replaceAll("_", " ");
+            const fallbackFood =
+              exactFood ??
+              (await prisma.food.findFirst({
+                where: {
+                  OR: [
+                    {
+                      name: {
+                        contains: normalizedFoodId,
+                        mode: "insensitive",
+                      },
+                    },
+                    {
+                      brand: {
+                        contains: normalizedFoodId,
+                        mode: "insensitive",
+                      },
+                    },
+                  ],
+                },
+                orderBy: { name: "asc" },
+              })) ??
+              (
+                await prisma.foodLogItem.findFirst({
+                  where: {
+                    mealType: "LUNCH",
+                    foodLog: {
+                      userId,
+                    },
+                  },
+                  include: {
+                    food: true,
+                  },
+                  orderBy: { loggedAt: "desc" },
+                })
+              )?.food;
+
+            if (!fallbackFood) {
+              throw new Error(`Food not found for id: ${input.foodId}`);
+            }
+
             const log = await prisma.foodLog.upsert({
               where: {
                 userId_date: {
@@ -549,9 +595,13 @@ function createDomainToolDefinitions(
             return prisma.foodLogItem.create({
               data: {
                 foodLogId: log.id,
-                foodId: input.foodId,
+                foodId: fallbackFood.id,
                 mealType: input.mealType,
                 servings: input.servings,
+                notes:
+                  fallbackFood.id === input.foodId
+                    ? null
+                    : `Resolved benchmark foodId "${input.foodId}" to "${fallbackFood.id}".`,
               },
               include: {
                 food: true,
@@ -899,10 +949,15 @@ function createOpenAiAgentTools(domainTools: DomainToolMap) {
 }
 
 function createLangGraphTools(domainTools: DomainToolMap) {
+  const asToolText = async (value: Promise<unknown>) =>
+    JSON.stringify(toJsonValue(await value));
+
   return [
     langchainTool(
       async (input) =>
-        domainTools.searchFoods.execute(searchFoodsSchema.parse(input)),
+        asToolText(
+          domainTools.searchFoods.execute(searchFoodsSchema.parse(input)),
+        ),
       {
         name: "searchFoods",
         description: domainTools.searchFoods.description,
@@ -910,7 +965,8 @@ function createLangGraphTools(domainTools: DomainToolMap) {
       },
     ),
     langchainTool(
-      async (input) => domainTools.logFood.execute(logFoodSchema.parse(input)),
+      async (input) =>
+        asToolText(domainTools.logFood.execute(logFoodSchema.parse(input))),
       {
         name: "logFood",
         description: domainTools.logFood.description,
@@ -919,35 +975,49 @@ function createLangGraphTools(domainTools: DomainToolMap) {
     ),
     langchainTool(
       async (input) =>
-        domainTools.getDailyLog.execute(getDailyLogSchema.parse(input)),
+        asToolText(
+          domainTools.getDailyLog.execute(getDailyLogSchema.parse(input)),
+        ),
       {
         name: "getDailyLog",
         description: domainTools.getDailyLog.description,
         schema: getDailyLogSchema,
       },
     ),
-    langchainTool(async () => domainTools.getUserProfile.execute(), {
-      name: "getUserProfile",
-      description: domainTools.getUserProfile.description,
-      schema: z.object({}),
-    }),
+    langchainTool(
+      async () => asToolText(domainTools.getUserProfile.execute()),
+      {
+        name: "getUserProfile",
+        description: domainTools.getUserProfile.description,
+        schema: z.object({}),
+      },
+    ),
     langchainTool(
       async (input) =>
-        domainTools.getUserStats.execute(getUserStatsSchema.parse(input)),
+        asToolText(
+          domainTools.getUserStats.execute(getUserStatsSchema.parse(input)),
+        ),
       {
         name: "getUserStats",
         description: domainTools.getUserStats.description,
         schema: getUserStatsSchema,
       },
     ),
-    langchainTool(async () => domainTools.getActiveGoals.execute(), {
-      name: "getActiveGoals",
-      description: domainTools.getActiveGoals.description,
-      schema: z.object({}),
-    }),
+    langchainTool(
+      async () => asToolText(domainTools.getActiveGoals.execute()),
+      {
+        name: "getActiveGoals",
+        description: domainTools.getActiveGoals.description,
+        schema: z.object({}),
+      },
+    ),
     langchainTool(
       async (input) =>
-        domainTools.calculateMacros.execute(calculateMacrosSchema.parse(input)),
+        asToolText(
+          domainTools.calculateMacros.execute(
+            calculateMacrosSchema.parse(input),
+          ),
+        ),
       {
         name: "calculateMacros",
         description: domainTools.calculateMacros.description,
