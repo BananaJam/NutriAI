@@ -22,6 +22,30 @@ nextjs-docs:
     value: https://nextjs.org/docs
     date: 2026-04-18
 
+vercel-nextjs-docs:
+  type: web
+  title: "Next.js on Vercel"
+  author: Vercel
+  url:
+    value: https://vercel.com/docs/frameworks/nextjs
+    date: 2026-05-26
+
+vercel-observability-docs:
+  type: web
+  title: "Observability"
+  author: Vercel
+  url:
+    value: https://vercel.com/docs/observability
+    date: 2026-05-26
+
+vercel-otel-docs:
+  type: web
+  title: "Quickstart for using the Vercel OpenTelemetry Collector"
+  author: Vercel
+  url:
+    value: https://vercel.com/docs/otel
+    date: 2026-05-26
+
 bun-docs:
   type: web
   title: "Bun Documentation"
