@@ -43,7 +43,7 @@ export const chatLabRoutes = new Elysia({ prefix: "/chat-lab" })
           },
         },
         orderBy: { createdAt: "desc" },
-        take: 24,
+        take: 100,
       });
 
       return {

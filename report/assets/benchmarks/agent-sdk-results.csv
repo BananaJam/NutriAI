@@ -1,0 +1,37 @@
+sdk,scenarioId,scenarioTitle,repetition,status,latencyMs,responseLength,toolEventCount,expectedToolCoverage,error,runId,createdAt
+vercel-ai,high-protein-breakfast,High-Protein Breakfast,1,completed,11635,1035,4,1/3,,cmplmlmxa00013qt2ilh4fmrz,2026-05-25T19:55:19.246Z
+vercel-ai,high-protein-breakfast,High-Protein Breakfast,2,completed,18347,1081,4,1/3,,cmplmlwac00073qt2sc84ovlw,2026-05-25T19:55:31.380Z
+vercel-ai,high-protein-breakfast,High-Protein Breakfast,3,completed,13314,1179,4,1/3,,cmplmmago000d3qt2mq5cpnwe,2026-05-25T19:55:49.752Z
+vercel-ai,log-recent-lunch,Log Recent Lunch,1,completed,8256,451,6,1/3,,cmplmmkrd000j3qt2mvosalq0,2026-05-25T19:56:03.098Z
+vercel-ai,log-recent-lunch,Log Recent Lunch,2,completed,7177,406,6,1/3,,cmplmmr5d000r3qt2j06wqwlo,2026-05-25T19:56:11.377Z
+vercel-ai,log-recent-lunch,Log Recent Lunch,3,completed,7982,406,6,1/3,,cmplmmwpi000z3qt248t4p5fe,2026-05-25T19:56:18.582Z
+vercel-ai,weekly-nutrition-review,Weekly Nutrition Review,1,completed,16127,1897,4,2/3,,cmplmn2vv00173qt254wxfap3,2026-05-25T19:56:26.587Z
+vercel-ai,weekly-nutrition-review,Weekly Nutrition Review,2,completed,19755,2078,4,2/3,,cmplmnfct001d3qt2fqii8bvg,2026-05-25T19:56:42.749Z
+vercel-ai,weekly-nutrition-review,Weekly Nutrition Review,3,completed,16806,1813,4,2/3,,cmplmnumn001j3qt2bzfug177,2026-05-25T19:57:02.543Z
+vercel-ai,calculate-macros,Calculate Macros,1,completed,16580,1328,6,2/2,,cmplmo7lv001p3qt2uhwv9qhc,2026-05-25T19:57:19.363Z
+vercel-ai,calculate-macros,Calculate Macros,2,completed,15061,1238,6,2/2,,cmplmoker001x3qt2jlx8yg7r,2026-05-25T19:57:35.956Z
+vercel-ai,calculate-macros,Calculate Macros,3,completed,149015,1240,6,2/2,,cmplmow2r00253qt2mcqpswyu,2026-05-25T19:57:51.075Z
+openai-agents,high-protein-breakfast,High-Protein Breakfast,1,failed,,0,0,0/3,OpenAI Agents SDK integration is OpenAI-provider specific in this project and cannot run with ANTHROPIC_API_KEY.,cmplms33v002d3qt24se7542r,2026-05-25T20:00:20.155Z
+openai-agents,high-protein-breakfast,High-Protein Breakfast,2,failed,,0,0,0/3,OpenAI Agents SDK integration is OpenAI-provider specific in this project and cannot run with ANTHROPIC_API_KEY.,cmplms35k002f3qt2iuu5nfmx,2026-05-25T20:00:20.216Z
+openai-agents,high-protein-breakfast,High-Protein Breakfast,3,failed,,0,0,0/3,OpenAI Agents SDK integration is OpenAI-provider specific in this project and cannot run with ANTHROPIC_API_KEY.,cmplms35y002h3qt23ps9cnyh,2026-05-25T20:00:20.230Z
+openai-agents,log-recent-lunch,Log Recent Lunch,1,failed,,0,0,0/3,OpenAI Agents SDK integration is OpenAI-provider specific in this project and cannot run with ANTHROPIC_API_KEY.,cmplms367002j3qt2f6o38ekv,2026-05-25T20:00:20.240Z
+openai-agents,log-recent-lunch,Log Recent Lunch,2,failed,,0,0,0/3,OpenAI Agents SDK integration is OpenAI-provider specific in this project and cannot run with ANTHROPIC_API_KEY.,cmplms36h002l3qt2eog7svjh,2026-05-25T20:00:20.249Z
+openai-agents,log-recent-lunch,Log Recent Lunch,3,failed,,0,0,0/3,OpenAI Agents SDK integration is OpenAI-provider specific in this project and cannot run with ANTHROPIC_API_KEY.,cmplms36p002n3qt2wndzx7a2,2026-05-25T20:00:20.257Z
+openai-agents,weekly-nutrition-review,Weekly Nutrition Review,1,failed,,0,0,0/3,OpenAI Agents SDK integration is OpenAI-provider specific in this project and cannot run with ANTHROPIC_API_KEY.,cmplms36w002p3qt2r7fjwote,2026-05-25T20:00:20.265Z
+openai-agents,weekly-nutrition-review,Weekly Nutrition Review,2,failed,,0,0,0/3,OpenAI Agents SDK integration is OpenAI-provider specific in this project and cannot run with ANTHROPIC_API_KEY.,cmplms377002r3qt2owxpvk79,2026-05-25T20:00:20.275Z
+openai-agents,weekly-nutrition-review,Weekly Nutrition Review,3,failed,,0,0,0/3,OpenAI Agents SDK integration is OpenAI-provider specific in this project and cannot run with ANTHROPIC_API_KEY.,cmplms37e002t3qt2d4jza14m,2026-05-25T20:00:20.282Z
+openai-agents,calculate-macros,Calculate Macros,1,failed,,0,0,0/2,OpenAI Agents SDK integration is OpenAI-provider specific in this project and cannot run with ANTHROPIC_API_KEY.,cmplms37l002v3qt2zlp9uhx4,2026-05-25T20:00:20.289Z
+openai-agents,calculate-macros,Calculate Macros,2,failed,,0,0,0/2,OpenAI Agents SDK integration is OpenAI-provider specific in this project and cannot run with ANTHROPIC_API_KEY.,cmplms37q002x3qt2vpcgnnzu,2026-05-25T20:00:20.294Z
+openai-agents,calculate-macros,Calculate Macros,3,failed,,0,0,0/2,OpenAI Agents SDK integration is OpenAI-provider specific in this project and cannot run with ANTHROPIC_API_KEY.,cmplms37w002z3qt2z2wpbfxs,2026-05-25T20:00:20.300Z
+langgraph,high-protein-breakfast,High-Protein Breakfast,1,completed,42219,1124,4,1/3,,cmplms38200313qt2p8gf1x5k,2026-05-25T20:00:20.307Z
+langgraph,high-protein-breakfast,High-Protein Breakfast,2,completed,13642,1181,4,1/3,,cmplmsztf00373qt2twjt0njd,2026-05-25T20:01:02.547Z
+langgraph,high-protein-breakfast,High-Protein Breakfast,3,completed,11582,969,4,1/3,,cmplmtacy003d3qt2oyb3ia16,2026-05-25T20:01:16.211Z
+langgraph,log-recent-lunch,Log Recent Lunch,1,completed,7530,370,6,1/3,,cmplmtjbo003j3qt2niz8k7e0,2026-05-25T20:01:27.829Z
+langgraph,log-recent-lunch,Log Recent Lunch,2,completed,9703,741,4,1/3,,cmplmtp5r003r3qt2p3dkwjw9,2026-05-25T20:01:35.391Z
+langgraph,log-recent-lunch,Log Recent Lunch,3,completed,9933,723,4,1/3,,cmplmtwod003x3qt2esacvpek,2026-05-25T20:01:45.134Z
+langgraph,weekly-nutrition-review,Weekly Nutrition Review,1,completed,17271,2044,4,2/3,,cmplmu4d400433qt2pah1nq5e,2026-05-25T20:01:55.097Z
+langgraph,weekly-nutrition-review,Weekly Nutrition Review,2,completed,20346,2076,4,2/3,,cmplmuhpk00493qt28zmia2s8,2026-05-25T20:02:12.392Z
+langgraph,weekly-nutrition-review,Weekly Nutrition Review,3,completed,18816,2063,4,2/3,,cmplmuxfa004f3qt271nge6o1,2026-05-25T20:02:32.758Z
+langgraph,calculate-macros,Calculate Macros,1,completed,6578,172,0,0/2,,cmplmvbyi004l3qt2nbcpyzbo,2026-05-25T20:02:51.595Z
+langgraph,calculate-macros,Calculate Macros,2,completed,5427,178,0,0/2,,cmplmvh1y004n3qt21ih2n35m,2026-05-25T20:02:58.199Z
+langgraph,calculate-macros,Calculate Macros,3,completed,6841,176,0,0/2,,cmplmvl98004p3qt26bhwiq7z,2026-05-25T20:03:03.644Z

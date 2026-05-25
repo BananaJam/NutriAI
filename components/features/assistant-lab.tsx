@@ -80,6 +80,10 @@ function formatSdkLabel(sdk: AgentSdkId) {
   return sdkNotes[sdk].title;
 }
 
+function formatLatency(value: number | null) {
+  return value == null ? "n/a" : `${value} ms`;
+}
+
 function renderValue(value: unknown) {
   if (value == null) {
     return "null";
@@ -162,6 +166,42 @@ export function AssistantLab() {
       (run): run is AgentLabRun => Boolean(run),
     );
   }, [compareMutation.data, runsQuery.data?.runs, selectedScenarioId]);
+
+  const benchmarkSummary = useMemo(() => {
+    const runs = runsQuery.data?.runs ?? [];
+    const liveBenchmarkRuns = runs.filter((run) =>
+      run.conversationId?.startsWith("benchmark-"),
+    );
+    const summaryRuns = liveBenchmarkRuns.length ? liveBenchmarkRuns : runs;
+
+    return AGENT_SDK_IDS.map((sdk) => {
+      const sdkRuns = summaryRuns.filter((run) => run.sdk === sdk);
+      const completedRuns = sdkRuns.filter(
+        (run) => run.status === "completed" && run.latencyMs != null,
+      );
+      const latencies = completedRuns.map((run) => run.latencyMs as number);
+      const averageLatency = latencies.length
+        ? Math.round(
+            latencies.reduce((sum, latency) => sum + latency, 0) /
+              latencies.length,
+          )
+        : null;
+
+      return {
+        sdk,
+        totalRuns: sdkRuns.length,
+        completedRuns: completedRuns.length,
+        failedRuns: sdkRuns.filter((run) => run.status === "failed").length,
+        averageLatency,
+        minLatency: latencies.length ? Math.min(...latencies) : null,
+        maxLatency: latencies.length ? Math.max(...latencies) : null,
+        toolEventCount: sdkRuns.reduce(
+          (sum, run) => sum + run.toolEvents.length,
+          0,
+        ),
+      };
+    });
+  }, [runsQuery.data?.runs]);
 
   return (
     <div className="space-y-6">
@@ -251,6 +291,52 @@ export function AssistantLab() {
         </Card>
       ) : null}
 
+      <Card className="rounded-2xl">
+        <CardHeader>
+          <CardTitle className="text-base">Live benchmark summary</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[760px] text-sm">
+              <thead className="border-b text-left text-muted-foreground">
+                <tr>
+                  <th className="py-2 pr-4 font-medium">SDK</th>
+                  <th className="py-2 pr-4 font-medium">Completed</th>
+                  <th className="py-2 pr-4 font-medium">Failed</th>
+                  <th className="py-2 pr-4 font-medium">Average latency</th>
+                  <th className="py-2 pr-4 font-medium">Min</th>
+                  <th className="py-2 pr-4 font-medium">Max</th>
+                  <th className="py-2 pr-4 font-medium">Tool events</th>
+                </tr>
+              </thead>
+              <tbody>
+                {benchmarkSummary.map((row) => (
+                  <tr key={row.sdk} className="border-b last:border-b-0">
+                    <td className="py-3 pr-4 font-medium">
+                      {formatSdkLabel(row.sdk)}
+                    </td>
+                    <td className="py-3 pr-4">
+                      {row.completedRuns}/{row.totalRuns}
+                    </td>
+                    <td className="py-3 pr-4">{row.failedRuns}</td>
+                    <td className="py-3 pr-4">
+                      {formatLatency(row.averageLatency)}
+                    </td>
+                    <td className="py-3 pr-4">
+                      {formatLatency(row.minLatency)}
+                    </td>
+                    <td className="py-3 pr-4">
+                      {formatLatency(row.maxLatency)}
+                    </td>
+                    <td className="py-3 pr-4">{row.toolEventCount}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm font-semibold">{selectedScenario.title}</p>
@@ -287,7 +373,9 @@ export function AssistantLab() {
                 <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
                   <span>
                     Latency:{" "}
-                    {run?.latencyMs != null ? `${run.latencyMs} ms` : "n/a"}
+                    {run?.latencyMs != null
+                      ? formatLatency(run.latencyMs)
+                      : "n/a"}
                   </span>
                   <span>Tools: {run?.toolEvents.length ?? 0}</span>
                 </div>

@@ -20,7 +20,6 @@ const pages = [
     path: "/",
     file: "dashboard.png",
     waitFor: async (page: Page) => {
-      await page.waitForSelector("text=Calories today", { timeout: 20_000 });
       await page.waitForSelector("text=Range trends", { timeout: 20_000 });
       await page.waitForSelector("text=Recent calorie trend", {
         timeout: 20_000,
@@ -56,6 +55,9 @@ const pages = [
     file: "assistant-lab.png",
     waitFor: async (page: Page) => {
       await page.waitForSelector("text=Agent SDK Lab", { timeout: 15_000 });
+      await page.waitForSelector("text=Live benchmark summary", {
+        timeout: 15_000,
+      });
       await page.waitForSelector("text=High-Protein Breakfast", {
         timeout: 15_000,
       });
@@ -258,7 +260,12 @@ async function capturePages(page: Page) {
 }
 
 async function main() {
-  await prepareDemoData();
+  if (process.env.REPORT_SKIP_SEED === "true") {
+    console.log("[report] Skipping demo data seed.");
+  } else {
+    await prepareDemoData();
+  }
+
   const server = await startServerIfNeeded();
   console.log("[report] Launching headless browser...");
 

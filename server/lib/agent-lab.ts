@@ -1,4 +1,6 @@
+import { anthropic } from "@ai-sdk/anthropic";
 import { openai } from "@ai-sdk/openai";
+import { ChatAnthropic } from "@langchain/anthropic";
 import { tool as langchainTool } from "@langchain/core/tools";
 import { MemorySaver } from "@langchain/langgraph";
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
@@ -61,6 +63,9 @@ const prismaToolStateToAgentLab = {
   RESULT: "result",
   ERROR: "error",
 } as const;
+
+const defaultAnthropicModel =
+  process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-6";
 
 const mealTypeEnum = z.enum(["BREAKFAST", "LUNCH", "DINNER", "SNACK"]);
 const genderEnum = z.enum(["MALE", "FEMALE"]);
@@ -128,6 +133,27 @@ function ensureOpenAiApiKey() {
   if (!process.env.OPENAI_API_KEY) {
     throw new Error("OPENAI_API_KEY is required for the agent lab.");
   }
+}
+
+function getAgentLabProvider() {
+  return process.env.AI_PROVIDER === "anthropic" ? "anthropic" : "openai";
+}
+
+function getAgentLabModelLabel() {
+  return getAgentLabProvider() === "anthropic"
+    ? defaultAnthropicModel
+    : "gpt-4o";
+}
+
+function ensureAgentLabApiKey() {
+  if (getAgentLabProvider() === "anthropic") {
+    if (!process.env.ANTHROPIC_API_KEY) {
+      throw new Error("ANTHROPIC_API_KEY is required for the agent lab.");
+    }
+    return;
+  }
+
+  ensureOpenAiApiKey();
 }
 
 function serializeError(error: unknown) {
@@ -938,9 +964,14 @@ async function executeWithVercelAiSdk(args: {
   domainTools: DomainToolMap;
 }): Promise<AdapterExecutionResult> {
   const stepTrace: Array<Record<string, unknown>> = [];
+  const provider = getAgentLabProvider();
+  const model =
+    provider === "anthropic"
+      ? anthropic(defaultAnthropicModel)
+      : openai("gpt-4o");
 
   const result = await generateText({
-    model: openai("gpt-4o"),
+    model,
     system: args.systemPrompt,
     prompt: args.prompt,
     tools: createVercelAiTools(args.domainTools),
@@ -959,6 +990,8 @@ async function executeWithVercelAiSdk(args: {
     response: result.text,
     rawTrace: {
       provider: "vercel-ai",
+      modelProvider: provider,
+      model: getAgentLabModelLabel(),
       finishReason: result.finishReason,
       steps: stepTrace,
     },
@@ -971,6 +1004,12 @@ async function executeWithOpenAiAgents(args: {
   systemPrompt: string;
   domainTools: DomainToolMap;
 }): Promise<AdapterExecutionResult> {
+  if (getAgentLabProvider() === "anthropic") {
+    throw new Error(
+      "OpenAI Agents SDK integration is OpenAI-provider specific in this project and cannot run with ANTHROPIC_API_KEY.",
+    );
+  }
+
   const agent = new Agent({
     name: "Nutrition Investigation Agent",
     instructions: args.systemPrompt,
@@ -986,6 +1025,8 @@ async function executeWithOpenAiAgents(args: {
     response: extractFinalText(result.finalOutput),
     rawTrace: {
       provider: "openai-agents",
+      modelProvider: "openai",
+      model: "gpt-4o",
       finalOutput: toJsonValue(result.finalOutput),
       newItems: toJsonValue(result.newItems),
       historyLength: result.history.length,
@@ -999,10 +1040,17 @@ async function executeWithLangGraph(args: {
   systemPrompt: string;
   domainTools: DomainToolMap;
 }): Promise<AdapterExecutionResult> {
-  const llm = new ChatOpenAI({
-    model: "gpt-4o",
-    temperature: 0,
-  });
+  const provider = getAgentLabProvider();
+  const llm =
+    provider === "anthropic"
+      ? new ChatAnthropic({
+          model: defaultAnthropicModel,
+          temperature: 0,
+        })
+      : new ChatOpenAI({
+          model: "gpt-4o",
+          temperature: 0,
+        });
 
   const agent = createReactAgent({
     llm,
@@ -1034,6 +1082,8 @@ async function executeWithLangGraph(args: {
     response: extractTextFromContent(lastMessage?.content),
     rawTrace: {
       provider: "langgraph",
+      modelProvider: provider,
+      model: getAgentLabModelLabel(),
       messageCount: messages.length,
       messages: messages.map((message) => ({
         type:
@@ -1059,7 +1109,7 @@ export async function executeAgentLabRun(args: {
   userId: string;
   conversationId?: string | null;
 }) {
-  ensureOpenAiApiKey();
+  ensureAgentLabApiKey();
 
   const scenario = AGENT_LAB_SCENARIOS.find(
     (item) => item.id === args.scenarioId,
