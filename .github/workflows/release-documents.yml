@@ -1,0 +1,78 @@
+name: Release documents
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to create or update"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    name: Build Typst PDFs and publish release
+    runs-on: self-hosted
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve release tag
+        id: release
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            tag="${{ inputs.tag }}"
+          else
+            tag="${GITHUB_REF_NAME}"
+          fi
+
+          echo "tag=${tag}" >> "$GITHUB_OUTPUT"
+
+      - name: Ensure Typst is available
+        shell: bash
+        run: |
+          set -euo pipefail
+          typst --version
+
+      - name: Build all Typst documents
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mkdir -p report/build
+
+          for source in report/content/*.typ; do
+            name="$(basename "${source}" .typ)"
+            typst compile --root . "${source}" "report/build/${name}.pdf"
+          done
+
+      - name: Create repository source archive
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          git archive \
+            --format=zip \
+            --output="report/build/nutriai-${{ steps.release.outputs.tag }}-source.zip" \
+            HEAD
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.release.outputs.tag }}
+          name: ${{ steps.release.outputs.tag }}
+          target_commitish: ${{ github.sha }}
+          files: |
+            report/build/*.pdf
+            report/build/*-source.zip
