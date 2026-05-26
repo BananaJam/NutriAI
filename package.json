@@ -19,8 +19,9 @@
     "report:seed": "bun run scripts/seed-report-demo.ts",
     "report:benchmarks": "bun run scripts/benchmark-agents.ts",
     "report:screenshots": "bun run scripts/capture-report-screenshots.ts",
-    "report:build": "typst compile --root . report/content/report.typ report/build/report.pdf && typst compile --root . report/content/appendices.typ report/build/appendices.pdf",
-    "report:appendices": "typst compile --root . report/content/appendices.typ report/build/appendices.pdf"
+    "report:build": "typst compile --root . report/content/report.typ report/build/report.pdf && typst compile --root . report/content/appendices.typ report/build/appendices.pdf && typst compile --root . report/content/task.typ report/build/task.pdf",
+    "report:appendices": "typst compile --root . report/content/appendices.typ report/build/appendices.pdf",
+    "report:task": "typst compile --root . report/content/task.typ report/build/task.pdf"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "0.0.56",

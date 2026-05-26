@@ -75,7 +75,7 @@
 + `report/content/` — Typst-джерела звіту, додатків і бібліографії;
 + `report/assets/` — скріншоти, benchmark-дані та інші демонстраційні матеріали;
 + `report/template.typ` — спільний шаблон оформлення Typst-документів;
-+ `report/build/` — згенеровані PDF-файли звіту та додатків;
++ `report/build/` — згенеровані PDF-файли завдання, звіту та додатків;
 + `public/` — статичні файли.
 
 #simple-table(
@@ -100,8 +100,8 @@
     [`server/routes/chat.ts`, `server/lib/agent-lab.ts`],
     [Tool calling, AI-чат, порівняння агентних SDK],
     [Документація],
-    [`README.md`, `report/content/report.typ`, `report/content/references.yml`, `report/content/appendices.typ`, `report/template.typ`],
-    [README, джерела пояснювальної записки, додатки та бібліографія],
+    [`README.md`, `report/content/task.typ`, `report/content/report.typ`, `report/content/references.yml`, `report/content/appendices.typ`, `report/template.typ`],
+    [README, завдання, джерела пояснювальної записки, додатки та бібліографія],
   ),
   [Структура основних модулів проєкту NutriAI.],
   ref-label: "tab-appendix-modules",
