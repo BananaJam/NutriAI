@@ -47,7 +47,10 @@
 | `prisma/` | Основна Prisma-схема та seed-скрипт |
 | `generated/prisma/` | Згенерований Prisma Client; не редагується вручну |
 | `scripts/` | Допоміжні сценарії: demo seed, screenshots для звіту, agent benchmark |
-| `report/` | Typst-звіт, bibliography, вимоги та демонстраційні матеріали |
+| `report/content/` | Typst-джерела звіту, додатків і bibliography |
+| `report/template.typ` | Спільний шаблон оформлення Typst-документів |
+| `report/assets/` | Скріншоти, benchmark-дані та демонстраційні матеріали |
+| `report/build/` | Згенеровані PDF-файли звіту та додатків |
 | `report/assets/screenshots/` | Скріншоти інтерфейсу для пояснювальної записки |
 | `public/` | Статичні assets Next.js |
 

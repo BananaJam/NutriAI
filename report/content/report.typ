@@ -1,5 +1,5 @@
-#import "template.typ": *
-#import "assets/benchmarks/agent-sdk-results.typ": (
+#import "../template.typ": *
+#import "/report/assets/benchmarks/agent-sdk-results.typ": (
   benchmark-generated-at, benchmark-latency-rows, benchmark-provider, benchmark-summary-rows,
 )
 
@@ -744,45 +744,45 @@
   На @fig-dashboard[рисунку], @fig-food-log[рисунку], @fig-meal-plans[рисунку], @fig-foods[рисунку], @fig-goals[рисунку], @fig-profile[рисунку], @fig-assistant[рисунку] та @fig-assistant-lab[рисунку] показано основні екрани NutriAI: dashboard, журнал, планування, каталог продуктів, цілі, профіль, AI-асистент і лабораторію агентних SDK.
 
   #screenshot(
-    "assets/screenshots/dashboard.png",
+    "/report/assets/screenshots/dashboard.png",
     [Головна панель NutriAI зі щоденними показниками, безперервною серією днів та швидкими діями.],
     ref-label: "fig-dashboard",
   )
 
   #screenshot(
-    "assets/screenshots/food-log.png",
+    "/report/assets/screenshots/food-log.png",
     [Сторінка журналу харчування для контролю фактичного споживання продуктів за день.],
     ref-label: "fig-food-log",
   )
 
   #screenshot(
-    "assets/screenshots/meal-plans.png",
+    "/report/assets/screenshots/meal-plans.png",
     [Модуль планування харчування з тижневим планом раціону та списком покупок.],
     ref-label: "fig-meal-plans",
   )
 
   #screenshot(
-    "assets/screenshots/foods.png",
+    "/report/assets/screenshots/foods.png",
     [Каталог продуктів із фільтрами, фаворитами та діями для логування/планування.],
     ref-label: "fig-foods",
   )
 
-  #screenshot("assets/screenshots/goals.png", [Сторінка керування цілями користувача.], ref-label: "fig-goals")
+  #screenshot("/report/assets/screenshots/goals.png", [Сторінка керування цілями користувача.], ref-label: "fig-goals")
 
   #screenshot(
-    "assets/screenshots/profile.png",
+    "/report/assets/screenshots/profile.png",
     [Профіль користувача з персональними параметрами та цільовими значеннями.],
     ref-label: "fig-profile",
   )
 
   #screenshot(
-    "assets/screenshots/assistant.png",
+    "/report/assets/screenshots/assistant.png",
     [AI-асистент із збереженою розмовою та відображенням інструментальної активності.],
     ref-label: "fig-assistant",
   )
 
   #screenshot(
-    "assets/screenshots/assistant-lab.png",
+    "/report/assets/screenshots/assistant-lab.png",
     [Лабораторія порівняння агентних SDK із контрольними сценаріями, збереженими прогонами та трасами інструментів.],
     ref-label: "fig-assistant-lab",
   )
@@ -992,7 +992,7 @@
 
   Репозиторій організовано відповідно до архітектурних меж застосунку. Маршрути й сторінки Next.js розміщені в `app/`, повторно використовувані UI-примітиви — у `components/ui/`, а продуктово-орієнтовані компоненти — у `components/features/`. У `lib/` зберігаються клієнтські допоміжні модулі, API-клієнт і доменна аналітика. Серверний API винесено до `server/`, де `server/index.ts` збирає Elysia-застосунок, а `server/routes/` містить окремі групи маршрутів для продуктів, журналу, планів, цілей, профілю, налаштувань, чату і лабораторії агентних SDK.
 
-  Дані та відтворюваність проєкту винесено в окремі каталоги. Prisma-схема і seed-логіка знаходяться в `prisma/`, а згенерований Prisma Client — у `generated/prisma/` і не редагується вручну. Каталог `scripts/` містить службові сценарії для наповнення demo-даними, знімання скріншотів і запуску контрольних agent-benchmark сценаріїв. Пояснювальна записка, список джерел, вимоги та графічні матеріали зберігаються в `report/`, а скріншоти інтерфейсу — у `report/assets/screenshots/`.
+  Дані та відтворюваність проєкту винесено в окремі каталоги. Prisma-схема і seed-логіка знаходяться в `prisma/`, а згенерований Prisma Client — у `generated/prisma/` і не редагується вручну. Каталог `scripts/` містить службові сценарії для наповнення demo-даними, знімання скріншотів і запуску контрольних agent-benchmark сценаріїв. Джерела пояснювальної записки та список джерел зберігаються в `report/content/`, спільний шаблон і графічні матеріали — у `report/`, згенеровані PDF-файли — у `report/build/`, а скріншоти інтерфейсу — у `report/assets/screenshots/`.
 
   Для відтворення результатів у репозиторії передбачено README з командами запуску, `.env.example` для локальної конфігурації, Prisma-команди для підготовки бази даних, Swagger-документацію API за маршрутом `/api/docs`, а також сценарії `bun run report:seed`, `bun run report:screenshots` і `bun run report:build`. Така структура відокремлює прикладний код, серверну логіку, базу даних, документацію та демонстраційні матеріали, завдяки чому перевірка роботи стає простішою.
 
@@ -1002,177 +1002,5 @@
   = Список використаних джерел
 
   #bibliography("references.yml", title: none, style: "ieee")
-
-  #pagebreak()
-  = Додаток А. Інструкція запуску проєкту
-
-  #no-indent[
-    Додаток відповідає змісту файлу `README.md` і містить стислу інструкцію для локального запуску NutriAI.
-  ]
-
-  *Передумови запуску*:
-
-  + встановлений Bun;
-  + доступний PostgreSQL;
-  + створений файл `.env` на основі `.env.example`;
-  + для AI-функцій — ключ провайдера моделі, наприклад `OPENAI_API_KEY`.
-
-  *Приклад локального `.env`*:
-
-  ```env
-  DATABASE_URL="postgresql://user:password@localhost:5432/nutriai"
-  NEXT_PUBLIC_APP_URL="http://localhost:3000"
-  AI_PROVIDER="openai"
-  OPENAI_API_KEY="your_api_key"
-  ```
-
-  *Команди запуску*:
-
-  + `bun install` — встановлює залежності;
-  + `bun run db:push` і `bun run db:generate` — синхронізують Prisma-схему та генерують клієнт;
-  + `bun run db:seed` — наповнює базу початковими даними;
-  + `bun dev` — запускає застосунок локально;
-  + `bun run lint` — виконує перевірку Biome;
-  + `bun run build` — генерує Prisma Client і збирає production-версію;
-  + `bun run report:seed` — формує demo-дані для бакалаврського звіту;
-  + `bun run report:screenshots` — створює демонстраційні скріншоти;
-  + `bun run report:build` — компілює пояснювальну записку.
-
-  #no-indent[
-    Після запуску застосунок доступний за адресою `http://localhost:3000`, а Swagger-документація API — за маршрутом `/api/docs`.
-  ]
-
-  *Розгортання на Vercel*:
-
-  + підключити Git-репозиторій до Vercel Project;
-  + додати змінні середовища `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL` і ключ AI-провайдера у Vercel Project Environment Variables;
-  + використати `bun run build` як build command;
-  + перевірити preview deployment, після чого виконати production deployment;
-  + після публікації аналізувати Core Web Vitals у Speed Insights і серверні події в Vercel Observability.
-
-  #pagebreak()
-  = Додаток Б. Структура проєкту та модулів
-
-  #no-indent[
-    Основні каталоги репозиторію та їх призначення:
-  ]
-
-  + `app/` — маршрути Next.js App Router і сторінки застосунку;
-  + `app/api/[[...slugs]]/route.ts` — прокидання HTTP-запитів до Elysia API;
-  + `components/ui/` — базові UI-примітиви;
-  + `components/features/` — функціональні компоненти NutriAI;
-  + `lib/` — клієнтські helper-модулі, API-клієнт, аналітика, логіка цілей і планів;
-  + `server/index.ts` — композиція серверного API;
-  + `server/routes/` — групи API-маршрутів;
-  + `server/lib/` — серверні інтеграції для auth, session, Prisma та agent lab;
-  + `prisma/` — Prisma-схема і seed-логіка;
-  + `generated/prisma/` — згенерований Prisma Client;
-  + `scripts/` — сценарії для demo-даних, скріншотів і benchmark-перевірок;
-  + `report/` — Typst-звіт, список джерел, вимоги й демонстраційні матеріали;
-  + `public/` — статичні файли.
-
-  #simple-table(
-    3,
-    (
-      [*Модуль*],
-      [*Ключові файли*],
-      [*Відповідальність*],
-      [Інтерфейс],
-      [`app/`, `components/features/`, `components/ui/`],
-      [Сторінки, форми, таблиці, діалоги, dashboard і чат],
-      [API],
-      [`server/index.ts`, `server/routes/*`],
-      [Маршрути Elysia, авторизація, валідація, CRUD-операції],
-      [Дані],
-      [`prisma/schema.prisma`, `server/lib/prisma.ts`],
-      [Опис доменної моделі та доступ до PostgreSQL],
-      [Аналітика],
-      [`lib/nutrition-analytics.ts`, `lib/goals.ts`, `lib/meal-plan.ts`],
-      [Підсумки калорій, статистика, прогрес цілей, планування],
-      [AI],
-      [`server/routes/chat.ts`, `server/lib/agent-lab.ts`],
-      [Tool calling, AI-чат, порівняння агентних SDK],
-      [Документація],
-      [`README.md`, `report/report.typ`, `report/references.yml`],
-      [Запуск, пояснювальна записка, джерела],
-    ),
-    [Структура основних модулів проєкту NutriAI.],
-    ref-label: "tab-appendix-modules",
-  )
-
-  #pagebreak()
-  = Додаток В. Фрагменти програмного коду
-
-  #no-indent[
-    У додатку наведено скорочені фрагменти коду, які демонструють ключові технічні рішення. Повні файли доступні у репозиторії.
-  ]
-
-  *Фрагмент В.1 — підсумовування харчових показників у `lib/nutrition-analytics.ts`:*
-
-  ```ts
-  export function sumNutritionTotals(items: NutritionItem[]) {
-    return items.reduce(
-      (totals, item) => {
-        const servings = item.servings ?? 1;
-        totals.calories += item.food.calories * servings;
-        totals.protein += item.food.protein * servings;
-        totals.carbs += item.food.carbs * servings;
-        totals.fat += item.food.fat * servings;
-        return totals;
-      },
-      { calories: 0, protein: 0, carbs: 0, fat: 0 },
-    );
-  }
-  ```
-
-  *Фрагмент В.2 — захист API-маршруту через сесію в `server/routes/food-logs.ts`:*
-
-  ```ts
-  .post("/:date/items", async ({ params, request, body, set }) => {
-    const session = await requireRequestSession(request, set);
-    if (!session) return { message: "Unauthorized" };
-
-    const log = await prisma.foodLog.upsert({
-      where: { userId_date: { userId: session.user.id, date: new Date(params.date) } },
-      create: { userId: session.user.id, date: new Date(params.date) },
-      update: {},
-    });
-
-    const item = await prisma.foodLogItem.create({
-      data: { foodLogId: log.id, foodId: body.foodId, mealType: body.mealType },
-    });
-    return { item };
-  })
-  ```
-
-  *Фрагмент В.3 — опис інструменту AI-асистента у `server/routes/chat.ts`:*
-
-  ```ts
-  searchFoods: tool({
-    description: "Search foods in the user's catalog",
-    parameters: jsonSchema(searchFoodsSchema),
-    execute: async ({ query, limit }) => {
-      const foods = await prisma.food.findMany({
-        where: buildFoodCatalogWhere({ search: query }),
-        take: limit ?? 5,
-      });
-      return { foods };
-    },
-  })
-  ```
-
-  *Фрагмент В.4 — API-композиція у `server/index.ts`:*
-
-  ```ts
-  export const api = new Elysia({ prefix: "/api" })
-    .use(swagger({ path: "/docs" }))
-    .get("/health", () => ({ status: "healthy" }))
-    .all("/auth/*", async ({ request }) => auth.handler(request))
-    .use(foodsRoutes)
-    .use(foodLogsRoutes)
-    .use(mealPlansRoutes)
-    .use(goalsRoutes)
-    .use(chatRoutes);
-  ```
 
 ]
