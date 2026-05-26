@@ -57,16 +57,6 @@ jobs:
             typst compile --root . "${source}" "report/build/${name}.pdf"
           done
 
-      - name: Create repository source archive
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          git archive \
-            --format=zip \
-            --output="report/build/nutriai-${{ steps.release.outputs.tag }}-source.zip" \
-            HEAD
-
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
@@ -75,4 +65,3 @@ jobs:
           target_commitish: ${{ github.sha }}
           files: |
             report/build/*.pdf
-            report/build/*-source.zip
