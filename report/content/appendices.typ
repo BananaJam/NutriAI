@@ -26,7 +26,8 @@
 #set par(
   justify: true,
   first-line-indent: 1.25cm,
-  leading: 0.5em,
+  leading: 0.84em,
+  spacing: 0.84em,
 )
 
 #set figure.caption(separator: [ – ])
@@ -38,13 +39,11 @@
     #set text(weight: "bold", size: 14pt)
     #upper(it.body)
   ]
-  #v(1em)
 ]
 
 #show heading.where(level: 2): it => [
   #set text(weight: "bold", size: 14pt)
   #it.body
-  #v(0.5em)
 ]
 
 = Додаток А. README.md програми

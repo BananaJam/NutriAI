@@ -12,7 +12,7 @@
 #let university-name = "Львівський національний університет імені Івана Франка"
 #let faculty-name = "Факультет електроніки та комп'ютерних технологій"
 #let department-name = "Кафедра системного проектування"
-#let topic = "Розробка моделі планування харчування та моніторингу споживання калорій для AI-асистента"
+#let topic = "Розробка моделі планування харчування та моніторингу споживання калорій з інтегрованим AI-асистентом"
 #let city = "Львів"
 #let defense-year = "2026"
 
@@ -41,7 +41,8 @@
   set par(
     justify: true,
     first-line-indent: 1.25cm,
-    leading: 0.5em,
+    leading: 0.84em,
+    spacing: 0.84em,
   )
 
   set figure.caption(separator: [ – ])
@@ -56,7 +57,6 @@
       #h(0.5em)
       #upper(it.body)
     ]
-    #v(1em)
   ]
 
   show heading.where(level: 2): it => [
@@ -64,7 +64,6 @@
     #counter(heading).display("1.1.")
     #h(0.5em)
     #it.body
-    #v(0.5em)
   ]
 
   show heading.where(level: 3): it => [
@@ -72,7 +71,6 @@
     #counter(heading).display("1.1.1.")
     #h(0.5em)
     #it.body
-    #v(0.35em)
   ]
 
   body
@@ -207,7 +205,7 @@
 #let annotation-page(title, body) = [
   #block-title([#title])
   #v(1em)
-  #no-indent[#body]
+  #body
   #v(1em)
 ]
 
