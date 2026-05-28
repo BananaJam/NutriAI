@@ -62,17 +62,17 @@
 
 + `app/` — маршрути Next.js App Router і сторінки застосунку;
 + `app/api/[[...slugs]]/route.ts` — прокидання HTTP-запитів до Elysia API;
-+ `components/ui/` — базові UI-примітиви;
++ `components/ui/` — базові інтерфейсні примітиви;
 + `components/features/` — функціональні компоненти NutriAI;
-+ `lib/` — клієнтські helper-модулі, API-клієнт, аналітика, логіка цілей і планів;
++ `lib/` — клієнтські допоміжні модулі, API-клієнт, аналітика, логіка цілей і планів;
 + `server/index.ts` — композиція серверного API;
 + `server/routes/` — групи API-маршрутів;
-+ `server/lib/` — серверні інтеграції для auth, session, Prisma та agent lab;
++ `server/lib/` — серверні інтеграції для автентифікації, сесій, Prisma та лабораторії агентів;
 + `prisma/` — Prisma-схема і seed-логіка;
 + `generated/prisma/` — згенерований Prisma Client;
-+ `scripts/` — сценарії для demo-даних, скріншотів і benchmark-перевірок;
++ `scripts/` — сценарії для демонстраційних даних, скріншотів і бенчмарк-перевірок;
 + `report/content/` — Typst-джерела звіту, додатків і бібліографії;
-+ `report/assets/` — скріншоти, benchmark-дані та інші демонстраційні матеріали;
++ `report/assets/` — скріншоти, бенчмарк-дані та інші демонстраційні матеріали;
 + `report/template.typ` — спільний шаблон оформлення Typst-документів;
 + `report/build/` — згенеровані PDF-файли завдання, звіту та додатків;
 + `public/` — статичні файли.
@@ -85,7 +85,7 @@
     [*Відповідальність*],
     [Інтерфейс],
     [`app/`, `components/features/`, `components/ui/`],
-    [Сторінки, форми, таблиці, діалоги, dashboard і чат],
+    [Сторінки, форми, таблиці, діалоги, панель показників і чат],
     [API],
     [`server/index.ts`, `server/routes/*`],
     [Маршрути Elysia, авторизація, валідація, CRUD-операції],
@@ -95,9 +95,9 @@
     [Аналітика],
     [`lib/nutrition-analytics.ts`, `lib/goals.ts`, `lib/meal-plan.ts`],
     [Підсумки калорій, статистика, прогрес цілей, планування],
-    [AI],
+    [ШІ],
     [`server/routes/chat.ts`, `server/lib/agent-lab.ts`],
-    [Tool calling, AI-чат, порівняння агентних SDK],
+    [Виклик інструментів, ШІ-чат, порівняння агентних SDK],
     [Документація],
     [`README.md`, `report/content/task.typ`, `report/content/report.typ`, `report/content/references.yml`, `report/content/appendices.typ`, `report/template.typ`],
     [README, завдання, джерела пояснювальної записки, додатки та бібліографія],
@@ -150,7 +150,7 @@ export function sumNutritionTotals(items: NutritionItem[]) {
 })
 ```
 
-*Фрагмент В.3 — опис інструменту AI-асистента у `server/routes/chat.ts`:*
+*Фрагмент В.3 — опис інструменту ШІ-асистента у `server/routes/chat.ts`:*
 
 ```ts
 searchFoods: tool({
