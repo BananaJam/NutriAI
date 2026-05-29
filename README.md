@@ -25,11 +25,7 @@
 
 Короткий відеозапис показує основні сценарії роботи застосунку: вхід у систему, додавання їжі в журнал, роботу з планом харчування, пошук продуктів, створення цілі та запит до AI-асистента.
 
-<video controls width="100%" src="report/assets/videos/nutriai-showcase.mp4">
-  Ваш браузер не підтримує відтворення відео. Файл доступний за шляхом `report/assets/videos/nutriai-showcase.mp4`.
-</video>
-
-[Відкрити MP4-файл](report/assets/videos/nutriai-showcase.mp4)
+[![Демонстрація роботи застосунку](https://github.com/BananaJam/NutriAI/raw/refs/heads/main/report/assets/videos/nutriai-showcase.mp4)](https://github.com/BananaJam/NutriAI/raw/refs/heads/main/report/assets/videos/nutriai-showcase.mp4)
 
 ---
 
