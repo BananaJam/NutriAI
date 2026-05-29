@@ -30,6 +30,17 @@ type BenchmarkRow = {
   createdAt: string;
 };
 
+type BenchmarkSummaryRow = {
+  sdk: string;
+  completedRuns: number;
+  failedRuns: number;
+  successRate: number;
+  averageLatencyMs: number | null;
+  minLatencyMs: number | null;
+  maxLatencyMs: number | null;
+  totalToolEvents: number;
+};
+
 function getBenchmarkProvider() {
   return process.env.AI_PROVIDER === "anthropic" ? "anthropic" : "openai";
 }
@@ -61,6 +72,44 @@ function csvCell(value: string | number | null) {
 
   const text = String(value);
   return /[",\n]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
+}
+
+function buildSummary(rows: BenchmarkRow[]): BenchmarkSummaryRow[] {
+  return AGENT_SDK_IDS.map((sdk) => {
+    const sdkRows = rows.filter((row) => row.sdk === sdk);
+    const completedRows = sdkRows.filter(
+      (row) => row.status === "completed" && row.latencyMs != null,
+    );
+    const latencies = completedRows.map((row) => row.latencyMs as number);
+    const averageLatencyMs = latencies.length
+      ? Math.round(
+          latencies.reduce((sum, latency) => sum + latency, 0) /
+            latencies.length,
+        )
+      : null;
+
+    return {
+      sdk,
+      completedRuns: completedRows.length,
+      failedRuns: sdkRows.filter((row) => row.status === "failed").length,
+      successRate: sdkRows.length ? completedRows.length / sdkRows.length : 0,
+      averageLatencyMs,
+      minLatencyMs: latencies.length ? Math.min(...latencies) : null,
+      maxLatencyMs: latencies.length ? Math.max(...latencies) : null,
+      totalToolEvents: sdkRows.reduce(
+        (sum, row) => sum + row.toolEventCount,
+        0,
+      ),
+    };
+  });
+}
+
+function formatMs(value: number | null) {
+  return value == null ? "n/a" : `${value} ms`;
+}
+
+function formatPercent(value: number) {
+  return `${Math.round(value * 100)}%`;
 }
 
 async function writeArtifacts(rows: BenchmarkRow[]) {
