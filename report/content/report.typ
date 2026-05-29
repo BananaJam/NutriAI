@@ -1,6 +1,7 @@
 #import "../template.typ": *
-#import "/report/assets/benchmarks/agent-sdk-results.typ": (
-  benchmark-generated-at, benchmark-latency-rows, benchmark-provider, benchmark-summary-rows,
+#import "../assets/benchmarks/benchmark-data.typ": (
+  benchmark-latency-rows,
+  benchmark-summary-rows,
 )
 
 #report-template[
