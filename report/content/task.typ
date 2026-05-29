@@ -1,15 +1,7 @@
 #import "../template.typ": (
-  city,
-  department-head-name,
-  department-name,
-  faculty-name,
-  specialty-code,
-  specialty-name,
-  student-group,
-  student-name,
-  supervisor-name,
-  topic,
-  university-name,
+  form-row, hint, line-field, normal-table, numbered-line,
+  city, department-head-name, department-name, faculty-name, specialty-code, specialty-name, student-group,
+  student-name, supervisor-name, topic, university-name,
 )
 
 #set text(
@@ -28,49 +20,6 @@
   justify: true,
   first-line-indent: 0pt,
   leading: 0.28em,
-)
-
-#let line-field(body: [], width: 1fr, align-body: center) = box(
-  width: width,
-  inset: (left: 2pt, right: 2pt, bottom: 1pt),
-  stroke: (bottom: 0.6pt + black),
-)[#align(align-body)[#body]]
-
-#let hint(body) = text(size: 8pt, style: "italic")[#body]
-
-#let numbered-line(number, label, body) = [
-  #grid(
-    columns: (auto, auto, 1fr),
-    gutter: 0.35em,
-    align: (left, left, horizon),
-    [#number.],
-    [#label],
-    line-field(body: body, align-body: left),
-  )
-]
-
-#let form-row(label, body, width: 1fr, note: none) = [
-  #grid(
-    columns: (auto, width),
-    gutter: 0.25em,
-    align: (left, horizon),
-    [#label],
-    [
-      #line-field(body: body, align-body: left)
-      #if note != none [
-        #v(-0.85em)
-        #align(center)[#hint(note)]
-      ]
-    ],
-  )
-]
-
-#let normal-table(columns, rows) = table(
-  columns: columns,
-  stroke: 0.7pt + black,
-  inset: (x: 4pt, y: 4pt),
-  align: center + horizon,
-  ..rows,
 )
 
 #align(center)[
@@ -121,10 +70,10 @@
   columns: (auto, 1fr),
   gutter: 0.35em,
   [керівник роботи],
-  [
+  align(center)[
     #line-field(body: [#supervisor-name], align-body: center)
     #linebreak()
-    #align(center)[#hint[(прізвище, ім'я, по батькові, науковий ступінь, вчене звання)]]
+    #hint[(прізвище, ім'я, по батькові, науковий ступінь, вчене звання)]
   ],
 )
 
@@ -213,8 +162,7 @@
 #grid(
   columns: (auto, 1fr),
   gutter: 0.4em,
-  [7. Дата видачі завдання],
-  line-field(body: [02.02.2026 р.], align-body: center),
+  [7. Дата видачі завдання], line-field(body: [02.02.2026 р.], align-body: center),
 )
 
 #align(center)[
@@ -274,6 +222,7 @@
     #linebreak()
     #hint[(прізвище та ініціали)]
   ],
+
   [Керівник роботи],
   [
     #line-field(width: 4.5cm)

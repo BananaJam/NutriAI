@@ -151,6 +151,54 @@
   ref-label,
 )
 
+#let line-field(body: [], width: 1fr, align-body: center) = box(
+  width: width,
+  inset: (left: 2pt, right: 2pt, bottom: 1pt),
+  stroke: (bottom: 0.6pt + black),
+)[
+  #align(align-body)[
+    #body
+    #if body == [] {
+      box(width: 0pt, height: 1em)[]
+    }
+  ]
+]
+
+#let hint(body) = text(size: 8pt, style: "italic")[#body]
+
+#let numbered-line(number, label, body) = [
+  #grid(
+    columns: (auto, auto, 1fr),
+    gutter: 0.35em,
+    align: (left, left, horizon),
+    [#number.], [#label], line-field(body: body, align-body: left),
+  )
+]
+
+#let form-row(label, body, width: 1fr, note: none) = [
+  #grid(
+    columns: (auto, width),
+    gutter: 0.25em,
+    align: (left, horizon),
+    [#label],
+    [
+      #line-field(body: body, align-body: left)
+      #if note != none [
+        #v(-0.85em)
+        #align(center)[#hint(note)]
+      ]
+    ],
+  )
+]
+
+#let normal-table(columns, rows) = table(
+  columns: columns,
+  stroke: 0.7pt + black,
+  inset: (x: 4pt, y: 4pt),
+  align: center + horizon,
+  ..rows,
+)
+
 #let underline(width) = box(
   width: width,
   height: 0.5em,
