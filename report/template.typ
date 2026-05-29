@@ -5,7 +5,7 @@
 #let student-name = "Вибираний Владислав"
 #let student-group = "ФеІ – 42"
 #let supervisor-name = "доц. Стахіра Р. Й."
-#let reviewer-name = ""
+#let reviewer-name = "доц. Хвищун І. О."
 #let department-head-name = "доц. Шувар Р. Я."
 #let specialty-code = "F3"
 #let specialty-name = "Комп’ютерні науки"
@@ -194,6 +194,8 @@
     #underline(2cm) #student-name #linebreak()
     Науковий керівник: #linebreak()
     #underline(2cm) #supervisor-name #linebreak()
+    Рецензент: #linebreak()
+    #underline(2cm) #reviewer-name #linebreak()
     «#underline(1cm)» #underline(3.2cm) #defense-year р.
   ]
 
