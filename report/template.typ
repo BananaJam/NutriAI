@@ -2,11 +2,86 @@
 #import "@preview/codly:1.3.0": *
 #import "@preview/codly-languages:0.1.10": *
 
-#let student-name = "Вибираний Владислав"
-#let student-group = "ФеІ – 42"
-#let supervisor-name = "доц. Стахіра Р. Й."
-#let reviewer-name = "доц. Хвищун І. О."
-#let department-head-name = "доц. Шувар Р. Я."
+#let student = (
+  name: "Владислав",
+  surname: "Вибираний",
+  fathers-name: "Павлович",
+  group: "ФеІ – 42",
+  degree: "",
+  title: "",
+  position: "студент",
+)
+#let supervisor = (
+  name: "Роман",
+  surname: "Стахіра",
+  fathers-name: "Йосипович",
+  degree: "кандидат фізико-математичних наук",
+  title: "доцент",
+  position: "доцент кафедри системного проектування",
+)
+#let reviewer = (
+  name: "Іван",
+  surname: "Хвищун",
+  fathers-name: "Олександрович",
+  degree: "кандидат технічних наук",
+  title: "доцент",
+  position: "доцент кафедри радіофізики та комп’ютерних технологій",
+)
+#let department-head = (
+  name: "Роман",
+  surname: "Шувар",
+  fathers-name: "Ярославович",
+  degree: "кандидат фізико-математичних наук",
+  title: "доцент",
+  position: "завідувач кафедри системного проектування",
+)
+#let person-name-surname(person) = (
+  person.surname + " " + person.name
+)
+
+#let person-full-name(person) = (
+  person.surname + " " + person.name + " " + person.fathers-name
+)
+#let person-initials(person, separator: "") = (
+  person.surname + " " + person.name.at(0) + "." + separator + person.fathers-name.at(0) + "."
+)
+#let person-short-title(person) = {
+  if person.title == "" {
+    ""
+  } else {
+    person.title.clusters().slice(0, 3).join("") + "."
+  }
+}
+#let person-short-mention(person) = {
+  let short-title = person-short-title(person)
+  if short-title == "" {
+    person-initials(person)
+  } else {
+    short-title + " " + person-initials(person)
+  }
+}
+#let person-academic-mention(person) = {
+  (
+    person-full-name(person)
+      + if person.degree != "" and person.title != "" {
+        ", " + person.degree + ", " + person.title
+      } else if person.degree != "" {
+        ", " + person.degree
+      } else if person.title != "" {
+        ", " + person.title
+      } else {
+        ""
+      }
+  )
+}
+// #let student-name = person-full-name(student)
+// #let student-name-initials = person-initials(student, separator: " ")
+// #let student-group = student.group
+// #let supervisor-name = person-short-mention(supervisor)
+// #let supervisor-name-initials = person-initials(supervisor, separator: " ")
+// #let supervisor-academic-name = person-academic-mention(supervisor)
+// #let reviewer-name = person-short-mention(reviewer)
+// #let department-head-name = person-short-mention(department-head)
 #let specialty-code = "F3"
 #let specialty-name = "Комп’ютерні науки"
 #let university-name = "Львівський національний університет імені Івана Франка"
@@ -237,13 +312,13 @@
 
   #align(right)[
     Виконав: #linebreak()
-    студент групи #student-group #linebreak()
+    студент групи #student.group #linebreak()
     спеціальності #specialty-code #specialty-name #linebreak()
-    #underline(2cm) #student-name #linebreak()
+    #underline(2cm) #person-name-surname(student) #linebreak()
     Науковий керівник: #linebreak()
-    #underline(2cm) #supervisor-name #linebreak()
+    #underline(2cm) #person-short-mention(supervisor) #linebreak()
     Рецензент: #linebreak()
-    #underline(2cm) #reviewer-name #linebreak()
+    #underline(2cm) #person-short-mention(reviewer) #linebreak()
     «#underline(1cm)» #underline(3.2cm) #defense-year р.
   ]
 

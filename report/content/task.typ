@@ -1,7 +1,7 @@
 #import "../template.typ": (
-  form-row, hint, line-field, normal-table, numbered-line,
-  city, department-head-name, department-name, faculty-name, specialty-code, specialty-name, student-group,
-  student-name, supervisor-name, topic, university-name,
+  city, department-head, department-name, faculty-name, form-row, hint, line-field, normal-table, numbered-line,
+  person-academic-mention, person-full-name, person-initials, person-short-mention, specialty-code, specialty-name,
+  student, supervisor, topic, university-name,
 )
 
 #set text(
@@ -39,7 +39,7 @@
 #align(right)[
   “ЗАТВЕРДЖУЮ” #linebreak()
   Завідувач кафедри #line-field(width: 4.4cm) #linebreak()
-  #department-head-name #linebreak()
+  #person-short-mention(department-head) #linebreak()
   “#line-field(width: 0.8cm)” #line-field(width: 2.4cm) 2026 р.
 ]
 
@@ -53,7 +53,7 @@
 #v(0.4em)
 
 #align(center)[
-  #line-field(body: [#student-name, студенту групи #student-group], width: 13cm)
+  #line-field(body: [Вибираному Владиславу, студенту групи #student.group], width: 13cm)
   #linebreak()
   #hint[(прізвище, ім'я, група)]
 ]
@@ -71,7 +71,7 @@
   gutter: 0.35em,
   [керівник роботи],
   align(center)[
-    #line-field(body: [#supervisor-name], align-body: center)
+    #line-field(body: [#person-academic-mention(supervisor)], align-body: center)
     #linebreak()
     #hint[(прізвище, ім'я, по батькові, науковий ступінь, вчене звання)]
   ],
@@ -80,10 +80,10 @@
 #grid(
   columns: (auto, 1fr, auto, 2.2cm),
   gutter: 0.3em,
-  [затверджені вченою радою факультету від “#line-field(width: 0.8cm)”],
-  line-field(width: 1fr),
+  [затверджені вченою радою факультету від “#line-field(body: [27], width: 0.8cm)”],
+  line-field(body: [жовтня], width: 1fr),
   [2026 року №],
-  line-field(width: 2.2cm),
+  line-field(body: [66/25], width: 2.2cm),
 )
 
 #numbered-line(2, [Строк подання студентом роботи], [01.06.2026 р.])
@@ -142,8 +142,8 @@
     [*Прізвище, ініціали та посада консультанта*],
     [*Підпис, дата* #linebreak() *завдання видав*],
     [*Підпис, дата* #linebreak() *завдання прийняв*],
-    [Усі розділи],
-    [#supervisor-name],
+    [],
+    [],
     [],
     [],
     [],
@@ -218,7 +218,7 @@
     #hint[(підпис)]
   ],
   [
-    #line-field(body: [#student-name], width: 5.5cm)
+    #line-field(body: [#person-initials(student, separator: " ")], width: 5.5cm)
     #linebreak()
     #hint[(прізвище та ініціали)]
   ],
@@ -230,7 +230,7 @@
     #hint[(підпис)]
   ],
   [
-    #line-field(body: [#supervisor-name], width: 5.5cm)
+    #line-field(body: [#person-initials(supervisor, separator: " ")], width: 5.5cm)
     #linebreak()
     #hint[(прізвище та ініціали)]
   ],
